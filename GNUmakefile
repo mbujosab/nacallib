@@ -4,6 +4,8 @@ NWFuente   = NACAL_source
 DOCU	   = Doc_$(PAPER).pdf
 DIRFuente  = fuente
 
+VERSION    = 0.1.0
+
 ############
 VPATH	   = $(PWD)/$(DIRFuente)
 AUXFILES   = $(VPATH)/00Notacion.tex  $(VPATH)/$(NWFuente).nw # $(VPATH)/$(PAPER).bib 
@@ -20,7 +22,15 @@ documentacion: $(DIRTEMP) $(DIRTEMP)/$(SUBDIRSCRIPTS) $(VPATH)/$(NWFuente).nw pr
 
 programas: $(DIRTEMP) $(DIRTEMP)/$(SUBDIRSCRIPTS) $(VPATH)/$(NWFuente).nw 
 	make $(PYTHON)
-	touch bin/__init__.py
+
+init:
+	rm  -f nacal/__init__.py
+	printf '""" \nnacal.\n\nNotación Asociativa para un curso de Álgebra Lineal (NAcAL).\n"""\n\n' >>  nacal/__init__.py
+	printf '__version__ = "%s"\n' $(VERSION) >>  nacal/__init__.py
+	printf '__author__  = "Marcos Bujosa"\n' >>  nacal/__init__.py
+	printf '__name__    = "nacal"\n\n' >>  nacal/__init__.py
+	printf 'from .nacal import *' >>  nacal/__init__.py
+
 
 ############################## documentacion ###################################
 
@@ -34,14 +44,13 @@ NOTANGLE = notangle                              # NOTANGLE = nountangle -matlab
 
 ### Regla para obtener los .py a partir de los .nw del mismo nombre
 %.py:	%.nw 
-	$(NOTANGLE) -R$@ $<  > bin/$@
+	$(NOTANGLE) -R$@ $<  > nacal/$@
 
 
 $(DIRTEMP): $(AUXFILES);
-	mkdir -p bin/
+	mkdir -p nacal/
 	mkdir -p doc/
 	mkdir -p doc/Notebooks/
-	mkdir -p doc/Notebooks/TutorialPython/
 	mkdir -p $@
 	ln -s -f $? $@
 	ln -s -f $(PWD)/bin                  $(DIRTEMP)
@@ -72,7 +81,7 @@ PYTHON	:= $(addprefix $(DIRTEMP)/$(SUBDIRSCRIPTS), $(addsuffix .py,   $(python))
 
 $(PYTHON): $(DIRTEMP)/$(SUBDIRSCRIPTS) $(VPATH)/$(NWFuente).nw
 	$(NOTANGLE) -R$(notdir $@) $(VPATH)/$(NWFuente).nw > $(DIRTEMP)/$(notdir $@)
-	cp $(DIRTEMP)/$(notdir $@) bin 
+	cp $(DIRTEMP)/$(notdir $@) nacal 
 	cp $(DIRTEMP)/$(notdir $@) doc/Notebooks
 	cp $(DIRTEMP)/$(notdir $@) doc/Notebooks/TutorialPython
 
