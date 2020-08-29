@@ -172,6 +172,42 @@
     \end{quotation}
   \end{mdframed}}
 
+\def\Jupyter{Notebooks de Jupyter que muestran el uso de la librería \texttt{nacal}}
+\tikzset{tittut/.style =                                %% TITULO RECUADRADO                                        
+       {draw=black, thick, fill=white, 
+        text=black, rectangle, rounded corners, right,minimum height=.7cm}}
+\makeatletter
+\mdfdefinestyle{Notebookstyle}{%
+  outerlinewidth=1em,outerlinecolor=white,%
+  leftmargin=-1em,rightmargin=-1em,
+  middlelinewidth=2, roundcorner=4pt, linecolor=gray, %blue!30!black!50!green,
+  % apptotikzsetting={\tikzset{mdfbackground/.append style ={%
+  %                               shading = exersicebackground}}},
+  innertopmargin=1.2\baselineskip,
+  %skipabove={\dimexpr0.1\baselineskip+\topskip\relax},
+  %skipbelow={-1em},
+  needspace=3\baselineskip,
+  frametitlefont=\sffamily\bfseries,
+  fontcolor=black,
+  settings={\global},
+  singleextra={%
+        \node[tittut,xshift=1cm] at (P-|O) %
+            {\mdf@frametitlefont{\Jupyter}\hbox{}};
+        {}%
+        {}%
+    },
+}
+\makeatother
+\newenvironment{Notebook}{ %
+  \begin{mdframed}[style=Notebookstyle]%[roundcorner=4pt,fontcolor=blue,linecolor=gray,middlelinewidth=2,frametitle=Tutorial previo en un notebook,nobreak=true] %[linecolor=blue,middlelinewidth=2] %[default] [roundcorner=10pt,ntheorem=true] %frametitle=Variantes,
+    \begin{quotation}
+      % \small
+      % \noindent
+    }
+    { 
+    \end{quotation}
+  \end{mdframed}}
+
 
 \input{00Notacion.tex}
 \newcommand{\abs}[1]{\left| #1 \right|}
@@ -2466,7 +2502,7 @@ def denom(a,b):
 @ %def fracc numer denom
 \end{codigo}
 
-\begin{notebook}
+\begin{Notebook}
   \begin{center}
     Consulte el Notebook sobre el
     \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb}{\textbf{uso de la librería \texttt{nacal}}}
@@ -2476,7 +2512,21 @@ def denom(a,b):
         en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks}.
         %\url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks}
   \end{center}
-\end{notebook}
+\end{Notebook}
+\begin{Notebook}
+  \begin{center}
+    En el siguiente enlace:
+    \medskip
+    
+    \url{https://github.com/mbujosab/nacal-Jupyter-Notebooks}
+    \medskip
+
+    puede ver Notebooks correspondientes a las distintas lecciones de
+    mi curso de Álgebra Lineal (Matemáticas II), y los puede ejecutar
+    online en
+    \href{https://mybinder.org/v2/gh/mbujosab/nacal-Jupyter-Notebooks/master}{mybinder.org}
+  \end{center}
+\end{Notebook}
 
 %Para empaquetar esta librería en el futuro: \url{https://packaging.python.org/tutorials/packaging-projects/}
 
