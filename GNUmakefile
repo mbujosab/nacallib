@@ -53,7 +53,7 @@ $(DIRTEMP): $(AUXFILES);
 	mkdir -p doc/Notebooks/
 	mkdir -p $@
 	ln -s -f $? $@
-	ln -s -f $(PWD)/bin                  $(DIRTEMP)
+	ln -s -f $(PWD)/nacal                $(DIRTEMP)
 	ln -s -f $(VPATH)                    $(DIRTEMP)
 
 clean: ; rm -r -f $(DIRTEMP); rm -f $(PAPER).pdf
@@ -68,7 +68,7 @@ $(PAPER).pdf:  $(DIRTEMP)  $(AUXFILES) #; #$(VPATH)/$(PAPER).tex
 
 ############################## programas ###################################
 
-SUBDIRSCRIPTS = bin/
+SUBDIRSCRIPTS = nacal/
 
 python  =			\
 	nacal			\
@@ -82,8 +82,8 @@ PYTHON	:= $(addprefix $(DIRTEMP)/$(SUBDIRSCRIPTS), $(addsuffix .py,   $(python))
 $(PYTHON): $(DIRTEMP)/$(SUBDIRSCRIPTS) $(VPATH)/$(NWFuente).nw
 	$(NOTANGLE) -R$(notdir $@) $(VPATH)/$(NWFuente).nw > $(DIRTEMP)/$(notdir $@)
 	cp $(DIRTEMP)/$(notdir $@) nacal 
-	cp $(DIRTEMP)/$(notdir $@) doc/Notebooks
-	cp $(DIRTEMP)/$(notdir $@) doc/Notebooks/TutorialPython
+	#cp $(DIRTEMP)/$(notdir $@) doc/Notebooks
+	#cp $(DIRTEMP)/$(notdir $@) doc/Notebooks/TutorialPython
 
 $(DIRTEMP)/$(SUBDIRSCRIPTS):
 	mkdir -p  $@

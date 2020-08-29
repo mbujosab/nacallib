@@ -5866,7 +5866,7 @@ El código completo del ejemplo usado para explicar cómo funciona el
 ``Literate Programming'' queda así:
 
 \begin{codigo}[nobreak=true]
-\verbatiminput{bin/EjemploLiterateProgramming.py}
+\verbatiminput{nacal/EjemploLiterateProgramming.py}
 \end{codigo}
 
 \section{Secciones de código}\par\noindent
