@@ -92,16 +92,16 @@ $(DIRTEMP)/$(SUBDIRSCRIPTS):
 ##############################################################################
 
 Commit:
-	cd doc/Notebooks; git commit -a
+	git commit -a
 
 Push:
-	cd doc/Notebooks; git push -u origin master
+	git push -u origin master
 
 Status:
-	cd doc/Notebooks; git status
+	git status
 
 Add:
-	cd doc/Notebooks; git add $(fichero)
+	git add $(fichero)
 
 # make Add fichero=Leccion04.ipynb 
 
