@@ -267,7 +267,7 @@
 %\renewcommand{\su}[3]{[\pmb{#1} + {#3}\cdot \pmb{#2}]}
 
 \title{\mbox{Notación Asociativa para un Curso de Álgebra Lineal (NACAL)}\\
-  {\footnotesize \url{https://github.com/mbujosab/LibreriaDePythonParaMates2}}}
+  {\footnotesize \url{https://github.com/mbujosab/nacallib}}}
 \author{Marcos Bujosa}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -349,11 +349,15 @@ librería de Python.  \bigskip
 
 \begin{notebook}
   \begin{center}
-    Antes de seguir, repase el Notebook \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F01_ListasYTuplas.ipynb}{\textbf{``Listas y tuplas''}}
+    Antes de seguir, repase el Notebook
+    %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F01_ListasYTuplas.ipynb}{\textbf{``Listas y tuplas''}}
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F01_ListasYTuplas.ipynb}{\textbf{``Listas y tuplas''}}
       en la carpeta
-      \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
-      en
-      \url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+     % \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
+      \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F}{``TutorialPython''}
+      en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks/TutorialPython}
+      %\url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+      %\url{https://notebooks.gesis.org/binder/jupyter/user/mbujosab-nacallib-dwb8caok/tree/doc/Notebooks/TutorialPython}
   \end{center}
 \end{notebook}
 \bigskip
@@ -376,11 +380,16 @@ Y recuerde que \textbf{¡hacer matemáticas y programar son
 \label{part:CodigoPrincipal}
 \begin{notebook}
   \begin{center}
-    Antes de seguir, mírese el Notebook referente a \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb}{\textbf{``Clases''}}
+    Antes de seguir, mírese el Notebook referente a
+    %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb}{\textbf{``Clases''}}
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F02_Clases.ipynb}{\textbf{``Clases''}}
       en la carpeta
-      \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
-      en
-      \url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+      %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
+      \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F}{``TutorialPython''}
+      en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks/TutorialPython}
+      %\url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+      %\url{https://gesis.mybinder.org/binder/v2/gh/mbujosab/nacallib/0fe80d75a75956153b969bc5a5770e4e72a1619a}
+      %\url{https://notebooks.gesis.org/binder/jupyter/user/mbujosab-nacallib-dwb8caok/tree/doc/Notebooks/TutorialPython}
   \end{center}
 \end{notebook}
 Con lo visto en el Notebook anterior, definimos una \emph{clase} para
@@ -1036,14 +1045,17 @@ método de Python asociado un símbolo.
   \begin{center}
     Si no recuerda a qué me refiero con ``símbolos asociados a
     métodos'', repase la sección
-    \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb#Métodos-especiales-con-símbolos-asociados}
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F02_Clases.ipynb#Métodos-especiales-con-símbolos-asociados}
       {``Métodos especiales con símbolos asociados''} del Notebook
-    % \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb}
+    %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb#Métodos-especiales-con-símbolos-asociados}
+    %  {``Métodos especiales con símbolos asociados''} del Notebook
     {\textbf{``Clases''}}
       en la carpeta
-      \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
-        en
-        \url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+      %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
+      \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F}{``TutorialPython''}
+        en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks/TutorialPython}
+        %\url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+        %\url{https://notebooks.gesis.org/binder/jupyter/user/mbujosab-nacallib-dwb8caok/tree/doc/Notebooks/TutorialPython}
   \end{center}
 \end{notebook}
 Como los métodos \Verb/__or__/ y \Verb/__ror__/ tienen asociados la
@@ -1291,14 +1303,17 @@ métodos especiales es muy limitado.
   \begin{center}
     Si no recuerda a qué me refiero con ``símbolos asociados a
     métodos'', repase la sección
-    \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb#Métodos-especiales-con-símbolos-asociados}
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F02_Clases.ipynb#Métodos-especiales-con-símbolos-asociados}
       {``Métodos especiales con símbolos asociados''} del Notebook
-    % \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb}
+    %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F02_Clases.ipynb#Métodos-especiales-con-símbolos-asociados}
+    %  {``Métodos especiales con símbolos asociados''} del Notebook
     {\textbf{``Clases''}}
       en la carpeta
-      \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
-        en
-        \url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+      %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
+      \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F}{``TutorialPython''}
+        en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks/TutorialPython}
+        %\url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+        %\url{https://notebooks.gesis.org/binder/jupyter/user/mbujosab-nacallib-dwb8caok/tree/doc/Notebooks/TutorialPython}
   \end{center}
 \end{notebook}
 Para implementar la transposición haremos uso del método
@@ -2454,15 +2469,16 @@ def denom(a,b):
 \begin{notebook}
   \begin{center}
     Consulte el Notebook sobre el
-    \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F03_UsoLibreria.ipynb}{\textbf{uso de nuestra librería para Mates 2}}
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb}{\textbf{uso de la librería \texttt{nacal}}}
+    %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F03_UsoLibreria.ipynb}{\textbf{uso de nuestra librería para Mates 2}}
       en la carpeta
-      \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
-        en
-        \url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+      \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2F}{``Notebooks''}
+        en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks}.
+        %\url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks}
   \end{center}
 \end{notebook}
 
-Para empaquetar esta librería en el futuro: \url{https://packaging.python.org/tutorials/packaging-projects/}
+%Para empaquetar esta librería en el futuro: \url{https://packaging.python.org/tutorials/packaging-projects/}
 
 \chapter{Algoritmos del curso}
 \label{part:Algoritmos}
@@ -5288,13 +5304,24 @@ def latex(self):
   puede aprender rápidamente con el siguiente Notebook}
 \begin{notebook}
   \begin{center}
-    Este Notebook es un ejemplo sobre el \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F03_UsoLibreria.ipynb}{\textbf{uso de nuestra librería para Mates 2}}
-    en la carpeta
-    \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
-    en
-    \url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+    Consulte el Notebook sobre el
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb}{\textbf{uso de la librería \texttt{nacal}}}
+    %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F03_UsoLibreria.ipynb}{\textbf{uso de nuestra librería para Mates 2}}
+      en la carpeta
+      \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2F}{``Notebooks''}
+        en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks}.
+        %\url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks}
   \end{center}
 \end{notebook}
+%\begin{notebook}
+%  \begin{center}
+%    Este Notebook es un ejemplo sobre el \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F03_UsoLibreria.ipynb}{\textbf{uso de nuestra librería para Mates 2}}
+%    en la carpeta
+%    \href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F}{``TutorialPython''}
+%    en
+%    \url{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master}
+%  \end{center}
+%\end{notebook}
 \bigskip
 
 \subsection{La clase \texttt{SisMat}. Sistema de Matrices}
