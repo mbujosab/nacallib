@@ -41,7 +41,15 @@ def simplifica(self):
     else:
         return (sympy.sympify(self)).simplify()
     
-                       
+def filtradopasos(pasos):
+    p = [T([j for j in T([pasos[i]]).t if (isinstance(j,set) and len(j)>1)\
+            or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
+            or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
+                                        for i in range(0,len(pasos)) ]
+        
+    return [ t for t in p if t.t] # quitamos abreviaturas vacías
+
+
 class Sistema:
     """Clase Sistema
 
@@ -1172,18 +1180,14 @@ class Elim(Matrix):
                 A & T( Tr )
                 colExcluida.add(p)
         pasos = [[], transformaciones]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1238,18 +1242,14 @@ class ElimG(Matrix):
                 A & T( Tr )
                 colExcluida.add(r)
         pasos = [ [], A.pasos[1]+[T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1322,18 +1322,14 @@ class ElimGJ(Matrix):
                 colExcluida.add(p)
                 
         pasos = [ [], A.pasos[1] + transElimIzda  + [T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1389,18 +1385,14 @@ class Elimr(Matrix):
                 A & T( Tr )
                 colExcluida.add(p)
         pasos = [[], transformaciones]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1455,18 +1447,14 @@ class ElimrG(Matrix):
                 A & T( Tr )
                 colExcluida.add(r)
         pasos = [ [], A.pasos[1]+[T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1533,18 +1521,14 @@ class ElimrGJ(Matrix):
                 A & T( Tr )
                 colExcluida.add(p)                
         pasos = [ [], A.pasos[1] + transElimIzda  + [T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1584,18 +1568,14 @@ class ElimF(Matrix):
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
         A = Elim(~Matrix(data));     r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1635,18 +1615,14 @@ class ElimGF(Matrix):
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
         A = ElimG(~Matrix(data));    r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1687,18 +1663,14 @@ class ElimGJF(Matrix):
            Jupyter los pasos dados"""
         A = ElimGJ(~Matrix(data));   r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1732,17 +1704,12 @@ class ElimGJF(Matrix):
         
 def representa_eliminacion(self, pasos, TexPasosPrev=[], rep=1):
     def tex(data, pasos, TexPasosPrev=[]):
-        def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+        def PasosYEscritura(data, p, TexPasosPrev=[]):
             """Escribe en LaTeX los pasos efectivos dados"""
-            A   = Matrix(data);  p   = [[],[]]
+            A   = Matrix(data);  
             tex = latex(data) if not TexPasosPrev else TexPasosPrev
             for l in 0,1:
-                p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                    or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                    or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                            for i in range(0,len(pasos[l])) ]
-                p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                
+
                 if l==0:
                     for i in reversed(range(len(p[l]))):
                         tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1769,17 +1736,12 @@ class InvMat(Matrix):
     def __init__(self, data, rep=0):
         """Devuelve la matriz inversa y los pasos dados sobre las columnas"""
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1814,17 +1776,12 @@ class InvMatF(Matrix):
     def __init__(self, data, rep=0):
         """Devuelve la matriz inversa y los pasos dados sobre las filas"""
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1860,17 +1817,12 @@ class InvMatF(Matrix):
 class InvMatFC(Matrix):
     def __init__(self, data, rep=0):
         """Devuelve la matriz inversa y los pasos dados sobre las filas y columnas"""
-        def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+        def PasosYEscritura(data, p, TexPasosPrev=[]):
             """Escribe en LaTeX los pasos efectivos dados"""
-            A   = Matrix(data);  p   = [[],[]]
+            A   = Matrix(data);  
             tex = latex(data) if not TexPasosPrev else TexPasosPrev
             for l in 0,1:
-                p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                    or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                    or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                            for i in range(0,len(pasos[l])) ]
-                p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                
+
                 if l==0:
                     for i in reversed(range(len(p[l]))):
                         tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -1887,17 +1839,12 @@ class InvMatFC(Matrix):
                             tex += latex( key(data.lm)|(A & p[l][i])|key(data.ln) )
             return tex
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -2127,17 +2074,12 @@ class Homogenea:
     
         y muestra los pasos para encontrarlo"""
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -2195,17 +2137,12 @@ class SEL:
         mediante eliminación por columnas en la matriz ampliada y muestra
         los pasos dados"""
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -2283,17 +2220,12 @@ class Determinante:
 
         mediante eliminación Gaussiana por columnas y muestra los pasos dados"""
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
                 producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías     
                     
                     if l==0:
                         for i in reversed(range(len(p[l]))):
@@ -2362,17 +2294,12 @@ class Diagonaliza(Matrix):
         cuyas columnas son autovectores de los correspondientes autovalores.
         """
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -2524,17 +2451,12 @@ class DiagonalizaC(Matrix):
         de cada uno), y tantos ceros como la multiplicidad algebraica del 
         autovalor cero. """
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -2639,17 +2561,12 @@ class DiagonalizaCr(Matrix):
         autovalores negativos (incluyendo la multiplicidad de cada uno), y tantos
         ceros como la multiplicidad algebraica del autovalor cero. """
         def tex(data, pasos, TexPasosPrev=[]):
-            def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+            def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
-                A   = Matrix(data);  p   = [[],[]]
+                A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
                 for l in 0,1:
-                    p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                                        or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-                                        or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-                                                                for i in range(0,len(pasos[l])) ]
-                    p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-                    
+
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'

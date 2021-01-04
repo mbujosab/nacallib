@@ -2444,7 +2444,8 @@ import sympy
 <<Método html general>>
 <<Método latex general>>
 <<Simplificación de expresiones simbólicas>>
-                       
+<<Filtrado de secuencias de transformaciones>>
+
 <<Definición de la clase [[Sistema]]>>
 <<Definición de la clase [[Vector]]>>
 <<Definición de la clase [[Matrix]]>>
@@ -3136,6 +3137,27 @@ class ElimGJF(Matrix):
         
 @ %def ElimGJF
 \end{codigo}        
+
+En el proceso de eliminación, muchas trasformaciones elementales
+realmente son identidades (sumar 0 veces otro vector, multiplicar por
+1 e intercambiar un vector por si mismo).
+
+A la hora de representar los pasos de eliminación, es mejor ``filtar''
+estos pasos innecesarios. Definimos un procedimiento general que quita
+de una lista de abreviaturas aquellas que son innecesarias en la
+representación:
+\begin{codigo}[nobreak=true]
+<<Filtrado de secuencias de transformaciones>>=
+def filtradopasos(pasos):
+    p = [T([j for j in T([pasos[i]]).t if (isinstance(j,set) and len(j)>1)\
+            or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
+            or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
+                                        for i in range(0,len(pasos)) ]
+        
+    return [ t for t in p if t.t] # quitamos abreviaturas vacías
+
+@ %def filtradopasos
+\end{codigo}
 
 \pagebreak
 
@@ -5029,7 +5051,7 @@ la izquierda de la matriz
   \end{array}
 \end{displaymath}
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Representación de la clase [[T]]>>=
 def __repr__(self):
     """ Muestra T en su representación Python """
@@ -5140,6 +5162,7 @@ muestra el proceso completo, y se construye aplicando el método
 transformaciones elementales empleadas.
 \begin{codigo}[nobreak=true]
 <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>=
+pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
 <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
 pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
 TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
@@ -5180,17 +5203,12 @@ las filas ([[l==0]]) o sobre las columnas ([[l==1]]). Todo esto es lo
 que hace el método [[PasosYEscritura]]:
 \begin{codigo}[nobreak=true]
 <<Definición del método [[PasosYEscritura]]>>=
-def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+def PasosYEscritura(data, p, TexPasosPrev=[]):
     """Escribe en LaTeX los pasos efectivos dados"""
-    A   = Matrix(data);  p   = [[],[]]
+    A   = Matrix(data);  
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for l in 0,1:
-        p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                            or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-       	                    or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-	                                            for i in range(0,len(pasos[l])) ]
-        p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías
-        
+
 	if l==0:
 	    for i in reversed(range(len(p[l]))):
                 tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
@@ -5212,17 +5230,12 @@ def PasosYEscritura(data, pasos, TexPasosPrev=[]):
 
 \begin{codigo}[nobreak=true]
 <<Definición del método [[PasosYEscritura]] que también calcula el valor del [[Determinante]]>>=
-def PasosYEscritura(data, pasos, TexPasosPrev=[]):
+def PasosYEscritura(data, p, TexPasosPrev=[]):
     """Escribe en LaTeX los pasos efectivos dados"""
     producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
-    A   = Matrix(data);  p   = [[],[]]
+    A   = Matrix(data);  
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for l in 0,1:
-        p[l] = [T([j for j in T([pasos[l][i]]).t if (isinstance(j,set) and len(j)>1)\
-                            or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)      \
-       	                    or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])   \
-	                                            for i in range(0,len(pasos[l])) ]
-        p[l] = [ t for t in p[l] if t.t]  # quitamos abreviaturas vacías     
         
 	if l==0:
 	    for i in reversed(range(len(p[l]))):
@@ -5251,6 +5264,8 @@ def PasosYEscritura(data, pasos, TexPasosPrev=[]):
     return [tex, Det]
 @ 
 \end{codigo}
+
+\clearpage
 
 \section{Representación de la resolución de sistemas de ecuaciones}
 \begin{codigo}[nobreak=true]
