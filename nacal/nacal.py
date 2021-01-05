@@ -893,14 +893,14 @@ class T:
             return t if isinstance(t, list) else [t]
             
         if isinstance(other, T):
-            return T(CreaLista(self.t) + CreaLista(other.t))
+            return T(CreaLista(self.t) + CreaLista(other.t), self.rpr)
 
         if isinstance(other, (Vector, Matrix)):
             return other.__rand__(self)
 
     def __invert__(self):
         """Transpone la lista de abreviaturas (invierte su orden)"""
-        return T( list(reversed(self.t)) ) if isinstance(self.t, list) else self
+        return T( list(reversed(self.t)), self.rpr) if isinstance(self.t, list) else self
         
     def __pow__(self,n):
         """Calcula potencias de una T (incluida la inversa)"""
@@ -915,7 +915,7 @@ class T:
                        ( -j[0], j[1],  j[2]) if len(j)==3         else \
                        (fracc(1,j[0]), j[1])              for j in CreaLista(self.t) ]
 
-            return ~T( listaT )
+            return ~T( listaT, self.rpr)
     
         if not isinstance(n,int):
             raise ValueError('La potencia no es un entero')
@@ -931,7 +931,7 @@ class T:
             """Devuelve t si t es una lista; si no devuelve la lista [t]"""
             return t if isinstance(t, list) else [t]
             
-        return T([(j[0],j[2],j[1]) if len(j)==3 else j for j in CreaLista(self.t)])
+        return T([(j[0],j[2],j[1]) if len(j)==3 else j for j in CreaLista(self.t)],self.rpr)
         
     def __repr__(self):
         """ Muestra T en su representación Python """

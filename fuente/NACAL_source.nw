@@ -2117,7 +2117,7 @@ def __and__(self, other):
     <<Texto de ayuda para la composición de Transformaciones Elementales [[T]]>>
     <<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>
     if isinstance(other, T):
-        return T(CreaLista(self.t) + CreaLista(other.t))
+        return T(CreaLista(self.t) + CreaLista(other.t), self.rpr)
 
     if isinstance(other, (Vector, Matrix)):
         return other.__rand__(self)
@@ -2168,7 +2168,7 @@ no hace nada.
 <<Operador transposición para la clase [[T]]>>=  
 def __invert__(self):
     """Transpone la lista de abreviaturas (invierte su orden)"""
-    return T( list(reversed(self.t)) ) if isinstance(self.t, list) else self
+    return T( list(reversed(self.t)), self.rpr) if isinstance(self.t, list) else self
     
 @ 
 \end{codigo}
@@ -2228,7 +2228,7 @@ def Tinversa ( self ):
                ( -j[0], j[1],  j[2]) if len(j)==3         else \
                (fracc(1,j[0]), j[1])              for j in CreaLista(self.t) ]
 
-    return ~T( listaT )
+    return ~T( listaT, self.rpr)
 
 @ 
 \end{codigo}
@@ -2248,7 +2248,7 @@ de la filas de la matriz identidad. Esto se logra con el método
 def espejo ( self ):
     """Calculo de la transformación elemental espejo de otra"""
     <<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>
-    return T([(j[0],j[2],j[1]) if len(j)==3 else j for j in CreaLista(self.t)])
+    return T([(j[0],j[2],j[1]) if len(j)==3 else j for j in CreaLista(self.t)],self.rpr)
     
 @ 
 \end{codigo}
