@@ -42,12 +42,16 @@ def simplifica(self):
         return (sympy.sympify(self)).simplify()
     
 def filtradopasos(pasos):
-    p = [T([j for j in T([pasos[i]]).t if (isinstance(j,set) and len(j)>1)\
-            or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
-            or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
-                                        for i in range(0,len(pasos)) ]
-        
-    return [ t for t in p if t.t] # quitamos abreviaturas vacías
+    abv = pasos.t if isinstance(pasos,T) else pasos
+           
+    p = [T([j for j in T([abv[i]]).t if (isinstance(j,set) and len(j)>1)\
+               or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
+               or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
+                                             for i in range(0,len(abv)) ]
+
+    abv = [ t for t in p if t.t] # quitamos abreviaturas vacías de la lista
+    
+    return T(abv) if isinstance(pasos,T) else abv
 
 
 class Sistema:
@@ -834,7 +838,7 @@ class T:
 
     T( [(-8, 2), (2, 1, 2), (-8, 3), (3, 1, 3)] )
     """
-    def __init__(self, t):
+    def __init__(self, t, rpr='v'):
         """Inicializa una transformación elemental"""
         def CreaLista(t):
             """Devuelve t si t es una lista; si no devuelve la lista [t]"""
@@ -856,6 +860,7 @@ class T:
             if isinstance(j,set) and (len(j) > 2) or not j:
                 raise ValueError \
                 ('El conjunto debe tener uno o dos índices para ser un intercambio')
+        self.rpr = rpr
 
     def __and__(self, other):
         """Composición de transformaciones elementales (o transformación filas)
@@ -953,10 +958,18 @@ class T:
         if isinstance(self.t, (set, tuple) ):
             return '\\underset{' + simbolo(self.t) + '}{\\mathbf{\\tau}}'
 
-        elif isinstance(self.t, list):
+        elif self.t == []:
+            return ' '
+
+        elif isinstance(self.t, list) and self.rpr=='v':
             return '\\underset{\\begin{subarray}{c} ' + \
                   '\\\\'.join([simbolo(i) for i in self.t])  + \
                   '\\end{subarray}}{\\mathbf{\\tau}}'
+
+        elif isinstance(self.t, list):
+            return '\\underset{' + \
+                   '}{\\mathbf{\\tau}}\\underset{'.join([simbolo(i) for i in self.t]) + \
+                   '}{\\mathbf{\\tau}}'
                   
                        
 class V0(Vector):
@@ -1214,7 +1227,9 @@ class Elim(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
@@ -1276,7 +1291,9 @@ class ElimG(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
@@ -1356,7 +1373,9 @@ class ElimGJ(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
@@ -1419,7 +1438,9 @@ class Elimr(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
@@ -1481,7 +1502,9 @@ class ElimrG(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
@@ -1555,7 +1578,9 @@ class ElimrGJ(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
@@ -1602,7 +1627,9 @@ class ElimF(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
         self.__class__ = Matrix
@@ -1649,7 +1676,9 @@ class ElimGF(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
         self.__class__ = Matrix
@@ -1697,7 +1726,9 @@ class ElimGJF(Matrix):
         pasos[0] = pasos[0] + pasosPrevios[0] 
         pasos[1] = pasosPrevios[1] + pasos[1]
         self.pasos = pasos 
-
+        self.TrF = T(pasos[0])
+        self.TrC = T(pasos[1])
+                                                                       
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
         self.__class__ = Matrix
@@ -1766,6 +1797,8 @@ class InvMat(Matrix):
         if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
         R          = ElimGJ(A)
         self.pasos = R.pasos 
+        self.TrF   = R.TrF 
+        self.TrC   = R.TrC 
         self.tex   = tex( BlockM([ [A], [I(A.n)] ]) , self.pasos)
         if R.rango < A.n:        raise ArithmeticError('Matrix singular')        
         Inversa    = I(A.n) & T(R.pasos[1])  
@@ -1807,6 +1840,8 @@ class InvMatF(Matrix):
             raise ValueError('Matrix no cuadrada')
         M          = ElimGJF(A)
         self.pasos = M.pasos 
+        self.TrF   = M.TrF 
+        self.TrC   = M.TrC 
         self.tex   = tex( BlockM([ [A,I(A.m)] ]) , self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
@@ -1870,6 +1905,8 @@ class InvMatFC(Matrix):
             raise ValueError('Matrix no cuadrada')
         M          = ElimGJ(ElimGF(A))
         self.pasos = M.pasos  
+        self.TrF   = M.TrF 
+        self.TrC   = M.TrC 
         self.tex = tex(BlockM([ [A,I(A.m)], [I(A.n),M0(A.m,A.n)] ]),self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
@@ -2108,7 +2145,9 @@ class Homogenea:
         
         self.sgen        = Sistema(base) if base else Sistema([ V0(A.n) ])
         self.determinado = (len(base) == 0)
-        self.pasos       = L.pasos
+        self.pasos       = L.pasos; 
+        self.TrF         = L.TrF 
+        self.TrC         = L.TrC 
         self.tex         = tex( BlockM([[A],[I(A.n)]]), self.pasos)
         self.enulo       = SubEspacio(self.sgen)
         
@@ -2187,6 +2226,8 @@ class SEL:
 
         self.determinado = (len(base) == 0)
         self.pasos       = [ [], L.pasos[1] + [Normaliza] ]
+        self.TrF         = T(self.pasos[0]) 
+        self.TrC         = T(self.pasos[1]) 
         self.tex         = tex( BM, self.pasos )
     def EcParametricas(self):
         """Representación paramétrica del SubEspacio"""
@@ -2219,19 +2260,25 @@ class Determinante:
         """Calcula el determinante
 
         mediante eliminación Gaussiana por columnas y muestra los pasos dados"""
-        def tex(data, pasos, TexPasosPrev=[]):
+        
+        A  = Matrix(data)
+        if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
+           
+        def calculoDet(data, pasos, TexPasosPrev=[]):
             def PasosYEscritura(data, p, TexPasosPrev=[]):
                 """Escribe en LaTeX los pasos efectivos dados"""
                 producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
                 A   = Matrix(data);  
                 tex = latex(data) if not TexPasosPrev else TexPasosPrev
+                
                 for l in 0,1:
                     
                     if l==0:
                         for i in reversed(range(len(p[l]))):
                             S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
                             m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                            d = T([ ( fracc(1, producto(m)) , A.n )])
+                            d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m) != 1 else T([])
+                            p[1] = p[1] + filtradopasos([d])
                             
                             tex += '\\xrightarrow[' + latex(p[l][i]) + ']{' + latex(d) + '}'
                             if isinstance (data, Matrix):
@@ -2242,7 +2289,8 @@ class Determinante:
                         for i in range(len(p[l])):
                             S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
                             m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                            d = T([ ( fracc(1, producto(m)) , A.n )])
+                            d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m) != 1 else T([])
+                            p[0] = p[0] + filtradopasos([d])
 
                             tex += '\\xrightarrow[' + latex(d) + ']{' + latex(p[l][i] ) + '}'
                             if isinstance (data, Matrix):
@@ -2251,22 +2299,20 @@ class Determinante:
                                 tex += latex( key(data.lm)|(d & A & p[l][i])|key(data.ln) )
 
                 Det = simplifica( producto( A.diag() ) )
-                return [tex, Det]
-            tex, valor = PasosYEscritura(data, pasos)
-                  
+                return [tex, Det, p]
+            tex, valor, pasos = PasosYEscritura(data, pasos)
+            print(pasos)
             if 'rep' in locals() and rep:
                 from IPython.display import display, Math
                 display(Math(tex))
                   
-            return [tex, valor]
-        A  = Matrix(data)
-           
-        if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
-           
-        L  = ElimG(A)
+            return [tex, valor, pasos]
         
-        self.pasos = L.pasos
-        self.tex, self.valor = tex( A.BlockDiag([I(1)]) , self.pasos )
+        self.tex, self.valor, self.pasos = \
+                                   calculoDet( A.BlockDiag([I(1)]) , ElimG(A).pasos )
+        
+        self.TrF   = T(self.pasos[0])
+        self.TrC   = T(self.pasos[1])
 
     def __repr__(self):
         """ Muestra un Sistema en su representación Python """
@@ -2342,36 +2388,36 @@ class Diagonaliza(Matrix):
             D = D-(lamda*I(D.n))
             Tex += '\\xrightarrow[' + latex(lamda) + '\\mathbf{I}]{(-)}' \
                                     + latex(BlockM( [[D], [S]] ))
-            TrCol = ElimG(selecc|D|selecc).pasos[1]
+            TrCol = filtradopasos(ElimG(selecc|D|selecc).pasos[1])
             pasos           = [ [], TrCol ]
             pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 
-            Tex = tex( BlockM( [[D], [S]] ), pasos, Tex)
+            Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
             D = D & T(pasos[1])
             S = S & T(pasos[1])
 
             pasos           = [ [T(pasos[1]).espejo()**-1] , []]
             pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 
-            Tex = tex( BlockM( [[D], [S]] ), pasos, Tex)
+            Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
             D   = T(pasos[0]) & D
             if m < D.n:
                 transf = []; colExcluida = set(selecc)
                 for i in range(m,D.n+1):
                     p = BuscaNuevoPivote(i|D);
                     if p:
-                        TrCol = [ T([(-fracc(i|D|m, i|D|p), p, m)]) ]
+                        TrCol = filtradopasos([ T([(-fracc(i|D|m, i|D|p), p, m)]) ])
                         pasos           = [ [], TrCol ]
                         pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 
-                        Tex = tex( BlockM( [[D], [S]] ), pasos, Tex)
+                        Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
                         D = D & T(pasos[1])
                         S = S & T(pasos[1])
 
                         pasos           = [ [T(pasos[1]).espejo()**-1] , []]
                         pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 
-                        Tex = tex( BlockM( [[D], [S]] ), pasos, Tex)
+                        Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
                         D   = T(pasos[0]) & D
                         colExcluida.add(p)                        
             D = D+(lamda*I(D.n))
@@ -2388,6 +2434,9 @@ class Diagonaliza(Matrix):
         self.espectro = espectro
         self.tex = Tex
         self.S   = S
+        self.TrF = T(pasosPrevios[0])
+        self.TrC = T(pasosPrevios[1])
+        self.pasos = pasosPrevios
         super(self.__class__ ,self).__init__(D)
         self.__class__ = Matrix
                    
@@ -2495,24 +2544,24 @@ class DiagonalizaC(Matrix):
                 if j:
                     Tr = T( (1, j[0], i) )
                     p = i
-                    pasos = [ [], [Tr] ]
+                    pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
                     Tex = tex( A, pasos, Tex)
                     A = A & T(pasos[1])
 
-                    pasos = [ [~Tr] , []]
+                    pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                     Tex = tex( A, pasos, Tex)
                     A = T(pasos[0]) & A
                 elif p:
                     Tr = T( {i, p} )
                     p = i
-                    pasos = [ [], [Tr] ]
+                    pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
                     Tex = tex( A, pasos, Tex)
                     A = A & T(pasos[1])
 
-                    pasos = [ [~Tr] , []]
+                    pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                     Tex = tex( A, pasos, Tex)
                     A = T(pasos[0]) & A
@@ -2520,12 +2569,12 @@ class DiagonalizaC(Matrix):
                 Tr = T( [ T( [ ( denom((i|A|j),(i|A|p)),    j),    \
                                (-numer((i|A|j),(i|A|p)), p, j)  ] ) \
                                               for j in filter(celim, range(1,A.n+1)) ] )
-                pasos = [ [], [Tr] ]
+                pasos = [ [], filtradopasos([Tr]) ]
                 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
                 Tex = tex( A, pasos, Tex)
                 A = A & T(pasos[1])
 
-                pasos = [ [~Tr] , []]
+                pasos = [ filtradopasos([~Tr]) , []]
                 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                 Tex = tex( A, pasos, Tex)
                 A = T(pasos[0]) & A
@@ -2533,6 +2582,8 @@ class DiagonalizaC(Matrix):
             
         self.tex       = Tex
         self.pasos     = pasosPrevios
+        self.TrF       = filtradopasos(T(self.pasos[0]))
+        self.TrC       = filtradopasos(T(self.pasos[1]))
         self.B         = I(A.n) & T(pasosPrevios[1])
         self.positivos = sum([1 for c in A.diag() if c>0 ] )
         self.negativos = sum([1 for c in A.diag() if c<0 ] )
@@ -2605,35 +2656,35 @@ class DiagonalizaCr(Matrix):
                 if j:
                     Tr = T( (1, j[0], i) )
                     p = i
-                    pasos = [ [], [Tr] ]
+                    pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
                     Tex = tex( A, pasos, Tex)
                     A = A & T(pasos[1])
 
-                    pasos = [ [~Tr] , []]
+                    pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                     Tex = tex( A, pasos, Tex)
                     A = T(pasos[0]) & A
                 elif p:
                     Tr = T( {i, p} )
                     p = i
-                    pasos = [ [], [Tr] ]
+                    pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
                     Tex = tex( A, pasos, Tex)
                     A = A & T(pasos[1])
 
-                    pasos = [ [~Tr] , []]
+                    pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                     Tex = tex( A, pasos, Tex)
                     A = T(pasos[0]) & A
             if p:
                 Tr = T([ (-fracc(i|A|j, i|A|p), p, j) for j in filter(celim, range(1,A.n+1)) ])
-                pasos = [ [], [Tr] ]
+                pasos = [ [], filtradopasos([Tr]) ]
                 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
                 Tex = tex( A, pasos, Tex)
                 A = A & T(pasos[1])
 
-                pasos = [ [~Tr] , []]
+                pasos = [ filtradopasos([~Tr]) , []]
                 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                 Tex = tex( A, pasos, Tex)
                 A = T(pasos[0]) & A
@@ -2641,6 +2692,8 @@ class DiagonalizaCr(Matrix):
             
         self.tex       = Tex
         self.pasos     = pasosPrevios
+        self.TrF       = T(self.pasos[0])
+        self.TrC       = T(self.pasos[1])
         self.B         = I(A.n) & T(pasosPrevios[1])
         self.positivos = sum([1 for c in A.diag() if c>0 ] )
         self.negativos = sum([1 for c in A.diag() if c<0 ] )

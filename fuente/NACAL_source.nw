@@ -2025,13 +2025,14 @@ instanciar [[T]] o bien creará la lista de abreviaturas a partir de
 otra [[T]] (o lista de [[T]]s) empleada para instanciar.
 \begin{codigo}
 <<Inicialización de la clase [[T]] (Transformación Elemental)>>=
-def __init__(self, t):
+def __init__(self, t, rpr='v'):
     """Inicializa una transformación elemental"""
     <<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>
     <<Creación del atributo [[t]] cuando se instancia con otra [[T]] o lista de [[T]]s>>
     else:
 	self.t = t
     <<Verificación de que las abreviaturas corresponden a transformaciones elementales>>
+    self.rpr = rpr
 
 @
 \end{codigo}
@@ -2810,8 +2811,8 @@ incorpora al conjunto [[colExcluida]], para no buscar nuevos
 pivotes en dicha columna. La operación empleada corresponde al %
 [[<<Uso del pivote para eliminar componentes evitando dividir>>]].%
 
-El argumento [[data]] es una [[Matrix]], o un argumento que permita
-generar una [[Matrix]], pues se operará sobre la matriz: %[[Matrix]] %
+El argumento [[data]] es una [[Matrix]], o algo que permita
+generar una [[Matrix]], pues %se operará sobre la matriz: %[[Matrix]] %
 \Verb/ A = Matrix(data)/. % 
 Si el argumento [[rep]] es distinto de cero, Jupyter representará los
 pasos de eliminación (por defecto [[rep=0]]). 
@@ -2831,9 +2832,11 @@ Una vez se han recorrido todas las filas, se guarda la lista de
 [[transformaciones]] aplicadas a las columnas como segundo componente
 de la lista [[pasos]] (el segundo componente corresponderá a las
 trasformaciones de las columnas). Para finalizar, %
-[[<<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>]], %
-se guarda el atributo [[rango]]
-y se devuelve la matriz transformada.
+[[<<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>]],%
+\footnote{ por comodidad incluyo dos atributos más: [[TrF]] es la %
+[[T]]transformación aplicada a las filas y [[TrC]] la aplicada a las
+columnas.}  se guarda el atributo [[rango]] y se devuelve la matriz
+transformada.
 \begin{codigo}[nobreak=true]
 <<Tres métodos de eliminación por columnas>>=
 class Elim(Matrix):
@@ -2853,6 +2856,7 @@ class Elim(Matrix):
                 <<Apuntamos las transformaciones [[Tr]] y las aplicamos sobre las \emph{columnas}>>
                 colExcluida.add(p)
         pasos = [[], transformaciones]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(A)
@@ -2896,6 +2900,7 @@ class ElimG(Matrix):
                 <<Apuntamos las transformaciones [[Tr]] y las aplicamos sobre las \emph{columnas}>>
                 colExcluida.add(r)
         pasos = [ [], A.pasos[1]+[T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(A)
@@ -2964,6 +2969,7 @@ class ElimGJ(Matrix):
                 colExcluida.add(p)
                 
         pasos = [ [], A.pasos[1] + transElimIzda  + [T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(A)
@@ -2996,6 +3002,7 @@ class Elimr(Matrix):
                 <<Apuntamos las transformaciones [[Tr]] y las aplicamos sobre las \emph{columnas}>>
                 colExcluida.add(p)
         pasos = [[], transformaciones]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(A)
@@ -3022,6 +3029,7 @@ class ElimrG(Matrix):
                 <<Apuntamos las transformaciones [[Tr]] y las aplicamos sobre las \emph{columnas}>>
                 colExcluida.add(r)
         pasos = [ [], A.pasos[1]+[T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(A)
@@ -3059,6 +3067,7 @@ class ElimrGJ(Matrix):
                 <<Apuntamos las transformaciones [[Tr]] y las aplicamos sobre las \emph{columnas}>>
                 colExcluida.add(p)                
         pasos = [ [], A.pasos[1] + transElimIzda  + [T(transformaciones)] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(A)
@@ -3093,6 +3102,7 @@ class ElimF(Matrix):
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
         A = Elim(~Matrix(data));     r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
@@ -3111,6 +3121,7 @@ class ElimGF(Matrix):
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
         A = ElimG(~Matrix(data));    r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
@@ -3130,6 +3141,7 @@ class ElimGJF(Matrix):
            Jupyter los pasos dados"""
         A = ElimGJ(~Matrix(data));   r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
+        pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
         <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
@@ -3139,22 +3151,29 @@ class ElimGJF(Matrix):
 \end{codigo}        
 
 En el proceso de eliminación, muchas trasformaciones elementales
-realmente son identidades (sumar 0 veces otro vector, multiplicar por
-1 e intercambiar un vector por si mismo).
+realmente son identidades (sumar 0 veces otro vector y multiplicar un
+vector por 1).
 
-A la hora de representar los pasos de eliminación, es mejor ``filtar''
-estos pasos innecesarios. Definimos un procedimiento general que quita
-de una lista de abreviaturas aquellas que son innecesarias en la
-representación:
+A la hora de representar los pasos de eliminación, normalmente es
+mejor ``filtar'' estos pasos innecesarios. Definimos un procedimiento
+general que quita de una lista de abreviaturas aquellas que son
+innecesarias en la representación. Si como argumento se le da una
+lista de abreviaturas, devuelve una lista filtrada. Si como argumento
+se le da una [[T]]ransformación, devuelve una [[T]]ransformación cuya
+lista de abreviaturas está filtrada.
 \begin{codigo}[nobreak=true]
 <<Filtrado de secuencias de transformaciones>>=
 def filtradopasos(pasos):
-    p = [T([j for j in T([pasos[i]]).t if (isinstance(j,set) and len(j)>1)\
-            or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
-            or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
-                                        for i in range(0,len(pasos)) ]
-        
-    return [ t for t in p if t.t] # quitamos abreviaturas vacías
+    abv = pasos.t if isinstance(pasos,T) else pasos
+           
+    p = [T([j for j in T([abv[i]]).t if (isinstance(j,set) and len(j)>1)\
+               or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
+               or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
+                                             for i in range(0,len(abv)) ]
+
+    abv = [ t for t in p if t.t] # quitamos abreviaturas vacías de la lista
+    
+    return T(abv) if isinstance(pasos,T) else abv
 
 @ %def filtradopasos
 \end{codigo}
@@ -3184,6 +3203,8 @@ class InvMat(Matrix):
         if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
         R          = ElimGJ(A)
         self.pasos = R.pasos 
+        self.TrF   = R.TrF 
+        self.TrC   = R.TrC 
         self.tex   = tex( BlockM([ [A], [I(A.n)] ]) , self.pasos)
         if R.rango < A.n:        raise ArithmeticError('Matrix singular')        
         Inversa    = I(A.n) & T(R.pasos[1])  
@@ -3208,6 +3229,8 @@ class InvMatF(Matrix):
             raise ValueError('Matrix no cuadrada')
      	M          = ElimGJF(A)
      	self.pasos = M.pasos 
+        self.TrF   = M.TrF 
+        self.TrC   = M.TrC 
         self.tex   = tex( BlockM([ [A,I(A.m)] ]) , self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
@@ -3233,6 +3256,8 @@ class InvMatFC(Matrix):
             raise ValueError('Matrix no cuadrada')
      	M          = ElimGJ(ElimGF(A))
      	self.pasos = M.pasos  
+        self.TrF   = M.TrF 
+        self.TrC   = M.TrC 
         self.tex = tex(BlockM([ [A,I(A.m)], [I(A.n),M0(A.m,A.n)] ]),self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
@@ -3266,7 +3291,9 @@ class Homogenea:
         
         self.sgen        = Sistema(base) if base else Sistema([ V0(A.n) ])
         self.determinado = (len(base) == 0)
-        self.pasos       = L.pasos
+        self.pasos       = L.pasos; 
+        self.TrF         = L.TrF 
+        self.TrC         = L.TrC 
         self.tex         = tex( BlockM([[A],[I(A.n)]]), self.pasos)
         self.enulo       = SubEspacio(self.sgen)
         
@@ -3335,6 +3362,8 @@ self.eafin = EAfin(self.sgen, self.solP)
 
 self.determinado = (len(base) == 0)
 self.pasos       = [ [], L.pasos[1] + [Normaliza] ]
+self.TrF         = T(self.pasos[0]) 
+self.TrC         = T(self.pasos[1]) 
 self.tex         = tex( BM, self.pasos )
 @ 
 \end{codigo}
@@ -3362,15 +3391,17 @@ mediante eliminación Gaussiana por columnas y muestra los pasos dados"""
 class Determinante:
     def __init__(self, data, rep=0):
         <<Texto de ayuda de la clase [[Determinante]]>>
-        <<Cálculo del determinante y representación de los pasos en Jupyter>>
+        
         A  = Matrix(data)
-           
         if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
            
-        L  = ElimG(A)
+        <<Cálculo del determinante y representación de los pasos en Jupyter>>
         
-        self.pasos = L.pasos
-        self.tex, self.valor = tex( A.BlockDiag([I(1)]) , self.pasos )
+        self.tex, self.valor, self.pasos = \
+                                   calculoDet( A.BlockDiag([I(1)]) , ElimG(A).pasos )
+        
+        self.TrF   = T(self.pasos[0])
+        self.TrC   = T(self.pasos[1])
 
     <<Métodos de representación de la clase [[Determinante]]>>
 
@@ -3379,16 +3410,16 @@ class Determinante:
 
 \begin{codigo}
 <<Cálculo del determinante y representación de los pasos en Jupyter>>=
-def tex(data, pasos, TexPasosPrev=[]):
+def calculoDet(data, pasos, TexPasosPrev=[]):
     <<Definición del método [[PasosYEscritura]] que también calcula el valor del [[Determinante]]>>
-    tex, valor = PasosYEscritura(data, pasos)
-          
+    tex, valor, pasos = PasosYEscritura(data, pasos)
+    print(pasos)
     if 'rep' in locals() and rep:
         from IPython.display import display, Math
         display(Math(tex))
           
-    return [tex, valor]
-@
+    return [tex, valor, pasos]
+@ %def calculoDet
 \end{codigo}
 
 
@@ -3432,14 +3463,14 @@ class Diagonaliza(Matrix):
         for lamda in espectro:
             m = selecc[-1]
             <<Restamos $\lambda\Mat{I}$>>
-            TrCol = ElimG(selecc|D|selecc).pasos[1]
+            TrCol = filtradopasos(ElimG(selecc|D|selecc).pasos[1])
             <<Aplicación de las transformaciones y sus inversas "{\em espejo}">>
             if m < D.n:
                 transf = []; colExcluida = set(selecc)
                 for i in range(m,D.n+1):
                     p = BuscaNuevoPivote(i|D);
                     if p:
-                        TrCol = [ T([(-fracc(i|D|m, i|D|p), p, m)]) ]
+                        TrCol = filtradopasos([ T([(-fracc(i|D|m, i|D|p), p, m)]) ])
                         <<Aplicación de las transformaciones y sus inversas "{\em espejo}">>
                         colExcluida.add(p)                        
             <<Sumamos $\lambda\Mat{I}$>>
@@ -3454,6 +3485,9 @@ class Diagonaliza(Matrix):
         self.espectro = espectro
         self.tex = Tex
         self.S   = S
+        self.TrF = T(pasosPrevios[0])
+        self.TrC = T(pasosPrevios[1])
+        self.pasos = pasosPrevios
         super(self.__class__ ,self).__init__(D)
         self.__class__ = Matrix
                    
@@ -3480,14 +3514,14 @@ cuyas columnas son autovectores de los correspondientes autovalores.
 pasos           = [ [], TrCol ]
 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 
-Tex = tex( BlockM( [[D], [S]] ), pasos, Tex)
+Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
 D = D & T(pasos[1])
 S = S & T(pasos[1])
 
 pasos           = [ [T(pasos[1]).espejo()**-1] , []]
 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 
-Tex = tex( BlockM( [[D], [S]] ), pasos, Tex)
+Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
 D   = T(pasos[0]) & D
 @ 
 \end{codigo}
@@ -3614,6 +3648,8 @@ class DiagonalizaC(Matrix):
             
         self.tex       = Tex
         self.pasos     = pasosPrevios
+        self.TrF       = filtradopasos(T(self.pasos[0]))
+        self.TrC       = filtradopasos(T(self.pasos[1]))
         self.B         = I(A.n) & T(pasosPrevios[1])
         self.positivos = sum([1 for c in A.diag() if c>0 ] )
         self.negativos = sum([1 for c in A.diag() if c<0 ] )
@@ -3635,12 +3671,12 @@ class DiagonalizaC(Matrix):
 
 \begin{codigo}[nobreak=true]
 <<Aplicación de las transformaciones a las columnas y a las filas>>=
-pasos = [ [], [Tr] ]
+pasos = [ [], filtradopasos([Tr]) ]
 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 Tex = tex( A, pasos, Tex)
 A = A & T(pasos[1])
 
-pasos = [ [~Tr] , []]
+pasos = [ filtradopasos([~Tr]) , []]
 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 Tex = tex( A, pasos, Tex)
 A = T(pasos[0]) & A
@@ -3693,6 +3729,8 @@ class DiagonalizaCr(Matrix):
             
         self.tex       = Tex
         self.pasos     = pasosPrevios
+        self.TrF       = T(self.pasos[0])
+        self.TrC       = T(self.pasos[1])
         self.B         = I(A.n) & T(pasosPrevios[1])
         self.positivos = sum([1 for c in A.diag() if c>0 ] )
         self.negativos = sum([1 for c in A.diag() if c<0 ] )
@@ -5051,6 +5089,17 @@ la izquierda de la matriz
   \end{array}
 \end{displaymath}
 
+\paragraph{Representación de transformaciones identidad.}
+Si las transfomaciones multiplican un vector por 1, y suman un vector
+nulo a otro vector, dichas transformaciones no cabian el sistema de
+vectores. Lo habitual es que si un paso no modifica nada, que no se
+represente, por ello se filtran los pasos con el procedimiento
+[[<<Filtrado de secuencias de transformaciones>>]]; si, a resultas del
+filtrado, la lista de abreviaturas es vacía entonces la representación
+en \LaTeX{} es una cadena vacía (no se pinta ningún símbolo en
+Júpyter). Si el atributo [[rpr]] es distinto de [['v']] la
+representación en Jupiter se realiza en horizontal.
+
 \begin{codigo}[nobreak=true]
 <<Representación de la clase [[T]]>>=
 def __repr__(self):
@@ -5078,10 +5127,18 @@ def latex(self):
     if isinstance(self.t, (set, tuple) ):
         return '\\underset{' + simbolo(self.t) + '}{\\mathbf{\\tau}}'
 
-    elif isinstance(self.t, list):
+    elif self.t == []:
+        return ' '
+
+    elif isinstance(self.t, list) and self.rpr=='v':
         return '\\underset{\\begin{subarray}{c} ' + \
               '\\\\'.join([simbolo(i) for i in self.t])  + \
               '\\end{subarray}}{\\mathbf{\\tau}}'
+
+    elif isinstance(self.t, list):
+        return '\\underset{' + \
+               '}{\\mathbf{\\tau}}\\underset{'.join([simbolo(i) for i in self.t]) + \
+               '}{\\mathbf{\\tau}}'
               
 @ 
 \end{codigo}
@@ -5159,10 +5216,12 @@ de eliminación. El modo de saberlo es comprobar si [[data]] posee el
 atributo [[pasos]].  El atributo [[tex]] guarda el código \LaTeX\ que
 muestra el proceso completo, y se construye aplicando el método
 [[PasosYEscritura]].  El atributo [[pasos]] guarda las listas de
-transformaciones elementales empleadas.
+abreviaturas de las transformaciones elementales empleadas. Por
+comodidad añadimos dos atributos más: [[TrF]] es la
+[[T]]transformación aplicada a las filas y [[TrC]] es la
+[[T]]transformación aplicada a las columnas.
 \begin{codigo}[nobreak=true]
 <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>=
-pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
 <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
 pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
 TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
@@ -5170,7 +5229,9 @@ self.tex = tex(data, pasos, TexPasosPrev)
 pasos[0] = pasos[0] + pasosPrevios[0] 
 pasos[1] = pasosPrevios[1] + pasos[1]
 self.pasos = pasos 
-
+self.TrF = T(pasos[0])
+self.TrC = T(pasos[1])
+                                                               
 @
 
 <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>=
@@ -5235,13 +5296,15 @@ def PasosYEscritura(data, p, TexPasosPrev=[]):
     producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
     A   = Matrix(data);  
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    
     for l in 0,1:
         
 	if l==0:
 	    for i in reversed(range(len(p[l]))):
                 S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
                 m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                d = T([ ( fracc(1, producto(m)) , A.n )])
+                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m) != 1 else T([])
+                p[1] = p[1] + filtradopasos([d])
                 
                 tex += '\\xrightarrow[' + latex(p[l][i]) + ']{' + latex(d) + '}'
                 if isinstance (data, Matrix):
@@ -5252,7 +5315,8 @@ def PasosYEscritura(data, p, TexPasosPrev=[]):
 	    for i in range(len(p[l])):
                 S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
                 m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                d = T([ ( fracc(1, producto(m)) , A.n )])
+                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m) != 1 else T([])
+                p[0] = p[0] + filtradopasos([d])
 
                 tex += '\\xrightarrow[' + latex(d) + ']{' + latex(p[l][i] ) + '}'
                 if isinstance (data, Matrix):
@@ -5261,7 +5325,7 @@ def PasosYEscritura(data, p, TexPasosPrev=[]):
                     tex += latex( key(data.lm)|(d & A & p[l][i])|key(data.ln) )
 
     Det = simplifica( producto( A.diag() ) )
-    return [tex, Det]
+    return [tex, Det, p]
 @ 
 \end{codigo}
 
