@@ -956,7 +956,7 @@ class T:
                   latex(t[1]) + '}' + '+\\mathbf{' + latex(t[2]) + '} \\right]'    
 
         if isinstance(self.t, (set, tuple) ):
-            return '\\underset{' + simbolo(self.t) + '}{\\mathbf{\\tau}}'
+            return '\\underset{' + simbolo(self.t) + '}{\\pmb{\\tau}}'
 
         elif self.t == []:
             return ' '
@@ -964,12 +964,12 @@ class T:
         elif isinstance(self.t, list) and self.rpr=='v':
             return '\\underset{\\begin{subarray}{c} ' + \
                   '\\\\'.join([simbolo(i) for i in self.t])  + \
-                  '\\end{subarray}}{\\mathbf{\\tau}}'
+                  '\\end{subarray}}{\\pmb{\\tau}}'
 
         elif isinstance(self.t, list):
             return '\\underset{' + \
-                   '}{\\mathbf{\\tau}}\\underset{'.join([simbolo(i) for i in self.t]) + \
-                   '}{\\mathbf{\\tau}}'
+                   '}{\\pmb{\\tau}}\\underset{'.join([simbolo(i) for i in self.t]) + \
+                   '}{\\pmb{\\tau}}'
                   
                        
 class V0(Vector):
