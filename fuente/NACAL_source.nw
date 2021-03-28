@@ -936,11 +936,8 @@ Matrix([ Vector([1, 2]); Vector([1, 0]); Vector([9, 2]) ]) """
 def __init__(self, data):
     """Inicializa una Matrix"""
     super().__init__(data)
-
-    if isinstance(data, VMat) and data.rpr=='fila':
-        lista = sum([(data).sis()[i].sis().lista for i in range(data.n)],[])
-    else:
-        lista = Sistema(data).lista
+    
+    lista = Sistema(data).lista
     
     if isinstance(lista[0], Vector):
         <<Verificación de que todas las columnas de la matriz tienen la misma longitud>>
@@ -1282,8 +1279,8 @@ Matrix( [Vector([0, 2]); Vector([1, 0])] )
 >>> # BlockM correspondiente a la partición por la segunda columna
 >>> Matrix([Vector([1,0]), Vector([0,2]), Vector([3,0])]) | {2}
 
-BlockM([VMat([Matrix([Vector([1, 0]), Vector([0, 2])])]), 
-        VMat([Matrix([Vector([3, 0])])])])
+BlockM([SisMat([Matrix([Vector([1, 0]), Vector([0, 2])])]), 
+        SisMat([Matrix([Vector([3, 0])])])])
 """
 @
 \end{codigo}
@@ -1423,7 +1420,7 @@ Matrix([Vector([1, 1]), Vector([0, 0]), Vector([3, 3])])
 >>> # BlockM correspondiente a la partición por la primera fila
 >>> {1} | Matrix([Vector([1,0]), Vector([0,2])])
 
-BlockM([ VMat([Matrix([Vector([1]), Vector([0])]), 
+BlockM([ SisMat([Matrix([Vector([1]), Vector([0])]), 
                  Matrix([Vector([0]), Vector([2])])]) ])
 """
 @
@@ -1783,36 +1780,19 @@ def __mul__(self,x):
     if isinstance(x, (int, float, sympy.Basic)):
         return x*self
 
-    elif isinstance(x, (Vector, VMat)):
-        if len(self) != x.n: raise ValueError('Sistema y Vector o VMat incompatibles')
+    elif isinstance(x, Vector):
+        if len(self) != x.n:    raise ValueError('Sistema y Vector incompatibles')
+        return sum([(self|j)*(x|j) for j in range(1,len(self)+1)], 0*self|1)
 
-        if isinstance(x, VMat):
-            display(Sistema([ ((self|j),(x|j)) for j in range(1,len(self)+1) ]))
-       
-        pc = [ (self|j)*(x|j) for j in range(1,len(self)+1) ]
-        
-        if isinstance(x, VMat):
-            display(Sistema(pc))
-            display(sum( pc, 0*pc[0] ))
-        
-        return sum( pc, 0*pc[0] )
-
-    elif isinstance(x, (Matrix, BlockM)):
-        if len(self) != x.m: raise ValueError('Sistema y Matrix incompatibles')
-        
-        pc = [ self*(x|j) for j in range(1,(x.n)+1) ]
-
-        if isinstance(  x|1 , (Vector, VMat)):
-            return type(x|1)( pc, rpr='fila' )
+    elif isinstance(x, Matrix):
+        if len(self) != x.m:      raise ValueError('Sistema y Matrix incompatibles')
+        if isinstance(self, Vector):
+            return Vector( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' )
         else:
-            return type(x|1)( pc )
+            return type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] )
 
 @
 \end{codigo}
-%         if isinstance(self, Vector):
-%             return Vector( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' )
-%         else:
-%             return type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] )
 
 
 \clearpage
@@ -2478,7 +2458,7 @@ import sympy
 
 <<Definición del método [[particion]]>>
 <<Definición del procedimiento de generación del conjunto clave para particionar>>
-<<Definición de la clase [[VMat]]>>
+<<Definición de la clase [[SisMat]]>>
 <<Definición de la clase [[BlockM]]>>
 
 <<Tres métodos de eliminación por columnas>>
@@ -4510,13 +4490,13 @@ def normalizado(self):
 \subsection{Otras formas de instanciar una \texttt{Matrix}}
 
 Si se introduce una lista (tupla) de listas o tuplas, creamos una
-matriz fila a fila. Si se introduce un \texttt{VMat}, se apilan sus
+matriz fila a fila. Si se introduce un \texttt{SisMat}, se apilan sus
 matrices concatenando las columnas para obtener una única matriz. Si
 se introduce una \texttt{BlockM} se elimina el particionado y que crea
 una única matriz.
 \begin{codigo}
 <<Creación del atributo [[lista]] cuando no tenemos una [[lista]] de [[Vector]]es>>=        
-elif isinstance(data, VMat):
+elif isinstance(data, SisMat):
     self.lista = (data|1).apila(data.lista[1:]).lista.copy() if len(data)>1 \
                                     else (data|1).lista.copy()
 
@@ -4693,7 +4673,8 @@ def BlockDiag(self,lista):
 \subsection{Otros métodos de la clase {\tt Matrix} que usan la eliminación}
 Para ver la implementación de la eliminación, véase el
 Capítulo~\ref{part:Algoritmos}.
-\subsubsection{Formas pre-escalonada (\Mat{K}), escalonada (\Mat{L}), escalonada (\Mat{U}), y escalonada reducida (\Mat{R}) y rango}
+\subsubsection{Formas pre-escalonada (\Mat{K}), escalonada (\Mat{L}),
+  y escalonada reducida (\Mat{R}) y rango}
 \begin{codigo}[nobreak=true]
 <<Métodos de [[Matrix]] que usan la eliminación>>=
 def K(self,rep=0):
@@ -4705,7 +4686,7 @@ def L(self,rep=0):
     return ElimG(self,rep)
     
 def U(self,rep=0): 
-    """Una forma escalonada por filas (L) de una Matrix"""
+    """Una forma escalonada por columnas (L) de una Matrix"""
     return ElimGF(self,rep)
 
 def R(self,rep=0):
@@ -5471,43 +5452,40 @@ def latex(self):
 %\end{notebook}
 \bigskip
 
-\subsection{La clase \texttt{VMat}. Sistema de Matrices}
+\subsection{La clase \texttt{SisMat}. Sistema de Matrices}
 De manera auxiliar y para ayudar a una representación más clara de las
 [[BlockM]] y del funcionamiento del operador selector de un
 [[Sistema]] en el caso de las [[BlockM]], vamos a definir una nueva
-subclase auxiliar de [[Sistema]], compuesto por matrices que cumplen
-al menos una de estas condiciones: todas tienen el mismo número de
-filas (en cuyo caso el sistema se puede representar en horizontal, en
-forma de fila de matrices), o todas tienen el mismo número de columnas
-(en cuyo caso el sistema se puede representar en vertical, en forma de
-columna de matrices). Lo denominaremos [[VMat]] (vector de matrices)
-y lo representaremos entre paréntesis y con los componentes de cada
-[[Matrix]] separados por lineas:
+subclase auxiliar de [[Sistema]], compuesto por matrices con el mismo
+número de columnas. Lo denominaremos [[SisMat]] (sistema de matrices)
+y lo representaremos entre paréntesis y con las [[Matrix]] dispuestas
+unas encima de otras y separadas por lineas horizontales (algo así
+como un vector en forma de columna cuyos elementos son matrices):
 \begin{displaymath}
   \left(\begin{array}{ccc}1&2&1\\7&-3&0\\6&4&2\\ \hline 1&0&0\\0&1&0\\0&0&1\\\end{array}\right)
 \end{displaymath}
-Y si el sistema [[VMat]] contiene una única [[Matrix]], también
-pintamos los corchetes de la matriz para no confundir un [[VMat]]
+Y si el sistema [[SisMat]] contiene una única [[Matrix]], también
+pintamos los corchetes de la matriz para no confundir un [[SisMat]]
 con una [[Matrix]]:
 \begin{displaymath}
   \begin{pmatrix}\begin{bmatrix}1&2&1\\7&-3&0\\6&4&2\end{bmatrix}\\\end{pmatrix}
 \end{displaymath}
-Es decir, si está encerrado entre paréntesis es un [[VMat]].
+Es decir, si está encerrado entre paréntesis es un [[SisMat]].
 
-Para mayor comodidad, [[Matrix(B)]] donde [[B]] es una [[VMat]]
+Para mayor comodidad, [[Matrix(B)]] donde [[B]] es una [[SisMat]]
 apila las matrices de [[B]] en una única [[Matrix]].
 
-Una vez definidos los [[VMat]], definiremos las matrices por bloques
-[[BlockM]] como listas de [[VMat]] (cada [[VMat]] será una columna
+Una vez definidos los [[SisMat]], definiremos las matrices por bloques
+[[BlockM]] como listas de [[SisMat]] (cada [[SisMat]] será una columna
 de matrices). Así, si [[A]] es una [[BlockM]], entonces [[A|1]]
-selecciona un [[VMat]] con las matrices de la primera columna de
-[[A]] (con [[1|A]] generamos una [[BlockM]] cuyas [[VMat]]s
+selecciona un [[SisMat]] con las matrices de la primera columna de
+[[A]] (con [[1|A]] generamos una [[BlockM]] cuyas [[SisMat]]s
 contienen únicamente las [[Matrix]] de la primera fila de [[BlockM]]).
 
 \begin{codigo}[nobreak=true]
-<<Inicialización de la clase [[VMat]]>>=
-def __init__(self, data, rpr='columna'):
-    """Inicializa un VMat con una lista, tupla o Sistema de Matrix,
+<<Inicialización de la clase [[SisMat]]>>=
+def __init__(self, data):
+    """Inicializa un SisMat con una lista, tupla o Sistema de Matrix,
     (todas con el mismo número de columnas).
     """
     super().__init__(data)
@@ -5516,15 +5494,12 @@ def __init__(self, data, rpr='columna'):
            
     if isinstance(data[0], Matrix):
         
-        <<Verificamos que todas las Matrix tienen el mismo número de filas o de columnas>>
+        <<Verificamos que todas las Matrix tienen el mismo número de columnas>>
         self.lista = lista.copy()
-
-    if all( [m.es_cuadrada() for m in self] ):
-        self.rpr   = rpr
-           
+                                                                            
     self.n     = len(self)
            
-    self.ln    = [matriz.n for matriz in self]
+    self.ln    = (self|1).n
     self.lm    = [matriz.m for matriz in self]
 
 @
@@ -5532,13 +5507,9 @@ def __init__(self, data, rpr='columna'):
 
 
 \begin{codigo}[nobreak=true]
-<<Verificamos que todas las Matrix tienen el mismo número de filas o de columnas>>=
-if   all( [isinstance(m,Matrix) and m.n==lista[0].n for m in self] ):
-    self.rpr = 'columna'
-elif all( [isinstance(m,Matrix) and m.m==lista[0].m for m in self] ):
-    self.rpr = 'fila'
-else:
-    raise ValueError('O no todo son Matrix o no tienen el mismo número de filas o columnas!')
+<<Verificamos que todas las Matrix tienen el mismo número de columnas>>=
+if not all( isinstance(m,Matrix) and m.n==lista[0].n for m in self):
+    raise ValueError('O no todo son Matrix o no tienen el mismo número de columnas!')
 @ 
 \end{codigo}
 
@@ -5550,26 +5521,25 @@ resultante de particionar las matrices por la derecha de las columnas
 cuyos índices aparecen en el conjunto (manteniendo las particiones
 horizontales)
 \begin{codigo}[nobreak=true]
-<<Operador selector por la derecha para la clase [[VMat]]>>=
+<<Operador selector por la derecha para la clase [[SisMat]]>>=
 def __or__(self, j):
-    if isinstance(j, (int, list, tuple, slice)):
-        return self.sis()|j 
+    <<Operador selector por la derecha cuando el argumento es entero, lista o slice>>        
     elif isinstance(j, set):
-        return BlockM([ VMat( [Mat|list(c) for Mat in self] ) \
+        return BlockM([ SisMat( [Mat|list(c) for Mat in self] ) \
                                     for c in particion(j, self.ln) ])
 
 @
 \end{codigo}
- 
+
 Cuando el argumento del operador selector por la izquierda es entero,
 lista o slice, funciona como por la derecha. Pero cuando el argumento
-es un \emph{conjunto}, se reparticiona [[VMat]] por debajo de las
+es un \emph{conjunto}, se reparticiona [[SisMat]] por debajo de las
 filas cuyos índices aparecen en el conjunto (manteniendo las
-particiones horizontales). Para ello se unifica el [[VMat]] en una
+particiones horizontales). Para ello se unifica el [[SisMat]] en una
 única [[Matrix]], que se trocea en submatrices por las filas indicadas
 en el argumento [[i]].
 \begin{codigo}[nobreak=true] 
-<<Operador selector por la izquierda para la clase [[VMat]]>>=
+<<Operador selector por la izquierda para la clase [[SisMat]]>>=
 def __ror__(self,i):
     """Hace exactamente lo mismo que el método __or__ por la derecha 
     cuando es el argumento es int, list, tuple o slice. Cuando el 
@@ -5578,16 +5548,16 @@ def __ror__(self,i):
     if isinstance(i, (int, list, tuple, slice)):
         return self | i
     elif isinstance(i, set):
-        return VMat([ list(f)|Matrix(self) for f in particion(i, Matrix(self).m) ])
+        return SisMat([ list(f)|Matrix(self) for f in particion(i, Matrix(self).m) ])
     
 @ 
 \end{codigo}
 
 \begin{codigo}[nobreak=true]
-<<Representación de la clase [[VMat]]>>=
+<<Representación de la clase [[SisMat]]>>=
 def __repr__(self):
-    """ Muestra un VMat en su representación Python """
-    return 'VMat(' + repr(self.lista) + ')'
+    """ Muestra un SisMat en su representación Python """
+    return 'SisMat(' + repr(self.lista) + ')'
 
 def _repr_html_(self):
     """ Construye la representación para el entorno Jupyter Notebook """
@@ -5597,46 +5567,37 @@ def _repr_html_(self):
 \end{codigo}
 
 \begin{codigo}[nobreak=true]
-<<Representación de la clase [[VMat]]>>=
+<<Representación de la clase [[SisMat]]>>=
 def latex(self):
-    """ Escribe el código de LaTeX para representar una VMat """
+    """ Escribe el código de LaTeX para representar una SisMat """
     if self.n == 1:       
         return '\\begin{pmatrix}' + latex(self|1) + '\\end{pmatrix}'
         
     else:
-        if self.rpr == 'fila':
-           return \
-           '\\left(' + \
-           '\\begin{array}{' + '|'.join([n*'c' for n in self.ln]) + '}' + \
-           '  \\\\'.join(['&'.join([latex(e) for e in fila]) for fila in ~(self[0].junta(self[1:])) ]) + \
-           '\\end{array}' + \
-           '\\right)'
-
-        else:
-           return \
-           '\\left(' + \
-           '\\begin{array}{' + (self|1).n*'c' + '}' + \
-           '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( [latex(e) \
+        return \
+          '\\left(' + \
+          '\\begin{array}{' + self.ln*'c' + '}' + \
+          '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( [latex(e) \
                  for e in fila ]) for fila in ~Mat ]) for Mat in self ]) + \
-           '\\\\' + \
-           '\\end{array}' + \
-           '\\right)'
+          '\\\\' + \
+          '\\end{array}' + \
+          '\\right)'
 
 @  
 \end{codigo}
 
-\paragraph{La clase \texttt{VMat}} junto con el listado de sus
+\paragraph{La clase \texttt{SisMat}} junto con el listado de sus
 métodos aparece en el siguiente recuadro:
 
 \begin{codigo}[nobreak=true]
-<<Definición de la clase [[VMat]]>>=
-class VMat(Sistema):
-    <<Inicialización de la clase [[VMat]]>>
-    <<Operador selector por la derecha para la clase [[VMat]]>>
-    <<Operador selector por la izquierda para la clase [[VMat]]>>
-    <<Representación de la clase [[VMat]]>>
+<<Definición de la clase [[SisMat]]>>=
+class SisMat(Sistema):
+    <<Inicialización de la clase [[SisMat]]>>
+    <<Operador selector por la derecha para la clase [[SisMat]]>>
+    <<Operador selector por la izquierda para la clase [[SisMat]]>>
+    <<Representación de la clase [[SisMat]]>>
     
-@ %def VMat
+@ %def SisMat
 \end{codigo}
 
 \subsection{La clase \texttt{BlockM}. Matrices particionadas (o matrices por bloques)}
@@ -5648,12 +5609,12 @@ obtenemos una gran matriz.
 
 Aquí implementamos las matrices particionadas en la clase [[BlockM]],
 pero lo hacemos de un modo ligeramente diferente: las [[BlockM]] serán
-sistemas de [[VMat]] con el mismo número de matrices, y tales que
-las matrices $i$ésimas de dichos [[VMat]] tengan el mismo número de
+sistemas de [[SisMat]] con el mismo número de matrices, y tales que
+las matrices $i$ésimas de dichos [[SisMat]] tengan el mismo número de
 filas.
 
 El argumento de inicialización es una lista de [[Sistemas]] de
-matrices (o de [[VMat]]s), cada elemento de la lista será una
+matrices (o de [[SisMat]]s), cada elemento de la lista será una
 columna de bloques (o submatrices con el mismo número de columnas).
 
 Alternativamente, el argumento de inicialización puede ser una lista
@@ -5661,9 +5622,9 @@ de listas de matrices con el mismo número de filas. Cada lista de
 matrices será una fila de bloques (o submatrices con el mismo número
 de filas).
 
-El atributo \verb/self.n/ contiene el número de [[VMat]]s (columnas
+El atributo \verb/self.n/ contiene el número de [[SisMat]]s (columnas
 de bloques o submatrices) y \verb/self.m/ contiene el número de
-matrices de dichos [[VMat]] (filas de bloques o
+matrices de dichos [[SisMat]] (filas de bloques o
 submatrices). Añadimos el atributo \verb/self.ln/, que es una lista
 con el número de filas que tienen las submatrices de cada fila, y
 \verb/self.lm/ con el número de columnas de las submatrices de cada
@@ -5672,7 +5633,7 @@ columna.  \medskip
 \begin{codigo}[nobreak=true]
 <<Inicialización de la clase [[BlockM]]>>=
 def __init__(self, data):
-    """Inicializa una BlockM con una lista, tupla, o Sistema: de VMats 
+    """Inicializa una BlockM con una lista, tupla, o Sistema: de SisMats 
     (serán las columnas de matrices) o bien de listas o tuplas de 
     matrices (filas de matrices)
     """
@@ -5682,18 +5643,18 @@ def __init__(self, data):
            
     if isinstance(lista[0], Sistema): 
         <<Verificación de que todos son Sistemas de matrices y de la misma longitud>>
-        self.lista = [ VMat(e) for e in lista ].copy()
+        self.lista = [ SisMat(e) for e in lista ].copy()
                                                                  
     elif isinstance(data[0], (list, tuple)):
         <<Verificación de que todas son listas de matrices y de la misma longitud>>
-        self.lista  =  [ VMat([ lista[j][i] for j in range(len(lista))]) \
+        self.lista  =  [ SisMat([ lista[j][i] for j in range(len(lista))]) \
                                               for i in range(len(lista[0])) ].copy()
            
     self.m     = len(self|1)
     self.n     = len(self)
            
     self.lm    = (self|1).lm
-    self.ln    = [sm.ln[0] for sm in self]
+    self.ln    = [sm.ln for sm in self]
 
 @
 \end{codigo}
@@ -5862,27 +5823,25 @@ Cuando el argumento del operador selector por la derecha es entero,
 lista o slice, funciona como con cualquier [[Sistema]] genérico. Pero
 cuando el argumento es un \emph{conjunto} y hay una única columna de
 matrices (\verb/self.n == 1/), es decir, cuando [[BlockM]] contiene un
-único [[VMat]], se particiona dicho [[VMat]] para obtener la
+único [[SisMat]], se particiona dicho [[SisMat]] para obtener la
 [[BlockM]] correspondiente.  El caso general (cuando el sistema
-contiene más de un [[VMat]]) se verá más tarde:
+contiene más de un [[SisMat]]) se verá más tarde:
 \begin{codigo}[nobreak=true]
 <<Operador selector por la derecha para la clase [[BlockM]]>>=
 def __or__(self, j):
     <<Operador selector por la derecha cuando el argumento es entero, lista o slice>>        
     elif isinstance(j, set):
-        return key(self.lm) | (Matrix(self) | j)
-        
+        if self.n == 1:
+            return  (self|1)|j 
+                                
+        <<Caso general de repartición por columnas>>
+
 @
 \end{codigo}
 y hacemos lo mismo para particionar por filas cuando
 \verb/self.m == 1/ (la matriz por bloques tiene una única fila):
 \noindent
-%%        if self.n == 1:
-%%            return  (self|1)|j 
-%%                                
-%%        ##Caso general de repartición por columnas>>
 
-\HLr{Esto ya no hace falta}
 Falta implementar el caso general. Debemos decidir el
 significado de reparticionar una matriz por el mismo lado por el que
 ya ha sido particionada. Seguiremos un criterio práctico\dots eliminar
@@ -5919,19 +5878,18 @@ elif self.n > 1:
 \end{codigo}
 
 
-El operador selector por la izquierda es más sencillo, pues usa el operador selector por la izquierda de las [[VMat]]:
+El operador selector por la izquierda es más sencillo, pues usa el operador selector por la izquierda de las [[SisMat]]:
 \begin{codigo}[nobreak=true]
 <<Operador selector por la izquierda para la clase [[BlockM]]>>=
 def __ror__(self,i):
     if isinstance(i, (int)):
-        return VMat([i|(self|j) for j in range(1,self.n+1)], 'fila')
+        return BlockM( [ [i|sm for sm in self] ] )
     
     if isinstance(i, (list,tuple,slice,set) ):        
         return BlockM( [i|sm for sm in self] )
     
 @
 \end{codigo}
-%    #    return BlockM( [ [i|sm for sm in self] ] )
 
 \begin{observacion}
   El método \verb/__or__/ está definido para conjuntos \dots y da como
@@ -5971,11 +5929,6 @@ def _repr_html_(self):
 
 def latex(self):
     """ Escribe el código de LaTeX para representar una BlockM """
-    def llf(B):
-        """Método aux que crea una lista de listas de filas con una BlockM"""
-        return [[sum([(f|((B|cb)|fb)).lista for cb in range(1,(B.n)+1)],[])\
-             for f in range(1,B.lm[fb-1]+1)]for fb in range(1,B.m+1)]
-    
     if self.m == self.n == 1:       
         return \
           '\\begin{array}{|c|}' + \
@@ -5985,23 +5938,14 @@ def latex(self):
         return \
           '\\left[' + \
           '\\begin{array}{' + '|'.join([n*'c' for n in self.ln])  + '}' + \
-          '\\\\ \\hline '.join('\\\\'.join(['&'.join([latex(e) for e in fila])\
-                    for fila in llf(self)[i]]) for i,M in enumerate(llf(self))) + \
+          '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( \
+           [latex(e) for e in fila]) for fila in ~Mat]) for Mat in (self|{0}|1)]) + \
           '\\\\' + \
           '\\end{array}' + \
           '\\right]'
 
 @ 
 \end{codigo}
-
-%        K=[self[0][i].junta([m[i] for m in self[:]]) for i,VM in enumerate(self)]
-%        return \
-%          '\\left[' + \
-%          '\\begin{array}{' + '|'.join([n*'c' for n in self.ln])  + '}' + \
-%          '\\\\ \\hline '.join('\\\\'.join(['&'.join([latex(e) for e in fila]) for fila in ~K[i]]) for i,m in enumerate(K)) + \
-%          '\\\\' + \
-%          '\\end{array}' + \
-%          '\\right]'
 
 
 %\appendix
@@ -6118,4 +6062,3 @@ type(a)
 
 
 \end{document}
-

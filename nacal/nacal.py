@@ -266,29 +266,16 @@ class Sistema:
         if isinstance(x, (int, float, sympy.Basic)):
             return x*self
 
-        elif isinstance(x, (Vector, VMat)):
-            if len(self) != x.n: raise ValueError('Sistema y Vector o VMat incompatibles')
+        elif isinstance(x, Vector):
+            if len(self) != x.n:    raise ValueError('Sistema y Vector incompatibles')
+            return sum([(self|j)*(x|j) for j in range(1,len(self)+1)], 0*self|1)
 
-            if isinstance(x, VMat):
-                display(Sistema([ ((self|j),(x|j)) for j in range(1,len(self)+1) ]))
-           
-            pc = [ (self|j)*(x|j) for j in range(1,len(self)+1) ]
-            
-            if isinstance(x, VMat):
-                display(Sistema(pc))
-                display(sum( pc, 0*pc[0] ))
-            
-            return sum( pc, 0*pc[0] )
-
-        elif isinstance(x, (Matrix, BlockM)):
-            if len(self) != x.m: raise ValueError('Sistema y Matrix incompatibles')
-            
-            pc = [ self*(x|j) for j in range(1,(x.n)+1) ]
-
-            if isinstance(  x|1 , (Vector, VMat)):
-                return type(x|1)( pc, rpr='fila' )
+        elif isinstance(x, Matrix):
+            if len(self) != x.m:      raise ValueError('Sistema y Matrix incompatibles')
+            if isinstance(self, Vector):
+                return Vector( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' )
             else:
-                return type(x|1)( pc )
+                return type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] )
 
     def __and__(self,t):
         """Transforma los elementos de un Sistema S
@@ -484,11 +471,8 @@ class Matrix(Sistema):
     def __init__(self, data):
         """Inicializa una Matrix"""
         super().__init__(data)
-
-        if isinstance(data, VMat) and data.rpr=='fila':
-            lista = sum([(data).sis()[i].sis().lista for i in range(data.n)],[])
-        else:
-            lista = Sistema(data).lista
+        
+        lista = Sistema(data).lista
         
         if isinstance(lista[0], Vector):
             if not all ( isinstance(v, Vector)   and lista[0].n==v.n       for v in lista ):
@@ -496,7 +480,7 @@ class Matrix(Sistema):
 
             self.lista   = lista.copy()
             
-        elif isinstance(data, VMat):
+        elif isinstance(data, SisMat):
             self.lista = (data|1).apila(data.lista[1:]).lista.copy() if len(data)>1 \
                                             else (data|1).lista.copy()
 
@@ -546,8 +530,8 @@ class Matrix(Sistema):
         >>> # BlockM correspondiente a la partición por la segunda columna
         >>> Matrix([Vector([1,0]), Vector([0,2]), Vector([3,0])]) | {2}
 
-        BlockM([VMat([Matrix([Vector([1, 0]), Vector([0, 2])])]), 
-                VMat([Matrix([Vector([3, 0])])])])
+        BlockM([SisMat([Matrix([Vector([1, 0]), Vector([0, 2])])]), 
+                SisMat([Matrix([Vector([3, 0])])])])
         """
         if isinstance(j, int):
             return self[j-1]
@@ -605,7 +589,7 @@ class Matrix(Sistema):
         >>> # BlockM correspondiente a la partición por la primera fila
         >>> {1} | Matrix([Vector([1,0]), Vector([0,2])])
 
-        BlockM([ VMat([Matrix([Vector([1]), Vector([0])]), 
+        BlockM([ SisMat([Matrix([Vector([1]), Vector([0])]), 
                          Matrix([Vector([0]), Vector([2])])]) ])
         """
         if isinstance(i,int):
@@ -700,7 +684,7 @@ class Matrix(Sistema):
         return ElimG(self,rep)
         
     def U(self,rep=0): 
-        """Una forma escalonada por filas (L) de una Matrix"""
+        """Una forma escalonada por columnas (L) de una Matrix"""
         return ElimGF(self,rep)
 
     def R(self,rep=0):
@@ -1027,9 +1011,9 @@ def key(L):
     """
     return set([ sum(L[0:i]) for i in range(1,len(L)+1) ])   
 
-class VMat(Sistema):
-    def __init__(self, data, rpr='columna'):
-        """Inicializa un VMat con una lista, tupla o Sistema de Matrix,
+class SisMat(Sistema):
+    def __init__(self, data):
+        """Inicializa un SisMat con una lista, tupla o Sistema de Matrix,
         (todas con el mismo número de columnas).
         """
         super().__init__(data)
@@ -1038,103 +1022,14 @@ class VMat(Sistema):
                
         if isinstance(data[0], Matrix):
             
-            if   all( [isinstance(m,Matrix) and m.n==lista[0].n for m in self] ):
-                self.rpr = 'columna'
-            elif all( [isinstance(m,Matrix) and m.m==lista[0].m for m in self] ):
-                self.rpr = 'fila'
-            else:
-                raise ValueError('O no todo son Matrix o no tienen el mismo número de filas o columnas!')
+            if not all( isinstance(m,Matrix) and m.n==lista[0].n for m in self):
+                raise ValueError('O no todo son Matrix o no tienen el mismo número de columnas!')
             self.lista = lista.copy()
-
-        if all( [m.es_cuadrada() for m in self] ):
-            self.rpr   = rpr
-               
+                                                                                
         self.n     = len(self)
                
-        self.ln    = [matriz.n for matriz in self]
+        self.ln    = (self|1).n
         self.lm    = [matriz.m for matriz in self]
-
-    def __or__(self, j):
-        if isinstance(j, (int, list, tuple, slice)):
-            return self.sis()|j 
-        elif isinstance(j, set):
-            return BlockM([ VMat( [Mat|list(c) for Mat in self] ) \
-                                        for c in particion(j, self.ln) ])
-
-    def __ror__(self,i):
-        """Hace exactamente lo mismo que el método __or__ por la derecha 
-        cuando es el argumento es int, list, tuple o slice. Cuando el 
-        argumento es un conjunto se reparticiona por las filas indicadas por
-        el conjunto"""
-        if isinstance(i, (int, list, tuple, slice)):
-            return self | i
-        elif isinstance(i, set):
-            return VMat([ list(f)|Matrix(self) for f in particion(i, Matrix(self).m) ])
-        
-    def __repr__(self):
-        """ Muestra un VMat en su representación Python """
-        return 'VMat(' + repr(self.lista) + ')'
-
-    def _repr_html_(self):
-        """ Construye la representación para el entorno Jupyter Notebook """
-        return html(self.latex())
-
-    def latex(self):
-        """ Escribe el código de LaTeX para representar una VMat """
-        if self.n == 1:       
-            return '\\begin{pmatrix}' + latex(self|1) + '\\end{pmatrix}'
-            
-        else:
-            if self.rpr == 'fila':
-               return \
-               '\\left(' + \
-               '\\begin{array}{' + '|'.join([n*'c' for n in self.ln]) + '}' + \
-               '  \\\\'.join(['&'.join([latex(e) for e in fila]) for fila in ~(self[0].junta(self[1:])) ]) + \
-               '\\end{array}' + \
-               '\\right)'
-
-            else:
-               return \
-               '\\left(' + \
-               '\\begin{array}{' + (self|1).n*'c' + '}' + \
-               '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( [latex(e) \
-                     for e in fila ]) for fila in ~Mat ]) for Mat in self ]) + \
-               '\\\\' + \
-               '\\end{array}' + \
-               '\\right)'
-
-    
-class BlockM(Sistema):
-    def __init__(self, data):
-        """Inicializa una BlockM con una lista, tupla, o Sistema: de VMats 
-        (serán las columnas de matrices) o bien de listas o tuplas de 
-        matrices (filas de matrices)
-        """
-        super().__init__(data)
-
-        lista = Sistema(data).lista
-               
-        if isinstance(lista[0], Sistema): 
-            if not all ( isinstance(s, Sistema) and s.de_composicion_uniforme() and \
-                         isinstance(s|1, Matrix) and  len(s)==len(lista[0]) for s in lista ):
-                raise ValueError('no son Sistemas de matrices, o no tienen la misma longitud!')
-
-            self.lista = [ VMat(e) for e in lista ].copy()
-                                                                     
-        elif isinstance(data[0], (list, tuple)):
-            if not all ( isinstance(s, (list,tuple)) and  isinstance(s[0], Matrix) and \
-                         all(type(e)==type(lista[0]) for e in lista) and \
-                         len(s)==len(lista[0]) for s in lista ):
-                raise ValueError('no son listas de matrices, o no tienen la misma longitud!')
-
-            self.lista  =  [ VMat([ lista[j][i] for j in range(len(lista))]) \
-                                                  for i in range(len(lista[0])) ].copy()
-               
-        self.m     = len(self|1)
-        self.n     = len(self)
-               
-        self.lm    = (self|1).lm
-        self.ln    = [sm.ln[0] for sm in self]
 
     def __or__(self, j):
         if isinstance(j, int):
@@ -1149,11 +1044,98 @@ class BlockM(Sistema):
             step  = j.step  or 1
             return type(self) (self[slice(start,stop,step)])        
         elif isinstance(j, set):
-            return key(self.lm) | (Matrix(self) | j)
+            return BlockM([ SisMat( [Mat|list(c) for Mat in self] ) \
+                                        for c in particion(j, self.ln) ])
+
+    def __ror__(self,i):
+        """Hace exactamente lo mismo que el método __or__ por la derecha 
+        cuando es el argumento es int, list, tuple o slice. Cuando el 
+        argumento es un conjunto se reparticiona por las filas indicadas por
+        el conjunto"""
+        if isinstance(i, (int, list, tuple, slice)):
+            return self | i
+        elif isinstance(i, set):
+            return SisMat([ list(f)|Matrix(self) for f in particion(i, Matrix(self).m) ])
+        
+    def __repr__(self):
+        """ Muestra un SisMat en su representación Python """
+        return 'SisMat(' + repr(self.lista) + ')'
+
+    def _repr_html_(self):
+        """ Construye la representación para el entorno Jupyter Notebook """
+        return html(self.latex())
+
+    def latex(self):
+        """ Escribe el código de LaTeX para representar una SisMat """
+        if self.n == 1:       
+            return '\\begin{pmatrix}' + latex(self|1) + '\\end{pmatrix}'
             
+        else:
+            return \
+              '\\left(' + \
+              '\\begin{array}{' + self.ln*'c' + '}' + \
+              '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( [latex(e) \
+                     for e in fila ]) for fila in ~Mat ]) for Mat in self ]) + \
+              '\\\\' + \
+              '\\end{array}' + \
+              '\\right)'
+
+    
+class BlockM(Sistema):
+    def __init__(self, data):
+        """Inicializa una BlockM con una lista, tupla, o Sistema: de SisMats 
+        (serán las columnas de matrices) o bien de listas o tuplas de 
+        matrices (filas de matrices)
+        """
+        super().__init__(data)
+
+        lista = Sistema(data).lista
+               
+        if isinstance(lista[0], Sistema): 
+            if not all ( isinstance(s, Sistema) and s.de_composicion_uniforme() and \
+                         isinstance(s|1, Matrix) and  len(s)==len(lista[0]) for s in lista ):
+                raise ValueError('no son Sistemas de matrices, o no tienen la misma longitud!')
+
+            self.lista = [ SisMat(e) for e in lista ].copy()
+                                                                     
+        elif isinstance(data[0], (list, tuple)):
+            if not all ( isinstance(s, (list,tuple)) and  isinstance(s[0], Matrix) and \
+                         all(type(e)==type(lista[0]) for e in lista) and \
+                         len(s)==len(lista[0]) for s in lista ):
+                raise ValueError('no son listas de matrices, o no tienen la misma longitud!')
+
+            self.lista  =  [ SisMat([ lista[j][i] for j in range(len(lista))]) \
+                                                  for i in range(len(lista[0])) ].copy()
+               
+        self.m     = len(self|1)
+        self.n     = len(self)
+               
+        self.lm    = (self|1).lm
+        self.ln    = [sm.ln for sm in self]
+
+    def __or__(self, j):
+        if isinstance(j, int):
+            return self[j-1]
+            
+        elif isinstance(j, (list,tuple) ):
+            return type(self) ([ self|a for a in j ])
+
+        elif isinstance(j, slice):
+            start = None if j.start is None else j.start-1 
+            stop  = None if j.stop  is None else (j.stop if j.stop>0 else j.stop-1)
+            step  = j.step  or 1
+            return type(self) (self[slice(start,stop,step)])        
+        elif isinstance(j, set):
+            if self.n == 1:
+                return  (self|1)|j 
+                                    
+            elif self.n > 1: 
+                 return (key(self.lm) | Matrix(self)) | j
+
+
     def __ror__(self,i):
         if isinstance(i, (int)):
-            return VMat([i|(self|j) for j in range(1,self.n+1)], 'fila')
+            return BlockM( [ [i|sm for sm in self] ] )
         
         if isinstance(i, (list,tuple,slice,set) ):        
             return BlockM( [i|sm for sm in self] )
@@ -1168,11 +1150,6 @@ class BlockM(Sistema):
 
     def latex(self):
         """ Escribe el código de LaTeX para representar una BlockM """
-        def llf(B):
-            """Método aux que crea una lista de listas de filas con una BlockM"""
-            return [[sum([(f|((B|cb)|fb)).lista for cb in range(1,(B.n)+1)],[])\
-                 for f in range(1,B.lm[fb-1]+1)]for fb in range(1,B.m+1)]
-        
         if self.m == self.n == 1:       
             return \
               '\\begin{array}{|c|}' + \
@@ -1182,8 +1159,8 @@ class BlockM(Sistema):
             return \
               '\\left[' + \
               '\\begin{array}{' + '|'.join([n*'c' for n in self.ln])  + '}' + \
-              '\\\\ \\hline '.join('\\\\'.join(['&'.join([latex(e) for e in fila])\
-                        for fila in llf(self)[i]]) for i,M in enumerate(llf(self))) + \
+              '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( \
+               [latex(e) for e in fila]) for fila in ~Mat]) for Mat in (self|{0}|1)]) + \
               '\\\\' + \
               '\\end{array}' + \
               '\\right]'
