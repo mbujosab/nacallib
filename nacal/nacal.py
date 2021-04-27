@@ -421,10 +421,10 @@ class Vector(Sistema):
 
     def latex(self):
         """ Construye el comando LaTeX para representar un Vector"""
-        if self.rpr == 'fila':    
+        if self.rpr == 'fila' or self.n==1:    
             return '\\begin{pmatrix}' + \
                    ',&'.join([latex(e) for e in self]) + \
-                   '\\end{pmatrix}' 
+                   ',\\end{pmatrix}' 
         else:
             return '\\begin{pmatrix}' + \
                    '\\\\'.join([latex(e) for e in self]) + \
@@ -1995,7 +1995,7 @@ class SubEspacio:
           + latex(self.Rn) \
           + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
           + latex(max(self.dim,1)) \
-          + '\ \\text{tal que}\ \\boldsymbol{v}= '\
+          + ',\\; \\boldsymbol{v}= '\
           + latex(Matrix(self.sgen)) \
           + '\\boldsymbol{p}\\right. \\right\\}' \
           #+ '\qquad\\text{(ecuaciones paramétricas)}'
@@ -2083,7 +2083,7 @@ class EAfin:
           + latex(self.S.Rn) \
           + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
           + latex(max(self.S.dim,1)) \
-          + '\ \\text{tal que}\ \\boldsymbol{v}= '\
+          + ',\\; \\boldsymbol{v}= '\
           + latex(self.v) + '+' \
           + latex(Matrix(self.S.sgen)) \
           + '\\boldsymbol{p}\\right. \\right\\}' \
@@ -2101,7 +2101,7 @@ class EAfin:
     def latex(self):
         """ Construye el comando LaTeX para un SubEspacio de Rn"""
         if self.v != 0*self.v:
-             return self.EcParametricas() + '\; = \;' + self.EcCartesianas()
+             return self.EcParametricas() + '\\; = \\;' + self.EcCartesianas()
         else:
              return latex(self.S)
             
@@ -2162,11 +2162,9 @@ class Homogenea:
     def latex(self):
         """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
         if self.determinado:
-            return '\\text{La única solución es el vector cero: }\\quad' + \
-                         latex(self.sgen|1) + '.'
+            return '\\left\\{\ ' + latex(self.sgen|1) + '\ \\right\\}'
         else:
-            return '\\text{Conjunto de combinaciones lineales de: }\\quad' + \
-             ',\;\;'.join([latex(v) for v in self.sgen]) + '.'
+            return '\\mathcal{L}\\left(\ ' + latex(self.sgen) + '\ \\right)' # + latex(self.enulo)
    
            
 class SEL:
@@ -2235,7 +2233,7 @@ class SEL:
           + latex(self.eafin.Rn) \
           + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
           + latex(len(self.sgen)) \
-          + '\ \\text{tal que}\ \\boldsymbol{x}= '\
+          + ',\\; \\boldsymbol{x}= '\
           + latex(self.solP) + '+' \
           + latex(Matrix(self.sgen)) \
           + '\\boldsymbol{p}\\right. \\right\\}' \
@@ -2251,9 +2249,9 @@ class SEL:
     def latex(self):
         """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
         if self.determinado:
-            return '\\text{Tiene solución única:  }\\boldsymbol{x}=' + latex(self.solP) 
+            return '\\left\\{\ ' + latex(self.solP) + '\ \\right\\}'
         else:
-            return '\\text{Conjunto de vectores: }' + self.EcParametricas()
+            return self.EcParametricas()
               
 class Determinante:
     def __init__(self, data, rep=0):
@@ -2323,7 +2321,7 @@ class Determinante:
 
     def latex(self):
         """ Construye el comando LaTeX para representar un Sistema """
-        return '\\text{Valor del determinante: }\\;' + latex(self.valor)
+        return latex(self.valor)
 
 
 class Diagonaliza(Matrix):

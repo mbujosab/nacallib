@@ -3434,7 +3434,7 @@ def _repr_html_(self):
 
 def latex(self):
     """ Construye el comando LaTeX para representar un Sistema """
-    return '\\text{Valor del determinante: }\\;' + latex(self.valor)
+    return latex(self.valor)
 
 @
 \end{codigo}
@@ -3781,7 +3781,7 @@ En el primer caso, dado un [[Sistema]] de vectores, por ejemplo
 de los [[Vector]]es de dicho [[Sistema]], representado por las
 siguientes ecuaciones \emph{paramétricas}:
 \begin{displaymath}
-  \left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2\ \text{tal que}\ \boldsymbol{v}= \begin{bmatrix}0&2\\1&0\\0&3\end{bmatrix}\boldsymbol{p}\right. \right\}\; 
+  \left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{bmatrix}0&2\\1&0\\0&3\end{bmatrix}\boldsymbol{p}\right. \right\}\; 
 \end{displaymath}
 donde el vector \Vect{p} es el vector de parámetros.
 En el segundo caso, dada una [[Matrix]], por ejemplo
@@ -3807,7 +3807,7 @@ hecho, la librería muestra ambos tipos de representación para cada
 [[SubEspacio]]: las ecuaciones paramétricas a la izquierda y las
 cartesianas a la derecha.
 \begin{displaymath}
-  \left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2\ \text{tal que}\ \boldsymbol{v}= \begin{bmatrix}0&2\\1&0\\0&3\end{bmatrix}\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \begin{bmatrix}-3&0&2\end{bmatrix}\boldsymbol{v}=\boldsymbol{0}\right.\right\}
+  \left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{bmatrix}0&2\\1&0\\0&3\end{bmatrix}\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \begin{bmatrix}-3&0&2\end{bmatrix}\boldsymbol{v}=\boldsymbol{0}\right.\right\}
 \end{displaymath}
 [[SubEspacio]] tiene
 varios atributos.
@@ -4178,7 +4178,7 @@ def EcParametricas(self):
       + latex(self.S.Rn) \
       + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
       + latex(max(self.S.dim,1)) \
-      + '\ \\text{tal que}\ \\boldsymbol{v}= '\
+      + ',\\; \\boldsymbol{v}= '\
       + latex(self.v) + '+' \
       + latex(Matrix(self.S.sgen)) \
       + '\\boldsymbol{p}\\right. \\right\\}' \
@@ -4196,7 +4196,7 @@ def EcCartesianas(self):
 def latex(self):
     """ Construye el comando LaTeX para un SubEspacio de Rn"""
     if self.v != 0*self.v:
-         return self.EcParametricas() + '\; = \;' + self.EcCartesianas()
+         return self.EcParametricas() + '\\; = \\;' + self.EcCartesianas()
     else:
          return latex(self.S)
         
@@ -4449,10 +4449,10 @@ def _repr_html_(self):
 
 def latex(self):
     """ Construye el comando LaTeX para representar un Vector"""
-    if self.rpr == 'fila':    
+    if self.rpr == 'fila' or self.n==1:    
         return '\\begin{pmatrix}' + \
                ',&'.join([latex(e) for e in self]) + \
-               '\\end{pmatrix}' 
+               ',\\end{pmatrix}' 
     else:
         return '\\begin{pmatrix}' + \
                '\\\\'.join([latex(e) for e in self]) + \
@@ -5344,11 +5344,9 @@ def _repr_html_(self):
 def latex(self):
     """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
     if self.determinado:
-        return '\\text{La única solución es el vector cero: }\\quad' + \
-                     latex(self.sgen|1) + '.'
+        return '\\left\\{\ ' + latex(self.sgen|1) + '\ \\right\\}'
     else:
-        return '\\text{Conjunto de combinaciones lineales de: }\\quad' + \
-         ',\;\;'.join([latex(v) for v in self.sgen]) + '.'
+        return '\\mathcal{L}\\left(\ ' + latex(self.sgen) + '\ \\right)' # + latex(self.enulo)
 
 @
 \end{codigo}
@@ -5362,7 +5360,7 @@ def EcParametricas(self):
       + latex(self.eafin.Rn) \
       + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
       + latex(len(self.sgen)) \
-      + '\ \\text{tal que}\ \\boldsymbol{x}= '\
+      + ',\\; \\boldsymbol{x}= '\
       + latex(self.solP) + '+' \
       + latex(Matrix(self.sgen)) \
       + '\\boldsymbol{p}\\right. \\right\\}' \
@@ -5378,9 +5376,9 @@ def _repr_html_(self):
 def latex(self):
     """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
     if self.determinado:
-        return '\\text{Tiene solución única:  }\\boldsymbol{x}=' + latex(self.solP) 
+        return '\\left\\{\ ' + latex(self.solP) + '\ \\right\\}'
     else:
-        return '\\text{Conjunto de vectores: }' + self.EcParametricas()
+        return self.EcParametricas()
 @
 \end{codigo}
 
@@ -5399,7 +5397,7 @@ def EcParametricas(self):
       + latex(self.Rn) \
       + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
       + latex(max(self.dim,1)) \
-      + '\ \\text{tal que}\ \\boldsymbol{v}= '\
+      + ',\\; \\boldsymbol{v}= '\
       + latex(Matrix(self.sgen)) \
       + '\\boldsymbol{p}\\right. \\right\\}' \
       #+ '\qquad\\text{(ecuaciones paramétricas)}'
