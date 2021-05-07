@@ -303,6 +303,7 @@
 %\renewcommand{\su}[3]{[\pmb{#1} + {#3}\cdot \pmb{#2}]}
 
 \title{\mbox{Notación Asociativa para un Curso de Álgebra Lineal (NACAL)}\\
+  {\footnotesize (Versión: \input{version.txt})}\\
   {\footnotesize \url{https://github.com/mbujosab/nacallib}}}
 \author{Marcos Bujosa}
 
@@ -3348,7 +3349,7 @@ ampliada'', pues tiene una matriz identidad por debajo). Si el último elemento 
 \begin{codigo}
 <<Aplicamos los [[pasos]] de eliminación sobre la matriz ampliada y obtenemos la solución>>=
 EA        = Matrix(MA) & T(L.pasos[1]) 
-Normaliza = T([( fracc(1, 0|EA|0) , EA.n )])
+Normaliza = T([]) if (0|EA|0)==1 else T([( fracc(1,0|EA|0), EA.n )])
 EA & Normaliza
 
 BEA       = {A.m, (A.m+A.n)} | EA | {A.n}
@@ -3361,7 +3362,7 @@ self.sgen  = Sistema(base) if base else Sistema([ V0(A.n) ])
 self.eafin = EAfin(self.sgen, self.solP)
 
 self.determinado = (len(base) == 0)
-self.pasos       = [ [], L.pasos[1] + [Normaliza] ]
+self.pasos       = [[], L.pasos[1]+[Normaliza] ] if Normaliza.t else [[], L.pasos[1]]
 self.TrF         = T(self.pasos[0]) 
 self.TrC         = T(self.pasos[1]) 
 self.tex         = tex( BM, self.pasos )
@@ -4384,11 +4385,11 @@ def de_composicion_uniforme(self):
 
 \begin{codigo}
 <<Sustitución de un símbolo por un valor en un [[Sistema]]>>=
-def subs(self, s):
+def subs(self, s,v):
     if isinstance(self, sympy.Basic):
-        return sympy.S(self).subs(s)
+        return sympy.S(self).subs(s,v)
     elif isinstance(self, Sistema):
-        return type(self)([ sympy.S(e).subs(s) for e in self ])
+        return type(self)([ sympy.S(e).subs(s,v) for e in self ])
     
 @ 
 \end{codigo}

@@ -4,7 +4,7 @@ NWFuente   = NACAL_source
 DOCU	   = Doc_$(PAPER).pdf
 DIRFuente  = fuente
 
-VERSION    = 0.1.8
+VERSION    = 0.1.9
 
 ############
 VPATH	   = $(PWD)/$(DIRFuente)
@@ -62,6 +62,7 @@ clean: ; rm -r -f $(DIRTEMP); rm -f $(PAPER).pdf
 
 $(PAPER).pdf:  $(DIRTEMP)  $(AUXFILES) #; #$(VPATH)/$(PAPER).tex 
 	cd $(DIRTEMP); $(NOWEAVE) $(NWFuente).nw       >   $(DIRTEMP)/$(PAPER).tex
+	echo $(VERSION) > $(DIRTEMP)/version.txt
 	rubber -d --into $(DIRTEMP) $(DIRTEMP)/$(PAPER).tex #$(<F)
 	cp $(DIRTEMP)/$@ ./doc/
 	#cp $(DIRTEMP)/$@ Notebooks/$(DOCU)

@@ -345,11 +345,11 @@ class Sistema:
         
         return reune([self] + [s for s in l])
         
-    def subs(self, s):
+    def subs(self, s,v):
         if isinstance(self, sympy.Basic):
-            return sympy.S(self).subs(s)
+            return sympy.S(self).subs(s,v)
         elif isinstance(self, Sistema):
-            return type(self)([ sympy.S(e).subs(s) for e in self ])
+            return type(self)([ sympy.S(e).subs(s,v) for e in self ])
         
 class Vector(Sistema):
     """Clase Vector(Sistema)
@@ -2210,7 +2210,7 @@ class SEL:
             self.tex = tex( BM, L.pasos )
             raise ArithmeticError('No hay solución: Sistema incompatible')
         EA        = Matrix(MA) & T(L.pasos[1]) 
-        Normaliza = T([( fracc(1, 0|EA|0) , EA.n )])
+        Normaliza = T([]) if (0|EA|0)==1 else T([( fracc(1,0|EA|0), EA.n )])
         EA & Normaliza
 
         BEA       = {A.m, (A.m+A.n)} | EA | {A.n}
@@ -2223,7 +2223,7 @@ class SEL:
         self.eafin = EAfin(self.sgen, self.solP)
 
         self.determinado = (len(base) == 0)
-        self.pasos       = [ [], L.pasos[1] + [Normaliza] ]
+        self.pasos       = [[], L.pasos[1]+[Normaliza] ] if Normaliza.t else [[], L.pasos[1]]
         self.TrF         = T(self.pasos[0]) 
         self.TrC         = T(self.pasos[1]) 
         self.tex         = tex( BM, self.pasos )
