@@ -2582,16 +2582,10 @@ class DiagonalizaC(Matrix):
         self.TrF       = filtradopasos(T(self.pasos[0]))
         self.TrC       = filtradopasos(T(self.pasos[1]))
         self.B         = I(A.n) & T(pasosPrevios[1])
-        self.positivos = sum([1 for c in A.diag() if c>0 ] )
-        self.negativos = sum([1 for c in A.diag() if c<0 ] )
-        self.nulos     = sum([1 for c in A.diag() if c==0] )
         
         if Rep:
             from IPython.display import display, Math
             display(Math(Tex))
-            print('Num de autovalores positivos: ' + str(self.positivos) + '\n')
-            print('Num de autovalores nulos:     ' + str(self.nulos)     + '\n')
-            print('Num de autovalores negativos: ' + str(self.negativos) + '\n')
             
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
@@ -2692,16 +2686,10 @@ class DiagonalizaCr(Matrix):
         self.TrF       = T(self.pasos[0])
         self.TrC       = T(self.pasos[1])
         self.B         = I(A.n) & T(pasosPrevios[1])
-        self.positivos = sum([1 for c in A.diag() if c>0 ] )
-        self.negativos = sum([1 for c in A.diag() if c<0 ] )
-        self.nulos     = sum([1 for c in A.diag() if c==0] )
         
         if Rep:
             from IPython.display import display, Math
             display(Math(Tex))
-            print('Num de autovalores positivos: ' + str(self.positivos) + '\n')
-            print('Num de autovalores nulos:     ' + str(self.nulos)     + '\n')
-            print('Num de autovalores negativos: ' + str(self.negativos) + '\n')
             
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
