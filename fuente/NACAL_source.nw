@@ -2441,13 +2441,15 @@ Jupyter lo simplificara, representándolo como $\sqrt{2}$).
 <<nacal.py>>=
 # coding=utf8
 import sympy
+from IPython.display import display, Math
 <<Métodos auxiliares para usar coeficientes racionales cuando sea posible>>
 
 <<Método html general>>
 <<Método latex general>>
 <<Simplificación de expresiones simbólicas>>
 <<Filtrado de secuencias de transformaciones>>
-
+<<Pinta un objeto en Jupyter>>
+           
 <<Definición de la clase [[Sistema]]>>
 <<Definición de la clase [[Vector]]>>
 <<Definición de la clase [[Matrix]]>>
@@ -3199,32 +3201,31 @@ llegar a ella, o hasta llegar a una matriz singular
 class InvMat(Matrix):
     def __init__(self, data, rep=0):
         """Devuelve la matriz inversa y los pasos dados sobre las columnas"""
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
         A          = Matrix(data)        
         if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
         R          = ElimGJ(A)
         self.pasos = R.pasos 
         self.TrF   = R.TrF 
         self.TrC   = R.TrC 
-        self.tex   = tex( BlockM([ [A], [I(A.n)] ]) , self.pasos)
+        self.tex   = rprElim( BlockM([ [A], [I(A.n)] ]) , self.pasos)
         if R.rango < A.n:        raise ArithmeticError('Matrix singular')        
         Inversa    = I(A.n) & T(R.pasos[1])  
         super(self.__class__ ,self).__init__(Inversa)
         self.__class__ = Matrix
+        if rep:
+            display(Math(self.tex))
 
 @
 \end{codigo}
 
 
-El siguiente código obtiene la inversa de una matriz operando sobre
-las filas, y muestra los pasos dados hasta llegar a ella
+El siguiente código obtiene la inversa de una matriz pero operando con las filas.
 
 \begin{codigo}[nobreak=true]
 <<Invirtiendo una matriz>>=
 class InvMatF(Matrix):
     def __init__(self, data, rep=0):
     	"""Devuelve la matriz inversa y los pasos dados sobre las filas"""
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
      	A          = Matrix(data)
         if A.m != A.n:
             raise ValueError('Matrix no cuadrada')
@@ -3232,12 +3233,14 @@ class InvMatF(Matrix):
      	self.pasos = M.pasos 
         self.TrF   = M.TrF 
         self.TrC   = M.TrC 
-        self.tex   = tex( BlockM([ [A,I(A.m)] ]) , self.pasos)
+        self.tex   = rprElim( BlockM([ [A,I(A.m)] ]) , self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
         Inversa    = T(M.pasos[0]) & I(A.n)   
      	super(self.__class__ ,self).__init__(Inversa)
         self.__class__ = Matrix
+        if rep:
+            display(Math(self.tex))
 
 @
 \end{codigo}
@@ -3250,8 +3253,6 @@ sobre las columnas hasta obtener la identidad.
 class InvMatFC(Matrix):
     def __init__(self, data, rep=0):
     	"""Devuelve la matriz inversa y los pasos dados sobre las filas y columnas"""
-    	<<Definición del método [[PasosYEscritura]]>>
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
      	A          = Matrix(data)
         if A.m != A.n:
             raise ValueError('Matrix no cuadrada')
@@ -3259,12 +3260,14 @@ class InvMatFC(Matrix):
      	self.pasos = M.pasos  
         self.TrF   = M.TrF 
         self.TrC   = M.TrC 
-        self.tex = tex(BlockM([ [A,I(A.m)], [I(A.n),M0(A.m,A.n)] ]),self.pasos)
+        self.tex   = rprElim(BlockM([[A,I(A.m)],[I(A.n),M0(A.m,A.n)]]),self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
         Inversa    = ( I(A.n) & T(M.pasos[1]) ) * ( T(M.pasos[0]) & I(A.n) )
     	super(self.__class__ ,self).__init__(Inversa)
         self.__class__ = Matrix
+        if rep:
+            display(Math(self.tex))
 
 @
 \end{codigo}
@@ -3285,7 +3288,6 @@ class Homogenea:
     	"""Resuelve un Sistema de Ecuaciones Lineales Homogéneo
     
         y muestra los pasos para encontrarlo"""
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
         
      	A     = Matrix(data)
         <<Cálculo de [[L]] y de una [[base]] del espacio nulo de [[A]]>>
@@ -3295,9 +3297,12 @@ class Homogenea:
         self.pasos       = L.pasos; 
         self.TrF         = L.TrF 
         self.TrC         = L.TrC 
-        self.tex         = tex( BlockM([[A],[I(A.n)]]), self.pasos)
+        self.tex         = rprElim( BlockM([[A],[I(A.n)]]), self.pasos)
         self.enulo       = SubEspacio(self.sgen)
         
+        if rep:
+            display(Math(self.tex))
+           
     <<Métodos de representación de la clase [[Homogenea]]>>   
            
 @ %def Homogenea
@@ -3329,7 +3334,6 @@ los pasos dados"""
 class SEL:
     def __init__(self, A, b, rep=0):
         <<Texto de ayuda de la clase [[SEL]]>>
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>        
         A  = Matrix(A)
         MA = A.concatena(Matrix([-b])).apila(I(A.n+1))
         BM = {A.m,(A.m+A.n)} | MA | {A.n,A.n}
@@ -3365,7 +3369,9 @@ self.determinado = (len(base) == 0)
 self.pasos       = [[], L.pasos[1]+[Normaliza] ] if Normaliza.t else [[], L.pasos[1]]
 self.TrF         = T(self.pasos[0]) 
 self.TrC         = T(self.pasos[1]) 
-self.tex         = tex( BM, self.pasos )
+self.tex         = rprElim( BM, self.pasos )
+if rep:
+    display(Math(self.tex))           
 @ 
 \end{codigo}
 
@@ -3415,7 +3421,6 @@ def calculoDet(data, pasos, TexPasosPrev=[]):
     <<Definición del método [[PasosYEscritura]] que también calcula el valor del [[Determinante]]>>
     tex, valor, pasos = PasosYEscritura(data, pasos)
     if 'rep' in locals() and rep:
-        from IPython.display import display, Math
         display(Math(tex))
           
     return [tex, valor, pasos]
@@ -3448,7 +3453,6 @@ def latex(self):
 class Diagonaliza(Matrix):
     def __init__(self, A, espectro, Rep=0):
         <<Texto de ayuda para la clase [[Diagonaliza]]>>
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
         <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
         D            = Matrix(A)
         if not D.es_cuadrada: raise ValueError('Matrix no es cuadrada')
@@ -3478,7 +3482,6 @@ class Diagonaliza(Matrix):
             selecc.pop()
             
         if Rep:
-            from IPython.display import display, Math
             display(Math(Tex))
             
         espectro.sort(reverse=True)                
@@ -3514,14 +3517,14 @@ cuyas columnas son autovectores de los correspondientes autovalores.
 pasos           = [ [], TrCol ]
 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 
-Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
+Tex = rprElim( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
 D = D & T(pasos[1])
 S = S & T(pasos[1])
 
 pasos           = [ [T(pasos[1]).espejo()**-1] , []]
 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 
-Tex = tex( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
+Tex = rprElim( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
 D   = T(pasos[0]) & D
 @ 
 \end{codigo}
@@ -3623,7 +3626,6 @@ autovalor cero. """
 class DiagonalizaC(Matrix):
     def __init__(self, data, Rep=0):
         <<Texto de ayuda para la clase [[DiagonalizaC]]>>
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
         <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
@@ -3653,7 +3655,6 @@ class DiagonalizaC(Matrix):
         self.B         = I(A.n) & T(pasosPrevios[1])
         
         if Rep:
-            from IPython.display import display, Math
             display(Math(Tex))
             
         super(self.__class__ ,self).__init__(A)
@@ -3674,12 +3675,12 @@ class DiagonalizaC(Matrix):
 <<Aplicación de las transformaciones a las columnas y a las filas>>=
 pasos = [ [], filtradopasos([Tr]) ]
 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-Tex = tex( A, pasos, Tex)
+Tex = rprElim( A, pasos, Tex)
 A = A & T(pasos[1])
 
 pasos = [ filtradopasos([~Tr]) , []]
 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-Tex = tex( A, pasos, Tex)
+Tex = rprElim( A, pasos, Tex)
 A = T(pasos[0]) & A
 @ 
 \end{codigo}
@@ -3705,7 +3706,6 @@ ceros como la multiplicidad algebraica del autovalor cero. """
 class DiagonalizaCr(Matrix):
     def __init__(self, data, Rep=0):
         <<Texto de ayuda para la clase [[DiagonalizaCr]]>>
-        <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
         <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
@@ -3735,7 +3735,6 @@ class DiagonalizaCr(Matrix):
         self.B         = I(A.n) & T(pasosPrevios[1])
         
         if Rep:
-            from IPython.display import display, Math
             display(Math(Tex))
             
         super(self.__class__ ,self).__init__(A)
@@ -4289,21 +4288,10 @@ def simplifica(self):
 \end{codigo}
 
 
-
-\begin{codigo}
-<<Representación de un proceso de eliminación>>=
-def representa_eliminacion(self, pasos, TexPasosPrev=[], rep=1):
-    <<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
-    tex(self, pasos, TexPasosPrev)
-
-@ %def representa_eliminacion
-\end{codigo}
-
 \begin{codigo}
 <<Pinta un objeto en Jupyter>>=
-def pinta(self):
-    from IPython.display import display, Math
-    display(Math(latex(simplifica(self))))
+def pinta(data):
+    display(Math(latex(simplifica(data))))
 
 @ %def pinta
 \end{codigo}
@@ -5225,35 +5213,24 @@ comodidad añadimos dos atributos más: [[TrF]] es la
 [[T]]transformación aplicada a las columnas.
 \begin{codigo}[nobreak=true]
 <<Se guardan los atributos [[tex]] y [[pasos]] (y se muestran los pasos si se pide)>>=
-<<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>
 pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
 TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-self.tex = tex(data, pasos, TexPasosPrev)
+self.tex = rprElim(data, pasos, TexPasosPrev)
 pasos[0] = pasos[0] + pasosPrevios[0] 
 pasos[1] = pasosPrevios[1] + pasos[1]
 self.pasos = pasos 
 self.TrF = T(pasos[0])
 self.TrC = T(pasos[1])
-                                                               
+if rep:
+    display(Math(self.tex))                                                               
 @
 
-<<Método auxiliar que crea el atributo [[tex]] y muestra los pasos en Jupyter>>=
-def tex(data, pasos, TexPasosPrev=[]):
-    <<Definición del método [[PasosYEscritura]]>>
-    tex     = PasosYEscritura(data, pasos, TexPasosPrev)
-    if 'rep' in locals() and rep:
-        from IPython.display import display, Math
-        display(Math(tex))
-    return tex
-@ 
 \end{codigo}
 
 Cuando mostramos los pasos, es más legible mostrar únicamente los
 que modifican la matriz (omitiendo sustituciones de una columna por
 ella misma, productos de una columna por 1, o sumas de un vector nulo
-a una columna). Esto es lo primero que se hace con la
-[[<<Definición del método [[PasosYEscritura]]>>]]
-
+a una columna). 
 
 El atributo [[tex]] guardará el código \LaTeX\ que muestra el proceso
 completo. Si ha habido transformaciones previas, la cadena de \LaTeX\
@@ -5263,34 +5240,45 @@ correspondiente cadena de \LaTeX\ que permita representar los nuevos
 [[pasos]] dados como argumento de este método. Si [[TexPasosPrev]] es
 vacío, la escritura comienza con la representación de [[data]]. A la
 hora de representar los pasos hay que tener en cuenta si se dan sobre
-las filas ([[l==0]]) o sobre las columnas ([[l==1]]). Todo esto es lo
-que hace el método [[PasosYEscritura]]:
-\begin{codigo}[nobreak=true]
-<<Definición del método [[PasosYEscritura]]>>=
-def PasosYEscritura(data, p, TexPasosPrev=[]):
-    """Escribe en LaTeX los pasos efectivos dados"""
+las filas ([[l==0]]) o sobre las columnas ([[l==1]]). 
+
+\begin{codigo}
+<<Representación de un proceso de eliminación>>=
+def rprElim(data, pasos, TexPasosPrev=[]):
+    """Escribe en LaTeX los pasos efectivos y las sucesivas matrices"""
     A   = Matrix(data);  
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for l in 0,1:
-
 	if l==0:
-	    for i in reversed(range(len(p[l]))):
-                tex += '\\xrightarrow[' + latex(p[l][i]) + ']{}'
+	    for i in reversed(range(len(pasos[l]))):
+                tex += '\\xrightarrow[' + latex(pasos[l][i]) + ']{}'
                 if isinstance (data, Matrix):
-                    tex += latex( p[l][i] & A )
+                    tex += latex( pasos[l][i] & A )
                 elif isinstance (data, BlockM):
-                    tex += latex( key(data.lm)|(p[l][i] & A)|key(data.ln) )
+                    tex += latex( key(data.lm)|(pasos[l][i] & A)|key(data.ln) )
 	if l==1:
-	    for i in range(len(p[l])):
-                tex += '\\xrightarrow{' + latex(p[l][i]) + '}'
+	    for i in range(len(pasos[l])):
+                tex += '\\xrightarrow{' + latex(pasos[l][i]) + '}'
                 if isinstance (data, Matrix):
-                    tex += latex( A & p[l][i] )
+                    tex += latex( A & pasos[l][i] )
                 elif isinstance (data, BlockM):
-                    tex += latex( key(data.lm)|(A & p[l][i])|key(data.ln) )
+                    tex += latex( key(data.lm)|(A & pasos[l][i])|key(data.ln) )
     return tex
-@ 
+
+@ %def rprElim
 \end{codigo}
 
+Este procedimento añadido es para ``pintar'' los pasos de eliminación.
+
+\begin{codigo}
+<<Representación de un proceso de eliminación>>=
+def dispElim(self, pasos, TexPasosPrev=[]):
+    display(Math(rprElim(self, pasos, TexPasosPrev)))
+
+@ %def dispElim
+\end{codigo}
+
+El código es parecido a [[rprElim]], pero además calcula el determinante.
 
 \begin{codigo}[nobreak=true]
 <<Definición del método [[PasosYEscritura]] que también calcula el valor del [[Determinante]]>>=
@@ -5298,15 +5286,13 @@ def PasosYEscritura(data, p, TexPasosPrev=[]):
     """Escribe en LaTeX los pasos efectivos dados"""
     producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
     A   = Matrix(data);  
-    tex = latex(data) if not TexPasosPrev else TexPasosPrev
-    
+    tex = latex(data) if not TexPasosPrev else TexPasosPrev    
     for l in 0,1:
-        
 	if l==0:
 	    for i in reversed(range(len(p[l]))):
                 S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
                 m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m) != 1 else T([])
+                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m)!=1 else T([])
                 p[1] = p[1] + filtradopasos([d])
                 
                 tex += '\\xrightarrow[' + latex(p[l][i]) + ']{' + latex(d) + '}'
@@ -5318,7 +5304,7 @@ def PasosYEscritura(data, p, TexPasosPrev=[]):
 	    for i in range(len(p[l])):
                 S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
                 m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m) != 1 else T([])
+                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m)!=1 else T([])
                 p[0] = p[0] + filtradopasos([d])
 
                 tex += '\\xrightarrow[' + latex(d) + ']{' + latex(p[l][i] ) + '}'
@@ -5326,7 +5312,6 @@ def PasosYEscritura(data, p, TexPasosPrev=[]):
                     tex += latex( d & A & p[l][i] )
                 elif isinstance (data, BlockM):
                     tex += latex( key(data.lm)|(d & A & p[l][i])|key(data.ln) )
-
     Det = simplifica( producto( A.diag() ) )
     return [tex, Det, p]
 @ 
