@@ -15,12 +15,12 @@ Además, también permite trabajar con subespacios y espacios afines de
 manera simbólica, pues emplea los objetos básicos de la librería [Sympy](https://www.sympy.org/en/index.html).
 
 La documentación explica la programación del código y sirve como
-material adicional a los [apuntes de clase](https://github.com/mbujosab/CursoDeAlgebraLineal)
-del citado curso (pues es la implementación literal de lo mostrado en
-dichos apuntes). Puede ver el uso de la librería sin necesidad de
-instalar ningún programa accediendo a los Notebooks de Jupyter alojados en
+material adicional al [libro del curso](https://github.com/mbujosab/CursoDeAlgebraLineal)
+(este módulo es una implementación literal de lo mostrado en
+dicho libro). Puede ver el uso de la librería sin necesidad de
+instalar nada accediendo a los Notebooks de Jupyter alojados en
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb)
-empleando un navegador de páginas web (puede que tarde unos minutos en
+con su navegador de páginas web (puede tardar unos minutos en
 cargar la librería y el Notebook de demostración).
 
 ## Instalación
