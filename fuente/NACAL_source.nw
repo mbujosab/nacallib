@@ -4039,7 +4039,7 @@ $(\EV{S},\Vect{v})$ cuyo primer elemento, \EV{S}, sea un
 [[SubEspacio]] (el conjunto de soluciones a \SEL{A}{x}{0}) y cuyo
 segundo elemento, \Vect{v}, sea un vector del espacio afín (una
 solución particular de \SEL{A}{x}{b}). En el atributo [[S]]
-guardaremos el [[SubEspacio]] y en el atributo [[v]] el
+guardaremos el [[SubEspacio]] y en el atributo [[v]] un
 [[Vector]]. Así, pues, para instanciar un [[EAfin]] usaremos dos
 argumentos: el primero será un [[Sistema]] o [[Matrix]] con la que
 formar el [[SubEspacio]], y el segundo será un [[Vector]].
@@ -4052,17 +4052,19 @@ sistema ``ampliado'' que contiene los vectores del sistema generador
 de [[S]] primero, y [[v]] como último vector [[v]], y aplicamos el
 método de eliminación de izquierda a derecha; el último vector tras la
 eliminación pertenece al espacio afín, y será cero si
-$\Vect{v}\in\EV{S}$.
+$\Vect{v}\in\EV{S}$. Si [[vi]] es cero (su valor por defecto), en
+[[selv.v]] se guardará el vector resultante tras la eliminación, en
+caso contrario se guardará el vector indicado ([[vi]]) como argumento.
 
 
 \begin{codigo}[nobreak=true] 
 <<Inicialización de la clase [[EAfin]]>>=
-def __init__(self,data,v):
+def __init__(self, data, v, vi=0):
     """Inicializa un Espacio Afín de Rn"""
     self.S  = data if isinstance(data, SubEspacio) else SubEspacio(data)
     if not isinstance(v, Vector) or v.n != self.S.Rn:
          raise ValueError('v y SubEspacio deben estar en el mismo espacio vectorial')
-    self.v  = Elim( self.S.sgen.concatena(Sistema([v]))) |0
+    self.v  = v if vi else Elim( self.S.sgen.concatena(Sistema([v])) )|0
     self.Rn = self.S.Rn
     
 @ %def EAfin

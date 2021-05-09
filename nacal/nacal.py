@@ -1683,12 +1683,12 @@ class SubEspacio:
             
 
 class EAfin:
-    def __init__(self,data,v):
+    def __init__(self, data, v, vi=0):
         """Inicializa un Espacio Afín de Rn"""
         self.S  = data if isinstance(data, SubEspacio) else SubEspacio(data)
         if not isinstance(v, Vector) or v.n != self.S.Rn:
              raise ValueError('v y SubEspacio deben estar en el mismo espacio vectorial')
-        self.v  = Elim( self.S.sgen.concatena(Sistema([v]))) |0
+        self.v  = v if vi else Elim( self.S.sgen.concatena(Sistema([v])) )|0
         self.Rn = self.S.Rn
         
     def __contains__(self, other):
