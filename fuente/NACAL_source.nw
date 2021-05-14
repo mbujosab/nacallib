@@ -598,11 +598,15 @@ añade al final de la [[lista]] del sistema \SV{A} los elementos de la
 [[lista]] del sistema \SV{B}.
 \begin{codigo}
 <<Método de la clase [[Sistema]] para concatenar dos [[Sistema]]s>>=  
-def concatena(self,other):
+def concatena(self,other,c=0):
     """ Concatena dos Sistemas """
     if not isinstance(other, Sistema):
         raise ValueError('Un Sistema solo se puede concatenar a otro Sistema')
-    return type(self)(self.lista + other.lista)
+    S = type(self)(self.lista + other.lista)
+    if isinstance(other, Matrix) and c:
+        S.cF, S.cC = self.cF, self.cC
+        S.cC.update({self.n})
+    return S
 
 @ %def concatena
 \end{codigo}
@@ -929,6 +933,12 @@ Matrix([ Vector([1, 2]); Vector([1, 0]); Vector([9, 2]) ]) """
   \verb/self.m/ muestra el número de filas de la matriz (longitud del
   primer elemento del sistema); y \verb/self.n/ muestra el número de
   columnas (longitud del propio sistema).
+\item Así como los atributos [[self.cF]] y [[self.cC]] que
+  se usan en la representación en Jupyter. Almacenan los índices de
+  las filas y columnas detrás de las que se deben pintar las rectas
+  horizontales y verticales. Por defecto ninguna, por lo que
+  inicialmente los atributos son un conjunto que solo contiene el
+  cero,
 \end{itemize}
 \dots \HLa{\textbf{\emph{¡Ya tenemos traducido al lenguaje Python la
       definición de matriz!}}}
@@ -946,9 +956,11 @@ def __init__(self, data):
         
     <<Creación del atributo [[lista]] cuando no tenemos una [[lista]] de [[Vector]]es>>
     
-    self.m  =  len(self|1)
-    self.n  =  len(self)
-    
+    self.m  = len(self|1)
+    self.n  = len(self)
+    self.cC = {0}
+    self.cF = {0}
+                        
 @
 \end{codigo}
 \paragraph{La clase \texttt{Matrix}} junto con el listado de sus
@@ -1379,7 +1391,9 @@ de los $n$ [[Vector]]es columna.  \\ (Recuerde que
 <<Operador transposición para la clase [[Matrix]]>>=  
 def __invert__(self):
     <<Texto de ayuda para el operador transposición de la clase [[Matrix]]>>
-    return Matrix ([ c.lista for c in self ])
+    M = Matrix ([ c.lista for c in self ])
+    M.cF, M.cC = self.cC, self.cF
+    return M
     
 @ 
 \end{codigo}
@@ -2028,7 +2042,7 @@ otra [[T]] (o lista de [[T]]s) empleada para instanciar.
 <<Inicialización de la clase [[T]] (Transformación Elemental)>>=
 def __init__(self, t, rpr='v'):
     """Inicializa una transformación elemental"""
-    <<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>
+    <<Método auxiliar [[CreaLista]] que devuelve listas>>
     <<Creación del atributo [[t]] cuando se instancia con otra [[T]] o lista de [[T]]s>>
     else:
 	self.t = t
@@ -2060,7 +2074,7 @@ si [[t]] es una lista, el procedimiento no hace nada. Lo usaremos al
 instanciar [[T]] con una lista de [[T]]s; y al componer
 transformaciones elementales.
 \begin{codigo}
-<<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>=
+<<Método auxiliar [[CreaLista]] que devuelve listas>>=
 def CreaLista(t):
     """Devuelve t si t es una lista; si no devuelve la lista [t]"""
     return t if isinstance(t, list) else [t]
@@ -2116,7 +2130,7 @@ adelante).
 <<Composición de Transformaciones Elementales o aplicación sobre las filas de una [[Matrix]]>>=
 def __and__(self, other):
     <<Texto de ayuda para la composición de Transformaciones Elementales [[T]]>>
-    <<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>
+    <<Método auxiliar [[CreaLista]] que devuelve listas>>
     if isinstance(other, T):
         return T(CreaLista(self.t) + CreaLista(other.t), self.rpr)
 
@@ -2174,8 +2188,6 @@ def __invert__(self):
 @ 
 \end{codigo}
 
-% #return T([ ~j if isinstance(j, T) else j for j in list(reversed(self.t)) ])
-
 \subsection{Potencias e inversa de transformaciones elementales}
 Cualquier matriz de la forma \STEC{\Mat{I}} o de la forma
 \STEF{\Mat{I}} es invertible por ser producto de matrices elementales:
@@ -2223,7 +2235,7 @@ def __pow__(self,n):
 <<Método auxiliar que calcula la inversa de una [[T]]ransformación elemental>>=
 def Tinversa ( self ):
     """Calculo de la inversa de una transformación elemental"""
-    <<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>
+    <<Método auxiliar [[CreaLista]] que devuelve listas>>
 
     listaT = [          j            if isinstance(j,set) else \
                ( -j[0], j[1],  j[2]) if len(j)==3         else \
@@ -2248,10 +2260,10 @@ de la filas de la matriz identidad. Esto se logra con el método
 <<[[T]]ransformación elemental \emph{espejo} de una [[T]]>>=
 def espejo ( self ):
     """Calculo de la transformación elemental espejo de otra"""
-    <<Método auxiliar [[CreaLista]] que devuelve listas de abreviaturas>>
+    <<Método auxiliar [[CreaLista]] que devuelve listas>>
     return T([(j[0],j[2],j[1]) if len(j)==3 else j for j in CreaLista(self.t)],self.rpr)
     
-@ 
+@ %def espejo
 \end{codigo}
 @
 
@@ -2473,9 +2485,9 @@ from IPython.display import display, Math
 <<Resolviendo un sistema homogéneo>>
 <<Resolviendo un Sistema de Ecuaciones Lineales>>
 <<Calculando el determinante>>
-<<Diagonalizando una matriz por bloques triangulares (semejanza)>>
-<<Diagonalizando ortogonalmente una matriz simétrica>>
-<<Diagonalizando una matriz por congruencia>>
+<<Diagonalizando una matriz por bloques triangulares (por [[S]]emejanza)>>
+<<Diagonalizando [[O]]rtogonalmente una matriz simétrica>>
+<<Diagonalizando una matriz por [[C]]ongruencia>>
 @
 \end{codigo}
 
@@ -3207,7 +3219,7 @@ class InvMat(Matrix):
         self.pasos = R.pasos 
         self.TrF   = R.TrF 
         self.TrC   = R.TrC 
-        self.tex   = rprElim( BlockM([ [A], [I(A.n)] ]) , self.pasos)
+        self.tex   = rprElim( A.apila( I(A.n), 1 ) , self.pasos)
         if R.rango < A.n:        raise ArithmeticError('Matrix singular')        
         Inversa    = I(A.n) & T(R.pasos[1])  
         super(self.__class__ ,self).__init__(Inversa)
@@ -3233,7 +3245,7 @@ class InvMatF(Matrix):
      	self.pasos = M.pasos 
         self.TrF   = M.TrF 
         self.TrC   = M.TrC 
-        self.tex   = rprElim( BlockM([ [A,I(A.m)] ]) , self.pasos)
+        self.tex   = rprElim( A.concatena(I(A.m),1) , self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
         Inversa    = T(M.pasos[0]) & I(A.n)   
@@ -3260,7 +3272,9 @@ class InvMatFC(Matrix):
      	self.pasos = M.pasos  
         self.TrF   = M.TrF 
         self.TrC   = M.TrC 
-        self.tex   = rprElim(BlockM([[A,I(A.m)],[I(A.n),M0(A.m,A.n)]]),self.pasos)
+        self.tex   = rprElim( \
+                     A.apila(I(A.n),1).concatena(I(A.n).apila(M0(A.n,A.n),1),1), \
+                              self.pasos)
         if M.rango < A.n:
             raise ArithmeticError('Matrix singular')        
         Inversa    = ( I(A.n) & T(M.pasos[1]) ) * ( T(M.pasos[0]) & I(A.n) )
@@ -3296,8 +3310,8 @@ class Homogenea:
         self.determinado = (len(base) == 0)
         self.pasos       = L.pasos; 
         self.TrF         = L.TrF 
-        self.TrC         = L.TrC 
-        self.tex         = rprElim( BlockM([[A],[I(A.n)]]), self.pasos)
+        self.TrC         = L.TrC
+        self.tex         = rprElim( A.apila( I(A.n) ,1 ) , self.pasos)
         self.enulo       = SubEspacio(self.sgen)
         
         if rep:
@@ -3336,9 +3350,10 @@ class SEL:
         <<Texto de ayuda de la clase [[SEL]]>>
         A  = Matrix(A)
         MA = A.concatena(Matrix([-b])).apila(I(A.n+1))
+        MA.cfil({A.m,(A.m+A.n)}).ccol({A.n,A.n})
         BM = {A.m,(A.m+A.n)} | MA | {A.n,A.n}
         
-        L  = Elim( Matrix( 1|BM ) )
+        L  = Elim( slice(1,A.m)|MA )
         
         <<Si no se anula la última columna: [[raise error]]>>
         <<Aplicamos los [[pasos]] de eliminación sobre la matriz ampliada y obtenemos la solución>>
@@ -3352,15 +3367,15 @@ ampliada'', pues tiene una matriz identidad por debajo). Si el último elemento 
 
 \begin{codigo}
 <<Aplicamos los [[pasos]] de eliminación sobre la matriz ampliada y obtenemos la solución>>=
-EA        = Matrix(MA) & T(L.pasos[1]) 
+EA        = Matrix(MA).cfil(MA.cF).ccol(MA.cC) & T(L.pasos[1]) 
 Normaliza = T([]) if (0|EA|0)==1 else T([( fracc(1,0|EA|0), EA.n )])
 EA & Normaliza
 
-BEA       = {A.m, (A.m+A.n)} | EA | {A.n}
-          
-K = Matrix(1|BEA|1);   E = Matrix(2|BEA|1);   S = Matrix(2|BEA|2)
+K =         slice(1,A.m)|EA|slice(1,A.n);
+E = slice(A.m+1,A.m+A.n)|EA|slice(1,A.n)   
+S = slice(A.m+1,A.m+A.n)|EA|slice(A.n+1,None)  
 
-self.solP  = S|0
+self.solP  = S|1 
 base       = [ v for j, v in enumerate(E,1) if (K|j).es_nulo() ]
 self.sgen  = Sistema(base) if base else Sistema([ V0(A.n) ])
 self.eafin = EAfin(self.sgen, self.solP)
@@ -3369,7 +3384,7 @@ self.determinado = (len(base) == 0)
 self.pasos       = [[], L.pasos[1]+[Normaliza] ] if Normaliza.t else [[], L.pasos[1]]
 self.TrF         = T(self.pasos[0]) 
 self.TrC         = T(self.pasos[1]) 
-self.tex         = rprElim( BM, self.pasos )
+self.tex         = rprElim( MA, self.pasos )
 if rep:
     display(Math(self.tex))           
 @ 
@@ -3396,34 +3411,54 @@ mediante eliminación Gaussiana por columnas y muestra los pasos dados"""
 \begin{codigo}[nobreak=true]
 <<Calculando el determinante>>=
 class Determinante:
-    def __init__(self, data, rep=0):
+    def __init__(self, data, disp=0):
         <<Texto de ayuda de la clase [[Determinante]]>>
         
         A  = Matrix(data)
+        
         if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
-           
+        
         <<Cálculo del determinante y representación de los pasos en Jupyter>>
         
-        self.tex, self.valor, self.pasos = \
-                                   calculoDet( A.BlockDiag([I(1)]) , ElimG(A).pasos )
+        self.tex, self.valor, self.pasos = calculoDet( A )
         
         self.TrF   = T(self.pasos[0])
         self.TrC   = T(self.pasos[1])
-
+        
+        if disp:
+           display(Math(self.tex))
+        
     <<Métodos de representación de la clase [[Determinante]]>>
 
 @ %def Determinante
 \end{codigo}
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Cálculo del determinante y representación de los pasos en Jupyter>>=
-def calculoDet(data, pasos, TexPasosPrev=[]):
-    <<Definición del método [[PasosYEscritura]] que también calcula el valor del [[Determinante]]>>
-    tex, valor, pasos = PasosYEscritura(data, pasos)
-    if 'rep' in locals() and rep:
-        display(Math(tex))
-          
-    return [tex, valor, pasos]
+def calculoDet(A):
+    producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
+    
+    pc  = (A.L().pasos[1])
+    ME  = A.extDiag(I(1),1)
+    tex = ''
+    pasos = [[],[]]
+    
+    for i in range(len(pc)):
+        S  = [ tr for tr in filter( lambda x: len(x)==2, T(pc[i]).t ) ]
+        m  = [-1 if isinstance(tr,set) else tr[0] for tr in S]
+        pf = [T([ ( fracc(1, producto(m)) , A.n+1 ) ]) if producto(m)!=1 else T([])]
+        
+        tex = rprElimFyC(ME,[pf,[pc[i]]],tex)
+        
+        T(pf) & ME & T(pc[i])
+        
+        pasos[0] = pf + pasos[0]
+        pasos[1] = pasos[1] + [pc[i]]
+        
+    Det = simplifica( producto( ME.diag() ) )
+    
+    return [tex, Det, pasos]
+    
 @ %def calculoDet
 \end{codigo}
 
@@ -3449,8 +3484,8 @@ def latex(self):
 \pagebreak
 \section{Diagonalizando en bloques triangulares una matriz cuadrada por semejanza (Dentado)}
 \begin{codigo}[nobreak=true]
-<<Diagonalizando una matriz por bloques triangulares (semejanza)>>=
-class Diagonaliza(Matrix):
+<<Diagonalizando una matriz por bloques triangulares (por [[S]]emejanza)>>=
+class DiagonalizaS(Matrix):
     def __init__(self, A, espectro, Rep=0):
         <<Texto de ayuda para la clase [[Diagonaliza]]>>
         <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
@@ -3461,7 +3496,7 @@ class Diagonaliza(Matrix):
         if len(espectro)!=D.n:
             raise ValueError('número inadecuado de autovalores en la lista espectro')
         S            = I(D.n)
-        Tex          = latex( BlockM( [[D], [S]] ) )
+        Tex          = latex( D.apila(S,1) )
         pasosPrevios = [[],[]]
         selecc       = list(range(1,D.n+1))
         for lamda in espectro:
@@ -3517,14 +3552,14 @@ cuyas columnas son autovectores de los correspondientes autovalores.
 pasos           = [ [], TrCol ]
 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 
-Tex = rprElim( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
+Tex = rprElim( D.apila(S,1), pasos, Tex) if TrCol else Tex
 D = D & T(pasos[1])
 S = S & T(pasos[1])
 
 pasos           = [ [T(pasos[1]).espejo()**-1] , []]
 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 
-Tex = rprElim( BlockM( [[D], [S]] ), pasos, Tex) if TrCol else Tex
+Tex = rprElim( D.apila(S,1), pasos, Tex) if TrCol else Tex
 D   = T(pasos[0]) & D
 @ 
 \end{codigo}
@@ -3533,30 +3568,30 @@ D   = T(pasos[0]) & D
 <<Restamos $\lambda\Mat{I}$>>=
 D = D-(lamda*I(D.n))
 Tex += '\\xrightarrow[' + latex(lamda) + '\\mathbf{I}]{(-)}' \
-                        + latex(BlockM( [[D], [S]] ))
+                        + latex(D.apila(S,1))
 @ 
 
 <<Sumamos $\lambda\Mat{I}$>>=
 D = D+(lamda*I(D.n))
 Tex += '\\xrightarrow[' + latex(lamda) + '\\mathbf{I}]{(+)}' \
-                        + latex(BlockM( [[D], [S]] ))
+                        + latex(D.apila(S,1))
 @ 
 \end{codigo}
 
 \subsection{Diagonalización ortogonal de una matriz simétrica}
 \begin{codigo}[nobreak=true]
-<<Diagonalizando ortogonalmente una matriz simétrica>>=
+<<Diagonalizando [[O]]rtogonalmente una matriz simétrica>>=
 class DiagonalizaO(Matrix):
     def __init__(self, A, espectro, Rep=0):
         <<Texto de ayuda para la clase [[DiagonalizaO]]>>
-        def ext(self):
-            M = Matrix(BlockM([ [self, I(self.m)] ])).GS()
-            l = [ j for j, v in enumerate(M, 1) if v.no_es_nulo() ]
-            l = l[1:len(l)]+[l[0]]
-            return (M|l).normalizada()
-
+        <<Método auxiliar para creación de una base ortonormal donde \Vect{q} es el último vector>>
+           
         D =Matrix(A)
-        if not D.es_simetrica: raise ValueError('La matriz no es simétrica')
+        if not D.es_simetrica:
+           raise ValueError('La matriz no es simétrica')
+        if not isinstance(espectro,list) or len(espectro)!=A.n:
+           raise ValueError('Espectro incorrecto')
+           
         S        = I(A.n)
         espectro = list(espectro);
         selecc   = list(range(1,D.n+1))
@@ -3570,10 +3605,10 @@ class DiagonalizaO(Matrix):
 
             q = ( I(k) & T(TrCol) )|0
             q = (sympy.sqrt(q*q)) * q
-            Q = Matrix(BlockM([ \
-                 [ext(Matrix([q])), M0(k, nmenosk)], \
-                 [  M0(nmenosk, k),     I(nmenosk)]  ] )) if nmenosk \
-                 else ext(Matrix([q]))
+           
+            Q = BaseOrtNor(q).concatena(M0(k,nmenosk)).apila( \
+                M0(nmenosk,k).concatena(I(nmenosk)))  if nmenosk else BaseOrtNor(q)
+           
             S = S *Q     
             D = ~Q*D*Q
             
@@ -3585,55 +3620,68 @@ class DiagonalizaO(Matrix):
                    
 @ %def DiagonalizaO
 \end{codigo}
+%            #Q = Matrix(BlockM([ \
+%            #     [ext(Matrix([q])), M0(k, nmenosk)], \
+%            #     [  M0(nmenosk, k),     I(nmenosk)]  ] )) if nmenosk \
+%            #     else ext(Matrix([q]))
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Texto de ayuda para la clase [[DiagonalizaO]]>>=
 """ Diagonaliza ortogonalmente una Matrix simétrica 
 
-Encuentra una matriz diagonal semejante multiplicando por una matriz
-ortogonal Q a la derecha y por la inversa (transpuesta) de Q por la
-izquierda. Requiere una lista de autovalores (espectro), que deben
-aparecer en dicha lista tantas veces como sus respectivas multiplicidades 
-algebraicas. Los autovalores aparecen en la diagonal principal de la
-matriz diagonal. El atributo Q de la matriz diagonal es la matriz
-ortogonal cuyas columnas son autovectores de los correspondientes
-autovalores. """
+Encuentra una matriz diagonal por semejanza empleando una matriz
+ortogonal Q a la derecha y su inversa (transpuesta) por la izquierda. 
+Requiere una lista de autovalores (espectro), que deben aparecer tantas
+veces como sus respectivas multiplicidades algebraicas. Los autovalores 
+aparecen en la diagonal principal de la matriz diagonal. El atributo Q 
+de la matriz diagonal es la matriz ortogonal cuyas columnas son 
+autovectores de los correspondientes autovalores. """
 @  
+\end{codigo}
+
+Creamos una base ortonormal de \R[n] con $\Vect{q}\in\R[n]$ como último vector
+(Corolario 2.1 de la lección)
+\begin{codigo}[nobreak=true]
+<<Método auxiliar para creación de una base ortonormal donde \Vect{q} es el último vector>>=
+def BaseOrtNor(q):
+    "Crea una base ortonormal cuyo último vector es 'q'"
+    if not isinstance(q,Vector): raise ValueError('El argumento debe ser un Vector')
+    M = Matrix([q]).concatena(I(q.n)).GS()
+    l = [ j for j, v in enumerate(M, 1) if v.no_es_nulo() ]
+    l = l[1:len(l)]+[l[0]]
+    return (M|l).normalizada()
+@  %def BaseOrtNor
 \end{codigo}
 
 
 \section{Diagonalización por congruencia}
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Texto de ayuda para la clase [[DiagonalizaC]]>>=
 """ Diagonaliza por congruencia una Matrix simétrica (evitando dividir)
 
-Encuentra una matriz diagonal congruente multiplicando por una matriz
-invertible B a la derecha (y de números enteros si es posible) y por la 
-transpuesta de B por la izquierda. No requiere conocer los autovalores. 
-En general los elementos en la diagonal principal de la matriz diagonal 
-no son autovalores, pero hay tantos elementos positivos en la diagonal 
-como autovalores positivos (incluyendo la multiplicidad de cada uno), 
-tantos negativos como autovalores negativos (incluyendo la multiplicidad
-de cada uno), y tantos ceros como la multiplicidad algebraica del 
-autovalor cero. """
+Encuentra una matriz diagonal por conruencia empleando una matriz B 
+invertible (y entera si es posible) por la derecha y su transpuesta por
+la izquierda. No emplea los autovalores. En general los elementos en la
+diagonal principal no son autovalores, pero hay tantos elementos 
+positivos en la diagonal como autovalores positivos, tantos negativos 
+como autovalores negativos, y tantos ceros como auntovalores nulos. """
 @  
 \end{codigo}
 
 
 \begin{codigo}[nobreak=true]
-<<Diagonalizando una matriz por congruencia>>=
+<<Diagonalizando una matriz por [[C]]ongruencia>>=
 class DiagonalizaC(Matrix):
     def __init__(self, data, Rep=0):
         <<Texto de ayuda para la clase [[DiagonalizaC]]>>
         <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
-        Tex   = latex(A);   
+        #Tex   = latex(A);   
         for i in range(1,A.n):
             p = BuscaNuevoPivote(i|A)
-            #j = [k for k in list(range(i,A.n+1)) if ( i|A|k and not k|A|k )]
-            j = [k for k,col in enumerate(A|slice(i,None), i) if (i|col and not k|col)]
+            j = [k for k,col in enumerate(A|slice(i,None),i) if (i|col and not k|col)]
             if not (i|A|i):
                 if j:
                     Tr = T( (1, j[0], i) )
@@ -3647,20 +3695,20 @@ class DiagonalizaC(Matrix):
                 <<Uso del pivote para eliminar componentes evitando dividir>>
                 <<Aplicación de las transformaciones a las columnas y a las filas>>
             colExcluida.add(i)
-            
-        self.tex       = Tex
+           
         self.pasos     = pasosPrevios
+        self.tex       = rprElimCF(Matrix(data),self.pasos) 
         self.TrF       = filtradopasos(T(self.pasos[0]))
         self.TrC       = filtradopasos(T(self.pasos[1]))
-        self.B         = I(A.n) & T(pasosPrevios[1])
+        self.B         = I(A.n) & self.TrC
         
-        if Rep:
-            display(Math(Tex))
+        if Rep: 
+            display(Math(self.tex))
             
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
                    
-@ 
+@ %def DiagonalizaC
 \end{codigo}
 
 %        #self.positivos = sum([1 for c in A.diag() if c>0 ] )
@@ -3675,12 +3723,10 @@ class DiagonalizaC(Matrix):
 <<Aplicación de las transformaciones a las columnas y a las filas>>=
 pasos = [ [], filtradopasos([Tr]) ]
 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-Tex = rprElim( A, pasos, Tex)
 A = A & T(pasos[1])
 
 pasos = [ filtradopasos([~Tr]) , []]
 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-Tex = rprElim( A, pasos, Tex)
 A = T(pasos[0]) & A
 @ 
 \end{codigo}
@@ -3702,7 +3748,7 @@ ceros como la multiplicidad algebraica del autovalor cero. """
 \end{codigo}
 
 \begin{codigo}[nobreak=true]
-<<Diagonalizando una matriz por congruencia>>=
+<<Diagonalizando una matriz por [[C]]ongruencia>>=
 class DiagonalizaCr(Matrix):
     def __init__(self, data, Rep=0):
         <<Texto de ayuda para la clase [[DiagonalizaCr]]>>
@@ -3712,8 +3758,7 @@ class DiagonalizaCr(Matrix):
         Tex   = latex(A);   
         for i in range(1,A.n):
             p = BuscaNuevoPivote(i|A)
-            #j = [k for k in list(range(i,A.n+1)) if ( i|A|k and not k|A|k )]
-            j = [k for k,col in enumerate(A|slice(i,None), i) if (i|col and not k|col)]
+            j = [k for k,col in enumerate(A|slice(i,None),i) if (i|col and not k|col)]
             if not (i|A|i):
                 if j:
                     Tr = T( (1, j[0], i) )
@@ -3740,7 +3785,7 @@ class DiagonalizaCr(Matrix):
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
         
-@ 
+@ %def DiagonalizaCr
 \end{codigo}
 
 %        #self.positivos = sum([1 for c in A.diag() if c>0 ] )
@@ -4064,7 +4109,7 @@ def __init__(self, data, v, vi=0):
     self.S  = data if isinstance(data, SubEspacio) else SubEspacio(data)
     if not isinstance(v, Vector) or v.n != self.S.Rn:
          raise ValueError('v y SubEspacio deben estar en el mismo espacio vectorial')
-    self.v  = v if vi else Elim( self.S.sgen.concatena(Sistema([v])) )|0
+    self.v  = Vector(v) if vi else Elim( self.S.sgen.concatena(Sistema([v])) )|0
     self.Rn = self.S.Rn
     
 @ %def EAfin
@@ -4540,12 +4585,26 @@ def _repr_html_(self):
     """ Construye la representación para el  entorno Jupyter Notebook """
     return html(self.latex())
     
+def cfil(self,conjuntoIndices):
+    """ Añade el atributo cfilas para insertar lineas horizontales """
+    self.cF = set(conjuntoIndices) if conjuntoIndices else {0}
+    return self
+
+def ccol(self,conjuntoIndices):
+    """ Añade el atributo cfilas para insertar lineas horizontales """
+    self.cC = set(conjuntoIndices) if conjuntoIndices else {0}
+    return self
+
 def latex(self):
     """ Construye el comando LaTeX para representar una Matrix """
-    return '\\begin{bmatrix}' + \
-           '  \\\\'.join(['&'.join([latex(e) for e in fila]) for fila in ~self]) + \
-           '\\end{bmatrix}'
-           
+    ln = [len(n) for n in particion(self.cC,self.n)]                                                           
+    return \
+     '\\left[ \\begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
+     '\\\\ \\hline '.join(['\\\\'.join(['&'.join([latex(e) for e in f.lista]) \
+       for f in (~M).lista]) \
+       for M in [ i|self for i in particion(self.cF,self.m)]]) + \
+     '\\\\ \\end{array} \\right]'
+    
 @   
 \end{codigo}
 
@@ -4626,13 +4685,12 @@ def es_invertible(self):
 
 \begin{codigo}[nobreak=true]
 <<Apila una lista de [[Matrix]] con el mismo número de columnas en una única [[Matrix]]>>=
-def apila(self, l):
+def apila(self, l, c=0):
     """Apila una lista o tupla de Matrix con el mismo número de columnas
-    es una única Matrix concatenando las respectivas columnas"""
+    en una única Matrix concatenando las respectivas columnas"""
     l = l if isinstance(l, list) else [l]
-                                                               
-    apila_dos = lambda x, other: ~((~x).concatena(~other))
-    apila = lambda x: x[0] if len(x)==1 else apila_dos( apila(x[0:-1]), x[-1] )
+    apila_dos = lambda x, other, c=0: ~((~x).concatena(~other,c))
+    apila = lambda x: x[0] if len(x)==1 else apila_dos( apila(x[0:-1]), x[-1] , c )
     
     return apila([self] + [s for s in l])
     
@@ -4648,7 +4706,16 @@ def ExtiendeDiag(self,lista):
     ExtDiag     = lambda x: x[0] if len(x)==1 else Ext_dos( ExtDiag(x[0:-1]), x[-1] )
     return ExtDiag([self]+lista)
     
-@ %def ExtiendeDiag
+def extDiag(self,lista,c=0):
+    <<Método auxiliar [[CreaLista]] que devuelve listas>>
+    lista = CreaLista(lista)
+    if not all(isinstance(m,Matrix) for m in lista): 
+        return ValueError('No es una lista de matrices')
+    Ext_dos = lambda x, y: x.apila(M0(y.m,x.n),c).concatena(M0(x.m,y.n).apila(y,c),c)
+    ExtDiag     = lambda x: x[0] if len(x)==1 else Ext_dos( ExtDiag(x[0:-1]), x[-1] )
+    return ExtDiag([self]+lista)
+    
+@ %def ExtiendeDiag extDiag
 \end{codigo}
 
 \begin{codigo}
@@ -4784,7 +4851,7 @@ def determinante(self, rep=0):
 <<Métodos de [[Matrix]] que usan la eliminación>>=
 def diagonalizaS(self, espectro, rep=0):
     <<Texto de ayuda para la clase [[Diagonaliza]]>>
-    return Diagonaliza(self, espectro, rep)
+    return DiagonalizaS(self, espectro, rep)
 
 @ %def diagonalizaS
 \end{codigo}
@@ -5248,27 +5315,86 @@ las filas ([[l==0]]) o sobre las columnas ([[l==1]]).
 <<Representación de un proceso de eliminación>>=
 def rprElim(data, pasos, TexPasosPrev=[]):
     """Escribe en LaTeX los pasos efectivos y las sucesivas matrices"""
-    A   = Matrix(data);  
+    A = data.copy()
+    if isinstance (data, Matrix):
+        A.cF, A.cC = data.cF, data.cC
+        
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for l in 0,1:
 	if l==0:
 	    for i in reversed(range(len(pasos[l]))):
-                tex += '\\xrightarrow[' + latex(pasos[l][i]) + ']{}'
-                if isinstance (data, Matrix):
-                    tex += latex( pasos[l][i] & A )
-                elif isinstance (data, BlockM):
-                    tex += latex( key(data.lm)|(pasos[l][i] & A)|key(data.ln) )
+                tex += '\\xrightarrow[' + latex(pasos[l][i]) + ']{}' 
+                tex += latex( pasos[l][i] & A )
 	if l==1:
 	    for i in range(len(pasos[l])):
                 tex += '\\xrightarrow{' + latex(pasos[l][i]) + '}'
-                if isinstance (data, Matrix):
-                    tex += latex( A & pasos[l][i] )
-                elif isinstance (data, BlockM):
-                    tex += latex( key(data.lm)|(A & pasos[l][i])|key(data.ln) )
+                tex += latex( A & pasos[l][i] )
+                                                               
     return tex
 
 @ %def rprElim
 \end{codigo}
+
+%                #if isinstance (data, Matrix):
+%                #    tex += latex( pasos[l][i] & A )
+%                #elif isinstance (data, BlockM):
+%                #    tex += latex( key(data.lm)|(pasos[l][i] & A)|key(data.ln) )
+%
+%                #if isinstance (data, Matrix):
+%                #    tex += latex( A & pasos[l][i] )
+%                #elif isinstance (data, BlockM):
+%                #    tex += latex( key(data.lm)|(A & pasos[l][i])|key(data.ln) )
+
+\begin{codigo}
+<<Representación de un proceso de eliminación>>=
+def rprElimFyC(data, pasos, TexPasosPrev=[]):
+    """Escribe en LaTeX los pasos efectivos y las sucesivas matrices"""
+    A = data.copy()
+    if isinstance (data, Matrix):
+        A.cF, A.cC = data.cF, data.cC
+
+    #pasos[0] = list(reversed(pasos[0]))
+                                                               
+    tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    for i in range(len(pasos[1])):
+        tex += '\\xrightarrow' \
+                + '[' + latex(T(pasos[0][-i-1])) + ']' \
+                + '{' + latex(T(pasos[1][i])) + '}'
+        tex += latex( pasos[0][-i-1] & A & pasos[1][i] )
+                                                               
+    return tex
+
+@ %def rprElimFyC
+\end{codigo}
+
+%        if isinstance (data, Matrix):
+%            tex += latex( pasos[0][i] & A & pasos[1][i])
+%        elif isinstance (data, BlockM):
+%            tex += latex( key(data.lm)|(pasos[l][i] & A)|key(data.ln) )
+
+
+\begin{codigo}
+<<Representación de un proceso de eliminación>>=
+def rprElimCF(data, pasos, TexPasosPrev=[]):
+    """Escribe en LaTeX los pasos efectivos y las sucesivas matrices"""
+    A = data.copy()
+    if isinstance (data, Matrix):
+        A.cF, A.cC = data.cF, data.cC
+                                                               
+    #pasos[0] = list(reversed(pasos[0]))
+                                                               
+    tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    for i in range(len(pasos[1])):
+        tex += '\\xrightarrow[]{' + latex(T(pasos[1][i])) + '}'
+        tex += latex( A & pasos[1][i] )
+        tex += '\\xrightarrow['   + latex(T(pasos[0][-i-1])) + ']{}' 
+        tex += latex( pasos[0][-i-1] & A )
+                                                               
+    return tex
+
+@ %def rprElimCF
+\end{codigo}
+
 
 Este procedimento añadido es para ``pintar'' los pasos de eliminación.
 
@@ -5277,46 +5403,13 @@ Este procedimento añadido es para ``pintar'' los pasos de eliminación.
 def dispElim(self, pasos, TexPasosPrev=[]):
     display(Math(rprElim(self, pasos, TexPasosPrev)))
 
-@ %def dispElim
-\end{codigo}
+def dispElimFyC(self, pasos, TexPasosPrev=[]):
+    display(Math(rprElimFyC(self, pasos, TexPasosPrev)))
 
-El código es parecido a [[rprElim]], pero además calcula el determinante.
+def dispElimCF(self, pasos, TexPasosPrev=[]):
+    display(Math(rprElimCF(self, pasos, TexPasosPrev)))
 
-\begin{codigo}[nobreak=true]
-<<Definición del método [[PasosYEscritura]] que también calcula el valor del [[Determinante]]>>=
-def PasosYEscritura(data, p, TexPasosPrev=[]):
-    """Escribe en LaTeX los pasos efectivos dados"""
-    producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
-    A   = Matrix(data);  
-    tex = latex(data) if not TexPasosPrev else TexPasosPrev    
-    for l in 0,1:
-	if l==0:
-	    for i in reversed(range(len(p[l]))):
-                S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
-                m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m)!=1 else T([])
-                p[1] = p[1] + filtradopasos([d])
-                
-                tex += '\\xrightarrow[' + latex(p[l][i]) + ']{' + latex(d) + '}'
-                if isinstance (data, Matrix):
-                    tex += latex( p[l][i] & A & d)
-                elif isinstance (data, BlockM):
-                    tex += latex( key(data.lm)|(p[l][i] & A & d)|key(data.ln) )
-	if l==1:
-	    for i in range(len(p[l])):
-                S = [ tr for tr in filter( lambda x: len(x)==2, T(p[l][i]).t ) ]
-                m = [-1 if isinstance(tr,set) else tr[0] for tr in S]
-                d = T([ ( fracc(1, producto(m)) , A.n ) ]) if producto(m)!=1 else T([])
-                p[0] = p[0] + filtradopasos([d])
-
-                tex += '\\xrightarrow[' + latex(d) + ']{' + latex(p[l][i] ) + '}'
-                if isinstance (data, Matrix):
-                    tex += latex( d & A & p[l][i] )
-                elif isinstance (data, BlockM):
-                    tex += latex( key(data.lm)|(d & A & p[l][i])|key(data.ln) )
-    Det = simplifica( producto( A.diag() ) )
-    return [tex, Det, p]
-@ 
+@ %def dispElim dispElimFyC dispElimCF
 \end{codigo}
 
 \clearpage
@@ -5564,13 +5657,13 @@ def latex(self):
         
     else:
         return \
-          '\\left(' + \
+          '\\left(\\!\\!\\!\\!\\left(' + \
           '\\begin{array}{' + self.ln*'c' + '}' + \
-          '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( [latex(e) \
+          '\\\\ \\hline\\hline'.join( ['\\\\'.join( ['&'.join( [latex(e) \
                  for e in fila ]) for fila in ~Mat ]) for Mat in self ]) + \
           '\\\\' + \
           '\\end{array}' + \
-          '\\right)'
+          '\\right)\\!\\!\\!\\!\\right)'
 
 @  
 \end{codigo}
@@ -5917,25 +6010,30 @@ def _repr_html_(self):
     return html(self.latex())
 
 def latex(self):
-    """ Escribe el código de LaTeX para representar una BlockM """
-    if self.m == self.n == 1:       
-        return \
-          '\\begin{array}{|c|}' + \
-          '\\hline ' + latex(Matrix(self)) + '\\\\ \\hline ' + \
-          '\\end{array}'
-    else:
-        return \
-          '\\left[' + \
+    """ Escribe el código de LaTeX para representar una BlockM """                     
+    Neg  = '\!\!\!\!' if Matrix(self).m > 1 else '\!'
+    Neg2 = '\\!' if len(self.ln) > 1 and Matrix(self).m == 2 else ''
+    Neg3 = '\\!' if Matrix(self).m > 2 else ''
+    Pos = '\,' if Matrix(self).m > 2 else ''
+    return \
+          '\,\,\,\\left[' + Neg + Neg2 + Neg3 + '\\left[' + Pos + \
           '\\begin{array}{' + '|'.join([n*'c' for n in self.ln])  + '}' + \
           '\\\\ \\hline '.join( ['\\\\'.join( ['&'.join( \
            [latex(e) for e in fila]) for fila in ~Mat]) for Mat in (self|{0}|1)]) + \
           '\\\\' + \
-          '\\end{array}' + \
-          '\\right]'
+          '\\end{array}' + Pos +\
+          '\\right]' + Neg + Neg2 + Neg3 + '\\right]\,\,\,'
 
 @ 
 \end{codigo}
-
+%\hdotsfor[1.5]{3}
+%    #if self.m == self.n == 1:       
+%    #    return \
+%    #      '\\begin{array}{|c|}' + \
+%    #      '\\hline ' + latex(Matrix(self)) + '\\\\ \\hline ' + \
+%    #      '\\end{array}'
+%    #else:
+%    #if self.m == self.n == 1:
 
 %\appendix
 %\appendix
