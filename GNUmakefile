@@ -4,7 +4,7 @@ NWFuente   = NACAL_source
 DOCU	   = Doc_$(PAPER).pdf
 DIRFuente  = fuente
 
-VERSION    = 0.1.12
+VERSION    = 0.1.13
 
 ############
 VPATH	   = $(PWD)/$(DIRFuente)
