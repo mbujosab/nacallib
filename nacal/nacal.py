@@ -1,6 +1,8 @@
 # coding=utf8
 import sympy
 from IPython.display import display, Math
+import warnings
+warnings.simplefilter('always', UserWarning)
 def fracc(a,b):
     """Transforma la fracción a/b en un número racional si ello es posible"""
     if all( [ isinstance(i, (int, float, sympy.Rational) ) for i in (a,b) ] ):
@@ -1011,12 +1013,26 @@ class V0(Vector):
         super().__init__([0 for i in range(n)], rpr)
         self.__class__ = Vector
 
+class V1(Vector):
+    def __init__(self, n ,rpr = 'columna'):
+        """ Inicializa el vector nulo de n componentes"""
+        super().__init__([1 for i in range(n)], rpr)
+        self.__class__ = Vector
+
 class M0(Matrix):
     def __init__(self, m, n=None):
         """ Inicializa una matriz nula de orden n """
         n = m if n is None else n
 
         super().__init__([ V0(m) for j in range(n)])
+        self.__class__ = Matrix
+
+class M1(Matrix):
+    def __init__(self, m, n=None):
+        """ Inicializa una matriz nula de orden n """
+        n = m if n is None else n
+
+        super().__init__([ V1(m) for j in range(n)])
         self.__class__ = Matrix
 
 class I(Matrix):
@@ -1724,29 +1740,19 @@ class SubEspacio:
         """Construye la representación para el entorno Jupyter Notebook"""
         return html(self.latex())
 
-    def EcParametricas(self):
+    def EcParametricas(self, d=0):
         """Representación paramétrica del SubEspacio"""
-        return '\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^' \
-          + latex(self.Rn) \
-          + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
-          + latex(max(self.dim,1)) \
-          + ',\\; \\boldsymbol{v}= '\
-          + latex(Matrix(self.sgen)) \
-          + '\\boldsymbol{p}\\right. \\right\\}' \
-          #+ '\qquad\\text{(ecuaciones paramétricas)}'
+        if d: display(Math(self.EcParametricas()))
+        return EAfin(self.sgen,self.sgen|1).EcParametricas()
 
-    def EcCartesianas(self):
+    def EcCartesianas(self, d=0):
         """Representación cartesiana del SubEspacio"""
-        return '\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^' \
-          + latex(self.Rn) \
-          + '\ \\left|\ ' \
-          + latex(self.cart) \
-          + '\\boldsymbol{v}=\\boldsymbol{0}\\right.\\right\\}' \
-          #+ '\qquad\\text{(ecuaciones cartesianas)}'
+        if d: display(Math(self.EcCartesianas()))
+        return EAfin(self.sgen,self.sgen|1).EcCartesianas()
         
     def latex(self):
         """ Construye el comando LaTeX para un SubEspacio de Rn"""
-        return self.EcParametricas() + '\; = \;' + self.EcCartesianas()
+        return EAfin(self.sgen,self.sgen|1).latex()
             
 
 class EAfin:
@@ -1812,19 +1818,22 @@ class EAfin:
         """Construye la representación para el entorno Jupyter Notebook"""
         return html(self.latex())
 
-    def EcParametricas(self):
-        """Representación paramétrica del SubEspacio"""
+    def EcParametricas(self, d=0):
+        """Representación paramétrica de EAfin"""
+        punto = latex(self.v) + '+' if (self.v != 0*self.v) else ''
+        if d: display(Math(self.EcParametricas()))
         return '\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^' \
           + latex(self.S.Rn) \
           + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
           + latex(max(self.S.dim,1)) \
-          + ',\\; \\boldsymbol{v}= '\
-          + latex(self.v) + '+' \
+          + ',\\; \\boldsymbol{v}= ' \
+          + punto \
           + latex(Matrix(self.S.sgen)) \
           + '\\boldsymbol{p}\\right. \\right\\}' \
 
-    def EcCartesianas(self):
-        """Representación cartesiana del SubEspacio"""
+    def EcCartesianas(self, d=0):
+        """Representación cartesiana de EAfin"""
+        if d: display(Math(self.EcCartesianas()))
         return '\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^' \
           + latex(self.S.Rn) \
           + '\ \\left|\ ' \
@@ -1834,11 +1843,8 @@ class EAfin:
           + '\\right.\\right\\}' \
         
     def latex(self):
-        """ Construye el comando LaTeX para un SubEspacio de Rn"""
-        if self.v != 0*self.v:
-             return self.EcParametricas() + '\\; = \\;' + self.EcCartesianas()
-        else:
-             return latex(self.S)
+        """ Construye el comando LaTeX para un EAfin de Rn"""
+        return self.EcParametricas() + '\\; = \\;' + self.EcCartesianas()
             
 class Homogenea:
     def __init__(self, data, rep=0):
@@ -1875,7 +1881,7 @@ class Homogenea:
         if self.determinado:
             return '\\left\\{\ ' + latex(self.sgen|1) + '\ \\right\\}'
         else:
-            return '\\mathcal{L}\\left(\ ' + latex(self.sgen) + '\ \\right)' # + latex(self.enulo)
+            return '\\mathcal{L}\\left(\ ' + latex(self.sgen) + '\ \\right)' 
    
            
 class SEL:
@@ -1886,15 +1892,11 @@ class SEL:
         los pasos dados"""
         A  = Matrix(A)
         MA = A.concatena(Matrix([-b])).apila(I(A.n+1))
-        MA.cfil({A.m,(A.m+A.n)}).ccol({A.n,A.n})
-        BM = {A.m,(A.m+A.n)} | MA | {A.n,A.n}
+        MA.cfil( {A.m, A.m+A.n} ).ccol( {A.n} )
         
         L  = Elim( slice(1,A.m)|MA )
         
-        if (L|0).no_es_nulo():
-            self.tex = tex( BM, L.pasos )
-            raise ArithmeticError('No hay solución: Sistema incompatible')
-        EA        = Matrix(MA).cfil(MA.cF).ccol(MA.cC) & T(L.pasos[1]) 
+        EA        = Matrix(MA) & T(L.pasos[1]) 
         Normaliza = T([]) if (0|EA|0)==1 else T([( fracc(1,0|EA|0), EA.n )])
         EA & Normaliza
 
@@ -1902,29 +1904,24 @@ class SEL:
         E = slice(A.m+1,A.m+A.n)|EA|slice(1,A.n)   
         S = slice(A.m+1,A.m+A.n)|EA|slice(A.n+1,None)  
 
-        self.solP  = S|1 
-        base       = [ v for j, v in enumerate(E,1) if (K|j).es_nulo() ]
-        self.sgen  = Sistema(base) if base else Sistema([ V0(A.n) ])
-        self.eafin = EAfin(self.sgen, self.solP)
+        self.base        = Sistema([ v for j, v in enumerate(E,1) if (K|j).es_nulo() ])
+        self.sgen        = self.base if self.base else Sistema([ V0(A.n) ])
+        self.determinado = (len(self.base) == 0)
 
-        self.determinado = (len(base) == 0)
+        if (L|0).no_es_nulo():
+            warnings.warn("Conjunto de soluciones vacío: Sistema incompatible")
+            self.solP  = set()
+            self.eafin = set()
+        else:
+            self.solP  = S|1 
+            self.eafin = EAfin(self.sgen, self.solP)
+
         self.pasos       = [[], L.pasos[1]+[Normaliza] ] if Normaliza.t else [[], L.pasos[1]]
         self.TrF         = T(self.pasos[0]) 
         self.TrC         = T(self.pasos[1]) 
         self.tex         = rprElim( MA, self.pasos )
         if rep:
             display(Math(self.tex))           
-    def EcParametricas(self):
-        """Representación paramétrica del SubEspacio"""
-        return '\\left\\{ \\boldsymbol{x}\\in\\mathbb{R}^' \
-          + latex(self.eafin.Rn) \
-          + '\ \\left|\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^' \
-          + latex(len(self.sgen)) \
-          + ',\\; \\boldsymbol{x}= '\
-          + latex(self.solP) + '+' \
-          + latex(Matrix(self.sgen)) \
-          + '\\boldsymbol{p}\\right. \\right\\}' \
-       
     def __repr__(self):
         """Muestra el Espacio Nulo de una matriz en su representación Python"""
         return repr(self.solP) + ' + Combinaciones lineales de (' + repr(self.sgen) + ')'
@@ -1935,10 +1932,11 @@ class SEL:
 
     def latex(self):
         """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
-        if self.determinado:
+        if self.determinado and self.solP:
             return '\\left\\{\ ' + latex(self.solP) + '\ \\right\\}'
         else:
-            return self.EcParametricas()
+            return self.eafin.EcParametricas() if self.solP else latex(set())
+
               
 class Determinante:
     def __init__(self, data, disp=0):
