@@ -2454,8 +2454,6 @@ Jupyter lo simplificara, representándolo como $\sqrt{2}$).
 # coding=utf8
 import sympy
 from IPython.display import display, Math
-import warnings
-warnings.simplefilter('always', UserWarning)
 <<Métodos auxiliares para usar coeficientes racionales cuando sea posible>>
 
 <<Método html general>>
@@ -3380,7 +3378,6 @@ self.sgen        = self.base if self.base else Sistema([ V0(A.n) ])
 self.determinado = (len(self.base) == 0)
 
 if (L|0).no_es_nulo():
-    warnings.warn("Conjunto de soluciones vacío: Sistema incompatible")
     self.solP  = set()
     self.eafin = set()
 else:
@@ -4333,9 +4330,10 @@ Jupyter.  \medskip
 <<Métodos de representación de la clase [[Sistema]]>>=  
 def __repr__(self):
     """ Muestra un Sistema en su representación python """
+    pc = ';' if len(self.lista) else ''
     return 'Sistema([' + \
         '; '.join( repr (e) for e in self ) + \
-        ';])'
+        pc + '])'
 
 def _repr_html_(self):
     """ Construye la representación para el entorno jupyter notebook """
@@ -4343,9 +4341,10 @@ def _repr_html_(self):
 
 def latex(self):
     """ Construye el comando LaTeX para representar un Sistema """
+    pc = ';' if len(self.lista) else '\\ '
     return '\\left[' + \
         ';\;'.join( latex(e) for e in self ) + \
-        ';\\right]'
+        pc + '\\right]'
 
 @
 \end{codigo}

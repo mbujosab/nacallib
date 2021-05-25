@@ -1,8 +1,6 @@
 # coding=utf8
 import sympy
 from IPython.display import display, Math
-import warnings
-warnings.simplefilter('always', UserWarning)
 def fracc(a,b):
     """Transforma la fracción a/b en un número racional si ello es posible"""
     if all( [ isinstance(i, (int, float, sympy.Rational) ) for i in (a,b) ] ):
@@ -320,9 +318,10 @@ class Sistema:
             
     def __repr__(self):
         """ Muestra un Sistema en su representación python """
+        pc = ';' if len(self.lista) else ''
         return 'Sistema([' + \
             '; '.join( repr (e) for e in self ) + \
-            ';])'
+            pc + '])'
 
     def _repr_html_(self):
         """ Construye la representación para el entorno jupyter notebook """
@@ -330,9 +329,10 @@ class Sistema:
 
     def latex(self):
         """ Construye el comando LaTeX para representar un Sistema """
+        pc = ';' if len(self.lista) else '\\ '
         return '\\left[' + \
             ';\;'.join( latex(e) for e in self ) + \
-            ';\\right]'
+            pc + '\\right]'
 
     def de_composicion_uniforme(self):
        """Indica si es cierto que todos los elementos son del mismo tipo"""
@@ -1909,7 +1909,6 @@ class SEL:
         self.determinado = (len(self.base) == 0)
 
         if (L|0).no_es_nulo():
-            warnings.warn("Conjunto de soluciones vacío: Sistema incompatible")
             self.solP  = set()
             self.eafin = set()
         else:
