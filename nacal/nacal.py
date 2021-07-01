@@ -968,6 +968,9 @@ class T:
             
         return T([(j[0],j[2],j[1]) if len(j)==3 else j for j in CreaLista(self.t)],self.rpr)
         
+    def subs(self,c,v):
+        self.t=[sympy.S(item).subs(c,v) for item in self.t]
+        return self        
     def __repr__(self):
         """ Muestra T en su representación Python """
         return 'T(' + repr(self.t) + ')'
@@ -983,10 +986,10 @@ class T:
             if isinstance(t,set):
                 return '\\left[\\mathbf{' + latex(min(t)) + \
                   '}\\rightleftharpoons\\mathbf{' + latex(max(t)) + '}\\right]'
-            if isinstance(t,tuple) and len(t) == 2:
+            if isinstance(t,(tuple, sympy.core.containers.Tuple)) and len(t) == 2:
                 return '\\left[\\left(' + \
                   latex(t[0]) + '\\right)\\mathbf{'+ latex(t[1]) + '}\\right]'
-            if isinstance(t,tuple) and len(t) == 3:
+            if isinstance(t,(tuple, sympy.core.containers.Tuple)) and len(t) == 3:
                 return '\\left[\\left(' + latex(t[0]) + '\\right)\\mathbf{' + \
                   latex(t[1]) + '}' + '+\\mathbf{' + latex(t[2]) + '} \\right]'    
 

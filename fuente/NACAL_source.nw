@@ -2267,6 +2267,17 @@ def espejo ( self ):
 \end{codigo}
 @
 
+\subsection{Sustitución de variables simbólicas}
+Sustituye la variable [[c]] por [[v]], donde [[v]] puede ser un valor, u otra variable simbólica.
+\begin{codigo}
+<<Sustitución de variables simbólicas en una [[T]]ransformación elemental>>=
+def subs(self,c,v):
+    self.t=[sympy.S(item).subs(c,v) for item in self.t]
+    return self
+@
+\end{codigo}
+@
+
 \paragraph{La clase \texttt{T}} junto con el listado de sus métodos
 aparece en el siguiente recuadro:
 \begin{codigo}[nobreak=true]
@@ -2278,6 +2289,7 @@ class T:
     <<Operador transposición para la clase [[T]]>>
     <<Potencia de una [[T]]>>
     <<[[T]]ransformación elemental \emph{espejo} de una [[T]]>>
+    <<Sustitución de variables simbólicas en una [[T]]ransformación elemental>>        
     <<Representación de la clase [[T]]>>
 @ %def T
 \end{codigo}
@@ -5153,10 +5165,10 @@ def latex(self):
         if isinstance(t,set):
             return '\\left[\\mathbf{' + latex(min(t)) + \
               '}\\rightleftharpoons\\mathbf{' + latex(max(t)) + '}\\right]'
-        if isinstance(t,tuple) and len(t) == 2:
+        if isinstance(t,(tuple, sympy.core.containers.Tuple)) and len(t) == 2:
             return '\\left[\\left(' + \
               latex(t[0]) + '\\right)\\mathbf{'+ latex(t[1]) + '}\\right]'
-        if isinstance(t,tuple) and len(t) == 3:
+        if isinstance(t,(tuple, sympy.core.containers.Tuple)) and len(t) == 3:
             return '\\left[\\left(' + latex(t[0]) + '\\right)\\mathbf{' + \
               latex(t[1]) + '}' + '+\\mathbf{' + latex(t[2]) + '} \\right]'    
 
