@@ -720,13 +720,13 @@ class Matrix(Sistema):
         """Rango de una Matrix"""
         return self.K().rango
 
-    def inversa(self, rep=0):                                                               
-        """Inversa de Matrix"""
-        return InvMat(self,rep)
-
     def determinante(self, rep=0):
         """Devuelve el valor del det. de Matrix"""
         return Determinante(self,rep).valor
+
+    def inversa(self, rep=0):                                                               
+        """Inversa de Matrix"""
+        return InvMat(self,rep)
 
     def diagonalizaS(self, espectro, rep=0):
         """Diagonaliza por bloques triangulares una Matrix cuadrada 
@@ -788,6 +788,21 @@ class Matrix(Sistema):
 
         return M.inversa() if n < 0 else M
 
+    def det(self):
+        """Calculo del determinate mediante la expansión de Laplace"""
+        if not self.es_cuadrada(): raise ValueError('Matrix no cuadrada')
+            
+        def cof(self,f,c):
+            """Cofactor de la fila f y columna c"""
+            excl = lambda l, n: Sistema( [tuple(l[:i]+l[i+1:]) for i in range(self.m)] )
+            comp = excl(list(range(1,self.m+1)), self.m)
+            return (-1)**(f+c)*((comp|f)|self|(comp|c)).det()
+        
+        if self.m == 1: 
+            return 1|self|1
+
+        return sum([(f|self|1)*cof(self,f,1) for f in range(1,self.m+1)]) # columna 1
+                                                                   
     def GS(self):
         """Devuelve una Matrix equivalente cuyas columnas son ortogonales
 
@@ -970,7 +985,10 @@ class T:
         
     def subs(self,c,v):
         self.t=[sympy.S(item).subs(c,v) for item in self.t]
-        return self        
+        return self
+    def __eq__(self, other):
+        """Indica si es cierto que dos Transformaciones elementales son iguales"""
+        return self.t == other.t
     def __repr__(self):
         """ Muestra T en su representación Python """
         return 'T(' + repr(self.t) + ')'

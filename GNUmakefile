@@ -4,7 +4,7 @@ NWFuente   = NACAL_source
 DOCU	   = Doc_$(PAPER).pdf
 DIRFuente  = fuente
 
-VERSION    = 0.1.16
+VERSION    = 0.1.17
 
 ############
 VPATH	   = $(PWD)/$(DIRFuente)
@@ -16,9 +16,9 @@ SHELL	   = /bin/bash
 todo: programas documentacion 
 
 documentacion: $(DIRTEMP) $(DIRTEMP)/$(SUBDIRSCRIPTS) $(VPATH)/$(NWFuente).nw programas
-	make $(PAPER).pdf
+#	make $(PAPER).pdf
 #	cp $(PAPER).pdf ./doc/
-#	make $(DOCU)
+	make $(DOCU)
 
 programas: $(DIRTEMP) $(DIRTEMP)/$(SUBDIRSCRIPTS) $(VPATH)/$(NWFuente).nw 
 	make $(PYTHON)
@@ -63,9 +63,19 @@ clean: ; rm -r -f $(DIRTEMP); rm -f $(PAPER).pdf
 $(PAPER).pdf:  $(DIRTEMP)  $(AUXFILES) #; #$(VPATH)/$(PAPER).tex 
 	cd $(DIRTEMP); $(NOWEAVE) $(NWFuente).nw       >   $(DIRTEMP)/$(PAPER).tex
 	echo $(VERSION) > $(DIRTEMP)/version.txt
-	rubber -d --into $(DIRTEMP) $(DIRTEMP)/$(PAPER).tex #$(<F)
+	rubber --unsafe -d --into $(DIRTEMP) $(DIRTEMP)/$(PAPER).tex #$(<F)
 	cp $(DIRTEMP)/$@ ./doc/
 	#cp $(DIRTEMP)/$@ Notebooks/$(DOCU)
+
+
+#$(PAPER).pdf: $(DIRTEMP)  $(AUXFILES)
+#	xelatex -interaction batchmode $(PAPER).tex
+#	bib2gls --group $(PAPER)
+#	pythontex --interpreter python:python3 $(PAPER).tex	
+#	xelatex -interaction batchmode $(PAPER).tex
+#	bib2gls --group $(PAPER)
+#	latexmk -silent -pdflua $(PAPER)
+
 
 ############################## programas ###################################
 
@@ -112,10 +122,14 @@ Add:
 
 $(DOCU): $(DIRTEMP) $(AUXFILES) #$(NWFuente).nw
 	cd $(DIRTEMP); $(NOWEAVE) $(NWFuente).nw       >   $(DIRTEMP)/$(PAPER).tex
-	cd $(DIRTEMP); pdflatex -interaction errorstopmode $(DIRTEMP)/$(PAPER).tex
+#	cd $(DIRTEMP); pdflatex -interaction errorstopmode $(DIRTEMP)/$(PAPER).tex
 	cd $(DIRTEMP); pdflatex -interaction batchmode     $(DIRTEMP)/$(PAPER).tex
+	cd $(DIRTEMP); pythontex --interpreter python:python3 $(DIRTEMP)/$(PAPER).tex	
+#	cd $(DIRTEMP); pdflatex -interaction errorstopmode $(DIRTEMP)/$(PAPER).tex
+#	cd $(DIRTEMP); pdflatex -interaction batchmode     $(DIRTEMP)/$(PAPER).tex
 #	cd $(DIRTEMP); bibtex                              $(DIRTEMP)/$(NWFuente)    
 	cd $(DIRTEMP); pdflatex -interaction batchmode     $(DIRTEMP)/$(PAPER).tex
 	cd $(DIRTEMP); pdflatex -interaction batchmode     $(DIRTEMP)/$(PAPER).tex
 	cp -f $(DIRTEMP)/$(PAPER).pdf $(DIRTEMP)/$(SUBDIRSCRIPTS)
 	cp -f $(DIRTEMP)/$(SUBDIRSCRIPTS)$(PAPER).pdf $@ 
+	cp $(DIRTEMP)/$(PAPER).pdf ./doc/$(PAPER).pdf

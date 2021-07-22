@@ -2,6 +2,15 @@
 \documentclass[10pt,a4paper]{report}
 %\documentclass[10pt,a4paper]{book}
 
+\usepackage[autoprint=false]{pythontex}
+%\usepackage{pythontex}
+\restartpythontexsession{\thesection}
+%\pythontexcustomc{pyconsole}{from nacal import *}
+%\pythontexcustomc{py}{from nacal import *}
+\pythontexcustomc{pyconsole}{from nacal import *}
+\pythontexcustomc{py}{from nacal import *}
+\pythontexcustomc{sympy}{from nacal import *}
+
 \usepackage{natbib}
 \usepackage[utf8]{inputenc}
 \renewcommand{\chaptername}{Capítulo}
@@ -450,18 +459,20 @@ En las notas de la asignatura se dice que
 Aunque Python ya posee ``listas'', vamos a crear nuestra propia clase
 denominada \texttt{[[Sistema]]}. En las notas de la asignatura los
 sistemas genéricos se muestran entre \emph{corchetes} y con los
-elementos de la lista \emph{separados por ``;''}.~\footnote{Aunque los
-  vectores y las matrices también son sistemas, emplean
-  representaciones particulares.}  Así,
+elementos de la lista \emph{seguidos de ``;''}.~\footnote{Aunque los
+vectores y las matrices también son sistemas, emplean representaciones
+particulares.}  Así,
 \begin{center}
   \texttt{[[Sistema( [ Vector([1,2,3]), I(2), 1492, T({1,2}) ] )]]}
 \end{center}
-será representado en los Notebooks de Jupyter como:
-\begin{displaymath}
-  \left[\begin{pmatrix}1\\2\\3\end{pmatrix};\;\begin{bmatrix}1&0\\0&1\end{bmatrix};\;1492;\;
-      \underset{\left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]}{\mathbf{\tau}}\right]
-  %\left[\underset{\left[\left(5\right)\mathbf{4}\right]}{\mathbf{\tau}};\;\underset{\left[\left(2\right)\mathbf{3}\right]}{\mathbf{\tau}};\;\underset{\left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]}{\mathbf{\tau}}\right]
-\end{displaymath}
+será representado en los Notebooks de Jupyter como:\quad
+\(\py{latex(Sistema( [ Vector([1,2,3]), I(2), 1492, T({1,2}) ] ))}\)
+%\begin{displaymath}
+%  \left[\begin{pmatrix}1\\2\\3\end{pmatrix};\;\begin{bmatrix}1&0\\0&1\end{bmatrix};\;1492;\;
+%      \underset{\left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]}{\mathbf{\tau}}\right]
+%  %\left[\underset{\left[\left(5\right)\mathbf{4}\right]}{\mathbf{\tau}};\;\underset{\left[\left(2\right)\mathbf{3}\right]}{\mathbf{\tau}};\;\underset{\left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]}{\mathbf{\tau}}\right]
+%\end{displaymath}
+
 La clase [[Sistema]] solo posee un atributo llamado [[lista]], que es
 una [[list]] de Python con la lista de objetos que componen el
 [[Sistema]]. Además, \emph{los elementos del [[Sistema]] serán
@@ -613,8 +624,102 @@ def concatena(self,other,c=0):
 \dots de este modo reservamos el símbolo ``+'' para las sumas elemento
 a elemento entre dos sistemas (por ejemplo para sumar dos [[Vector]]es).
 
+\subsection{Ejemplos de uso}
+Un sistema es esencialmente una lista. Sus elementos pueden ser
+cualquier cosa. Por ejemplo, vamos a crear dos sistemas cuya primera
+componente es un [[Vector]], la segunda un número, la tercera un
+[[Sistema]] y la cuarta una cadena de caracteres:
+%\begin{pyblock}[][]
+%A = Sistema([Vector([1, 2,3]), 5, Sistema([10,20,30]), 'Sis'])
+%B = Sistema([Vector([1,-2,0]), 1, Sistema([ 1,20, 3]), 'tema'])
+%\end{pyblock}
+%\begin{pyverbatim}[][]
+%A = Sistema([Vector([1, 2,3]), 5, Sistema([10,20,30]), 'Sis'])
+%B = Sistema([Vector([1,-2,0]), 1, Sistema([ 1,20, 3]), 'tema'])
+%\end{pyverbatim}
+\pycon{from nacal import *}
+\begin{pyconsole}[][]
+A = Sistema([Vector([1, 2]), 5, Sistema([10,20,30]), 'Sis' ]);
+B = Sistema([Vector([1,-2]), 1, Sistema([ 1,20, 3]), 'tema']);
+\end{pyconsole}
+\begin{pycode}[]
+A = Sistema([Vector([1, 2]), 5, Sistema([10,20,30]), 'Sis'])
+B = Sistema([Vector([1,-2]), 1, Sistema([ 1,20, 3]), 'tema'])
+\end{pycode}
+Una diferencia entre los [[Sistema]]s y las listas de Python es que
+Jupyter muestra la representación \LaTeX{} de los elementos de un
+[[Sistema]] (si es que dicha representación está definida). Así, en
+Jupyter el [[Sistema]] A se vería así
+\[\py{latex(A)}\]
+y el B así
+\[\py{latex(B)}\]
+Podemos preguntar por la longitud del [[Sistema]] (su número de componentes)
+\begin{pyconsole}[][]
+len(A)
+\end{pyconsole}
+Podemos generar una copia
+\pyc{C=A.copy()}
+\begin{pyconsole}[][]
+C=A.copy()
+C  
+\end{pyconsole}
+Otra forma de generar una copia del sistema A es así
+\begin{pyconsole}[][]
+C=Sistema(A)
+\end{pyconsole}
+Podemos preguntar si dos [[Sistema]]s son iguales
+\begin{pyconsole}[][]
+A == B
+\end{pyconsole}
+o si son distintos
+\begin{pyconsole}[][]
+A != B
+\end{pyconsole}
+también podemos invertir el orden de sus elementos
+\begin{pyconsole}[][]
+D=reversed(A)
+\end{pyconsole}
+\[\py{latex(reversed(A))}\]
+La otra diferencia entre los [[Sistema]]s y las [[list]] es el modo de
+concatenar. Las listas se concatenan con el procedimiento ``+'', pero
+dicho procedimiento lo hemos reservado en los [[Sistema]]s para sumar,
+así que concatenamos dos sistemas del siguiente modo:
+\begin{pyconsole}[][]
+E=A.concatena(B)
+\end{pyconsole}
+\[\py{latex(A.concatena(B))}\]
+que crea un sistema con los elementos de A seguidos de los elementos de B.
+\medskip
+
+Podemos acceder a los elementos de un [[Sistema]] del mismo modo a los
+elementos de una lista
+\begin{pyconsole}[][]
+A[0]
+\end{pyconsole}
+\begin{pyconsole}[][]
+B[-1]
+\end{pyconsole}
+O incluso cambiar los elementos
+\begin{pyconsole}[][]
+A[0] = Matrix([ [1, 2], [3, 4] ])
+\end{pyconsole}
+de manera que ahora el [[Sistema]] A es
+\pyc{A[0] = Matrix ([ [1, 2], [3, 4] ]) }
+\[\py{latex(A)}.\]
+Sin embargo su copia (el [[Sistema]] C) no ha cambiado:
+\[\py{latex(C)}.\]
+%\begin{pyverbatim}[][]
+%A = Sistema([Vector([1, 2,3]), 5, Sistema([10,20,30]), 'Sis'])
+%B = Sistema([Vector([1,-2,0]), 1, Sistema([ 1,20, 3]), 'tema'])
+%A + B    
+%\end{pyverbatim}
+%\[\py{latex(A+B)}\]
+
+\bigskip
+
 \paragraph{La clase \texttt{Sistema}} junto con el listado de sus
 métodos aparece en el siguiente recuadro:
+
 \begin{codigo}[nobreak=true] 
 <<Definición de la clase [[Sistema]]>>=
 class Sistema:
@@ -636,6 +741,7 @@ class Sistema:
     <<Sustitución de un símbolo por un valor en un [[Sistema]]>>
 @ %def Sistema
 \end{codigo}
+
 \subsubsection*{Resumen}
 \label{resumen:Vector}
 Los [[Sistema]]s almacenan una lista de objetos en su atributo
@@ -654,13 +760,13 @@ En las notas de la asignatura se dice que
   Un \HLa{\emph{vector}} de \R[n] es un ``sistema'' de $n$ números reales;
 \end{center}
 y dicho sistema se muestra entre paréntesis, bien en forma de fila:
-\begin{displaymath}
-  \;\Vect{v}=(v_1,\ldots,v_n),\;
-\end{displaymath}
+\begin{pycode}
+v1, v2, v3 = sympy.symbols('v_1 v_2 v_3')
+v = Vector( [v1, v2, v3,] )
+\end{pycode}
+\[\Vect{v}=\py{latex(Vector(v,'fila'))},\]
 o bien en forma de columna:
-\begin{displaymath}
- \quad \Vect{v}=\begin{pmatrix}v_1\\ \vdots \\ v_n\end{pmatrix}.
-\end{displaymath}
+\[\Vect{v}=\py{latex(v)}.\]
 
 Así pues, vamos a definir una nueva clase de objeto en Python: la
 clase [[Vector]] será una subclase de [[Sistema]]. De esta manera la
@@ -978,6 +1084,7 @@ class Matrix(Sistema):
     <<Comprobación de que una [[Matrix]] es singular>>
     <<Métodos de [[Matrix]] que usan la eliminación>>
     <<Potencia de una [[Matrix]]>>
+    <<Determinante mediante la expansión de Laplace>>
     <<Método Gram-Schmidt para ortogonalizar un sistema de Vectores>>
     <<Representación de la clase [[Matrix]]>>
     
@@ -1470,6 +1577,11 @@ def __ror__(self,i):
 
 @ 
 \end{codigo}
+
+\subsection{Ejemplos de uso}
+
+
+
 \subsubsection*{Resumen}
 \label{resumen:OperadorSelector}
 \textbf{¡Ahora también hemos implementado en Python el operador
@@ -2204,13 +2316,13 @@ la sucesión de transformaciones $\TrEE^{-1}_{k}\cdots\TrEE^{-1}_{1}$. De este m
 \end{displaymath}
 El siguiente método devuelve la potencia [[n]]-ésima de una
 transformación elemental. Si [[n]] es $-1$, calcula la inversa:
-\begin{center}
-\Verb/T([ (1, 2, 3), (fracc(1,3), 2), {1, 2} ]) **(-1)/
-\end{center}
-nos devuelve
-\begin{center}
-\Verb/T([ {1, 2}, (3, 2), (-1, 2, 3) ])/
-\end{center}
+\pycon{from nacal import *}
+%\begin{pyconsole}[][frame=single,framesep=2mm,framerule=0.2mm,label=\fbox{terminal de Python}]
+\begin{pyconsole}[][frame=single,framesep=2mm,framerule=0.2mm]
+T([ (1, 2, 3), (fracc(1,3), 2), {1, 2} ]) **(-1)
+\end{pyconsole}
+que en Jupyter veríamos como\;
+\(\py{latex(T([ (1, 2, 3), (fracc(1,3), 2), {1, 2} ]) **(-1))}\).\;
 Al implementar el método, definimos la potencia de manera recursiva
 (con una función auxiliar [[lambda]]). Además, si [[n]] es cero,
 devolveremos una transformación que no haga nada (identidad); por ejemplo
@@ -2278,6 +2390,16 @@ def subs(self,c,v):
 \end{codigo}
 @
 
+\subsection{Igualdad entre transformaciones elementales}
+\begin{codigo}[nobreak=true]
+<<Otros métodos de la clase [[T]]ransformación elemental>>=
+def __eq__(self, other):
+    """Indica si es cierto que dos Transformaciones elementales son iguales"""
+    return self.t == other.t
+@
+\end{codigo}
+@
+
 \paragraph{La clase \texttt{T}} junto con el listado de sus métodos
 aparece en el siguiente recuadro:
 \begin{codigo}[nobreak=true]
@@ -2289,7 +2411,8 @@ class T:
     <<Operador transposición para la clase [[T]]>>
     <<Potencia de una [[T]]>>
     <<[[T]]ransformación elemental \emph{espejo} de una [[T]]>>
-    <<Sustitución de variables simbólicas en una [[T]]ransformación elemental>>        
+    <<Sustitución de variables simbólicas en una [[T]]ransformación elemental>>
+    <<Otros métodos de la clase [[T]]ransformación elemental>>
     <<Representación de la clase [[T]]>>
 @ %def T
 \end{codigo}
@@ -4765,6 +4888,59 @@ def __pow__(self,n):
 %#    def MatrixInversa(self):
 %#        if self.es_singular:  raise ValueError('Matrix singular')
 %#        return I(self.n) & T(self.R().pasos[1])
+
+\subsubsection{Cálculo del determinante mediante la expansión de Laplace}
+(este método no usa la eliminación)
+\begin{codigo}[nobreak=true] 
+<<Determinante mediante la expansión de Laplace>>=
+def det(self):
+    """Calculo del determinate mediante la expansión de Laplace"""
+    if not self.es_cuadrada(): raise ValueError('Matrix no cuadrada')
+        
+    def cof(self,f,c):
+        """Cofactor de la fila f y columna c"""
+        excl = lambda l, n: Sistema( [tuple(l[:i]+l[i+1:]) for i in range(self.m)] )
+        comp = excl(list(range(1,self.m+1)), self.m)
+        return (-1)**(f+c)*((comp|f)|self|(comp|c)).det()
+    
+    if self.m == 1: 
+        return 1|self|1
+
+    return sum([(f|self|1)*cof(self,f,1) for f in range(1,self.m+1)]) # columna 1
+                                                               
+@
+\end{codigo}                                                               
+
+\subsubsection{Determinante por eliminación}
+Cálculo del determinante por eliminación.
+%\begin{itemize}
+%\item Comprobamos si la matriz es cuadrada.
+%\item De la lista de abreviaturas de las transformaciones de las
+%  columnas usadas para obtener la forma escalonada reducida (\Mat{R})
+%  de la matriz ([[T(self.R().pasos[1]).t]]) seleccionamos las de
+%  longitud 2 (las correspondientes a los intercambios y a las
+%  transformaciones \emph{Tipo II}) para crear la lista [[A]] (de las
+%  abreviaturas las transformaciones relevantes para el cálculo del
+%  determinante).
+%\item Generamos una nueva lista [[m]] en la que por cada abreviatura
+%  [[tr]] de [[A]] correspondiente a un intercambio ([[set]]) incluimos
+%  un ``$-1$'' (un cambio de signo), por cada abreviatura
+%  correspondiente a un producto, incluimos el inverso del número por
+%  el que se multiplico cada columna ([[tr[0]]]).
+%\item Definimos recursivamente la función [[producto]] de todos los
+%  elementos de una lista.
+%\item Si la matriz es singular se devuelve un 0; y en caso contrario
+%  el [[producto]] de los elementos de la lista [[m]].
+%\end{itemize}
+
+\begin{codigo}[nobreak=true]
+<<Métodos de [[Matrix]] que usan la eliminación>>=
+def determinante(self, rep=0):
+    """Devuelve el valor del det. de Matrix"""
+    return Determinante(self,rep).valor
+
+@ %def determinante
+\end{codigo}
           
 
 \subsubsection{Inversa de una \texttt{Matrix}}
@@ -4777,47 +4953,6 @@ def inversa(self, rep=0):
 
 @ 
 \end{codigo}
-
-
-\subsubsection{Determinante}
-Para calcular el determinante,
-\begin{itemize}
-\item Comprobamos si la matriz es cuadrada.
-\item De la lista de abreviaturas de las transformaciones de las
-  columnas usadas para obtener la forma escalonada reducida (\Mat{R})
-  de la matriz ([[T(self.R().pasos[1]).t]]) seleccionamos las de
-  longitud 2 (las correspondientes a los intercambios y a las
-  transformaciones \emph{Tipo II}) para crear la lista [[A]] (de las
-  abreviaturas las transformaciones relevantes para el cálculo del
-  determinante).
-\item Generamos una nueva lista [[m]] en la que por cada abreviatura
-  [[tr]] de [[A]] correspondiente a un intercambio ([[set]]) incluimos
-  un ``$-1$'' (un cambio de signo), por cada abreviatura
-  correspondiente a un producto, incluimos el inverso del número por
-  el que se multiplico cada columna ([[tr[0]]]).
-\item Definimos recursivamente la función [[producto]] de todos los
-  elementos de una lista.
-\item Si la matriz es singular se devuelve un 0; y en caso contrario
-  el [[producto]] de los elementos de la lista [[m]].
-\end{itemize}
-
-\begin{codigo}[nobreak=true]
-<<Métodos de [[Matrix]] que usan la eliminación>>=
-def determinante(self, rep=0):
-    """Devuelve el valor del det. de Matrix"""
-    return Determinante(self,rep).valor
-
-@ %def determinante
-\end{codigo}
-%    #"""Devuelve el determinante de una matriz cuadrada"""
-%    #if not self.es_cuadrada:  raise ValueError('Matrix no es cuadrada')
-%    
-%    #A = [ tr for tr in filter( lambda x: len(x)==2, T(self.R().pasos[1]).t ) ]
-%    #m = [-1 if isinstance(tr,set) else fracc(1,tr[0]) for tr in A]
-%    
-%    #producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
-%    
-%    #return 0 if self.rango() < self.n else producto(m)    
 
 \subsubsection{Método de diagonalización por semejanza}
 
