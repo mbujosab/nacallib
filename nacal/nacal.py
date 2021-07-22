@@ -800,7 +800,7 @@ class Matrix(Sistema):
         
         if self.m == 1: 
             return 1|self|1
-
+                                                                   
         return sum([(f|self|1)*cof(self,f,1) for f in range(1,self.m+1)]) # columna 1
                                                                    
     def GS(self):

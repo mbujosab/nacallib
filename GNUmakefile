@@ -121,6 +121,7 @@ Add:
 ##############################################################################
 
 $(DOCU): $(DIRTEMP) $(AUXFILES) #$(NWFuente).nw
+	echo $(VERSION) > $(DIRTEMP)/version.txt
 	cd $(DIRTEMP); $(NOWEAVE) $(NWFuente).nw       >   $(DIRTEMP)/$(PAPER).tex
 #	cd $(DIRTEMP); pdflatex -interaction errorstopmode $(DIRTEMP)/$(PAPER).tex
 	cd $(DIRTEMP); pdflatex -interaction batchmode     $(DIRTEMP)/$(PAPER).tex

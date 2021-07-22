@@ -5,7 +5,7 @@
 \usepackage[autoprint=false]{pythontex}
 %\usepackage{pythontex}
 \restartpythontexsession{\thesection}
-%\pythontexcustomc{pyconsole}{from nacal import *}
+%\pythontexcustomc{pyconsole}{from nacal import *} 
 %\pythontexcustomc{py}{from nacal import *}
 \pythontexcustomc{pyconsole}{from nacal import *}
 \pythontexcustomc{py}{from nacal import *}
@@ -1095,6 +1095,7 @@ class Matrix(Sistema):
 %    ##Definición de la igualdad entre dos [[Matrix]]>>
 %    ##Reverso de una [[Matrix]]>>
 \end{codigo}
+
 En esta sección hemos visto el texto de ayuda y el método de
 inicialización de la subclase [[Matrix]]. El resto de métodos
 específicos de la subclase [[Matrix]] se describen en secciones
@@ -4858,8 +4859,7 @@ def rg(self):
 @ 
 \end{codigo}
 
-\subsection{Otros métodos de la clase {\tt Matrix} que usan la eliminación
-  y que son específicos de las matrices cuadradas}
+\subsection{Otros métodos de la clase {\tt Matrix} específicos de las matrices cuadradas}
 \subsubsection{Potencias de una \texttt{Matrix} cuadrada}
 Ahora podemos calcular la [[n]]-ésima potencia de una [[Matrix]].
 Cuando [[n]] es un entero positivo; basta multiplicar la [[Matrix]]
@@ -4905,7 +4905,7 @@ def det(self):
     
     if self.m == 1: 
         return 1|self|1
-
+                                                               
     return sum([(f|self|1)*cof(self,f,1) for f in range(1,self.m+1)]) # columna 1
                                                                
 @
