@@ -415,11 +415,15 @@ class Vector(Sistema):
         """Crea una Matrix diagonal cuya diagonal es self"""
         return Matrix([a*(I(self.n)|j) for j,a in enumerate(self, 1)])
 
+    def norma(self):
+        """Devuelve un múltiplo de un vector (no nulo) pero norma uno"""
+        return sympy.sqrt(self*self)
+                                                                   
     def normalizado(self):
         """Devuelve un múltiplo de un vector (no nulo) pero norma uno"""
         if self.es_nulo(): raise ValueError('Un vector nulo no se puede normalizar')
 
-        return self * fracc(1,sympy.sqrt(self*self))
+        return self * fracc(1,self.norma())
             
     def __repr__(self):
         """ Muestra el vector en su representación Python """
@@ -791,18 +795,17 @@ class Matrix(Sistema):
     def det(self):
         """Calculo del determinate mediante la expansión de Laplace"""
         if not self.es_cuadrada(): raise ValueError('Matrix no cuadrada')
-            
+                                                                   
         def cof(self,f,c):
             """Cofactor de la fila f y columna c"""
-            excl = lambda l, n: Sistema( [tuple(l[:i]+l[i+1:]) for i in range(self.m)] )
-            comp = excl(list(range(1,self.m+1)), self.m)
-            return (-1)**(f+c)*((comp|f)|self|(comp|c)).det()
-        
-        if self.m == 1: 
+            excl = lambda k: tuple(i for i in range(1,self.m+1) if i!=k)
+            return (-1)**(f+c)*(excl(f)|self|excl(c)).det()
+                                                                   
+        if self.m == 1:
             return 1|self|1
-                                                                   
+            
         return sum([(f|self|1)*cof(self,f,1) for f in range(1,self.m+1)]) # columna 1
-                                                                   
+                                                                                                                                  
     def GS(self):
         """Devuelve una Matrix equivalente cuyas columnas son ortogonales
 
@@ -1934,7 +1937,7 @@ class SEL:
             self.eafin = set()
         else:
             self.solP  = S|1 
-            self.eafin = EAfin(self.sgen, self.solP)
+            self.eafin = EAfin(self.sgen, self.solP, 1)
 
         self.pasos       = [[], L.pasos[1]+[Normaliza] ] if Normaliza.t else [[], L.pasos[1]]
         self.TrF         = T(self.pasos[0]) 
