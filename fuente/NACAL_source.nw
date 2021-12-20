@@ -4677,7 +4677,7 @@ representación \LaTeX\ que representa las matrices entre corchetes
 como en las notas de la asignatura). Si self.lista es una lista vacía,
 se representa una matriz vacía.
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Representación de la clase [[Matrix]]>>=
 def __repr__(self):
     """ Muestra una matriz en su representación Python """
@@ -4712,10 +4712,9 @@ def latex(self):
 
 \subsection{Otros métodos para la clase \texttt{Matrix}}
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Métodos útiles para la clase [[Matrix]]>>=
-<<Comprobación de que una [[Matrix]] es cuadrada>>
-<<Comprobación de que una [[Matrix]] es simétrica>>
+<<Disposición de los elementos de una [[Matrix]]>>
 <<Creación de un [[Vector]] a partir de la diagonal de una [[Matrix]]>>
 <<Normalizado de las columnas (o filas) de una matriz>>
 <<Apila una lista de [[Matrix]] con el mismo número de columnas en una única [[Matrix]]>>
@@ -4724,25 +4723,37 @@ def latex(self):
 @ 
 \end{codigo}
 
-\begin{codigo}
-<<Comprobación de que una [[Matrix]] es cuadrada>>=
+\begin{codigo}[nobreak=true]
+<<Disposición de los elementos de una [[Matrix]]>>=
 def es_cuadrada(self):
     """Indica si es cierto que la Matrix es cuadrada"""
     return self.m==self.n
     
-@ %def es_cuadrada
-\end{codigo}
-
-\begin{codigo}
-<<Comprobación de que una [[Matrix]] es simétrica>>=
 def es_simetrica(self):
     """Indica si es cierto que la Matrix es simétrica"""
     return self == ~self
     
-@ %def es_simetrica
+def es_triangularSup(self):
+    """Indica si es cierto que la Matrix es triangular superior"""
+    return not any(sum([[i|self|j for i in range(j+1,self.m+1)]      \
+                                  for j in range(1  ,self.n+1)], []))
+    
+def es_triangularInf(self):
+    """Indica si es cierto que la Matrix es triangular inferior"""
+    return (~self).es_triangularSup()
+    
+def es_triangular(self):
+    """Indica si es cierto que la Matrix es triangular inferior"""
+    return self.es_triangularSup() | self.es_triangularInf()
+    
+def es_diagonal(self):
+    """Indica si es cierto que la Matrix es diagonal"""
+    return self.es_triangularSup() & self.es_triangularInf()
+    
+@ %def es_cuadrada es_simetrica es_triangularSup es_triangularInf es_triangular es_diagonal
 \end{codigo}
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Creación de un [[Vector]] a partir de la diagonal de una [[Matrix]]>>=
 def diag(self):
     """Crea un Vector a partir de la diagonal de self"""
@@ -4751,7 +4762,7 @@ def diag(self):
 @
 \end{codigo}
 
-\begin{codigo}
+\begin{codigo}[nobreak=true]
 <<Normalizado de las columnas (o filas) de una matriz>>=
 def normalizada(self,o='Columnas'):
     if o == 'Columnas':

@@ -651,6 +651,23 @@ class Matrix(Sistema):
         """Indica si es cierto que la Matrix es simétrica"""
         return self == ~self
         
+    def es_triangularSup(self):
+        """Indica si es cierto que la Matrix es triangular superior"""
+        return not any(sum([[i|self|j for i in range(j+1,self.m+1)]      \
+                                      for j in range(1  ,self.n+1)], []))
+        
+    def es_triangularInf(self):
+        """Indica si es cierto que la Matrix es triangular inferior"""
+        return (~self).es_triangularSup()
+        
+    def es_triangular(self):
+        """Indica si es cierto que la Matrix es triangular inferior"""
+        return self.es_triangularSup() | self.es_triangularInf()
+        
+    def es_diagonal(self):
+        """Indica si es cierto que la Matrix es diagonal"""
+        return self.es_triangularSup() & self.es_triangularInf()
+        
     def diag(self):
         """Crea un Vector a partir de la diagonal de self"""
         return Vector([ (j|self|j) for j in range(1,min(self.m,self.n)+1)])
