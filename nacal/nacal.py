@@ -1009,6 +1009,18 @@ class T:
     def __eq__(self, other):
         """Indica si es cierto que dos Transformaciones elementales son iguales"""
         return self.t == other.t
+    def __getitem__(self,i):
+        """ Devuelve las transformaciones elementales del i-ésimo paso """
+        return T(self.t[i])
+
+    def __setitem__(self,i,value):
+        """ Modifica las transformaciones elementales del i-ésimo paso """
+        self.t[i]=value
+            
+    def __len__(self):
+        """Número de pasos de T """
+        return len(self.t)
+            
     def __repr__(self):
         """ Muestra T en su representación Python """
         return 'T(' + repr(self.t) + ')'

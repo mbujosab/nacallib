@@ -2401,6 +2401,30 @@ def __eq__(self, other):
 \end{codigo}
 @
 
+\subsection{\texttt{T} es iterable}
+Haremos que [[T]] sea iterable con los procedimientos ``mágicos''
+[[__getitem__]], que permite seleccionar pasos de [[T]], y
+[[__setitem__]], que permite modificar pasos de [[T]]. Con [[__len__]]
+podremos contar el número de pasos de [[T]].
+\begin{codigo}[nobreak=true]
+<<Otros métodos de la clase [[T]]ransformación elemental>>=
+def __getitem__(self,i):
+    """ Devuelve las transformaciones elementales del i-ésimo paso """
+    return T(self.t[i])
+
+def __setitem__(self,i,value):
+    """ Modifica las transformaciones elementales del i-ésimo paso """
+    self.t[i]=value
+        
+def __len__(self):
+    """Número de pasos de T """
+    return len(self.t)
+        
+@
+\end{codigo}
+
+
+
 \paragraph{La clase \texttt{T}} junto con el listado de sus métodos
 aparece en el siguiente recuadro:
 \begin{codigo}[nobreak=true]
