@@ -2399,7 +2399,6 @@ def __eq__(self, other):
     return self.t == other.t
 @
 \end{codigo}
-@
 
 \subsection{\texttt{T} es iterable}
 Haremos que [[T]] sea iterable con los procedimientos ``mágicos''
@@ -2422,7 +2421,7 @@ def __len__(self):
         
 @
 \end{codigo}
-
+@
 
 
 \paragraph{La clase \texttt{T}} junto con el listado de sus métodos
@@ -4264,7 +4263,7 @@ def __init__(self, data, v, vi=0):
     self.S  = data if isinstance(data, SubEspacio) else SubEspacio(data)
     if not isinstance(v, Vector) or v.n != self.S.Rn:
          raise ValueError('v y SubEspacio deben estar en el mismo espacio vectorial')
-    self.v  = Vector(v) if vi else Elim( self.S.sgen.concatena(Sistema([v])) )|0
+    self.v  = Vector(v) if vi else Elimr( self.S.sgen.concatena(Sistema([v])) )|0
     self.Rn = self.S.Rn
     
 @ %def EAfin
