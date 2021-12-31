@@ -4255,7 +4255,6 @@ $\Vect{v}\in\EV{S}$. Si [[vi]] es cero (su valor por defecto), en
 [[selv.v]] se guardará el vector resultante tras la eliminación, en
 caso contrario se guardará el vector indicado ([[vi]]) como argumento.
 
-
 \begin{codigo}[nobreak=true] 
 <<Inicialización de la clase [[EAfin]]>>=
 def __init__(self, data, v, vi=0):
