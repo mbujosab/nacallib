@@ -2193,8 +2193,11 @@ class DiagonalizaC(Matrix):
         positivos en la diagonal como autovalores positivos, tantos negativos 
         como autovalores negativos, y tantos ceros como auntovalores nulos. """
         def BuscaPrimerNoNuloEnLaDiagonal(self, i=1):
+            """Indica el índice de la primera componente no nula de a diagonal
+            desde de la posición i en adelante. Si son todas nulas devuelve 0"""
             d = (slice(i,None)|self|slice(i,None)).diag().sis()
-            return next((pos for pos, x in enumerate(d) if x), None) + i
+            return next((pos for pos, x in enumerate(d) if x), -i) + i
+
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
         for i in range(1,A.n):
@@ -2259,8 +2262,11 @@ class DiagonalizaCr(Matrix):
         autovalores negativos (incluyendo la multiplicidad de cada uno), y tantos
         ceros como la multiplicidad algebraica del autovalor cero. """
         def BuscaPrimerNoNuloEnLaDiagonal(self, i=1):
+            """Indica el índice de la primera componente no nula de a diagonal
+            desde de la posición i en adelante. Si son todas nulas devuelve 0"""
             d = (slice(i,None)|self|slice(i,None)).diag().sis()
-            return next((pos for pos, x in enumerate(d) if x), None) + i
+            return next((pos for pos, x in enumerate(d) if x), -i) + i
+
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
         for i in range(1,A.n):
