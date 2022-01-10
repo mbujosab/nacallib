@@ -2192,22 +2192,17 @@ class DiagonalizaC(Matrix):
         diagonal principal no son autovalores, pero hay tantos elementos 
         positivos en la diagonal como autovalores positivos, tantos negativos 
         como autovalores negativos, y tantos ceros como auntovalores nulos. """
-        def BuscaNuevoPivote(self, r=0):
-            ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
-            pp = ppivote(self, r)
-            while pp in colExcluida:
-                pp = ppivote(self, pp)
-            return pp
+        def BuscaPrimerNoNuloEnLaDiagonal(self, i=1):
+            d = (slice(i,None)|self|slice(i,None)).diag().sis()
+            return next((pos for pos, x in enumerate(d) if x), None) + i
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
-        #Tex   = latex(A);   
         for i in range(1,A.n):
-            p = BuscaNuevoPivote(i|A)
+            p = BuscaPrimerNoNuloEnLaDiagonal(A,i)
             j = [k for k,col in enumerate(A|slice(i,None),i) if (i|col and not k|col)]
             if not (i|A|i):
-                if j:
-                    Tr = T( (1, j[0], i) )
+                if p:
+                    Tr = T( {i, p} )
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
@@ -2216,8 +2211,8 @@ class DiagonalizaC(Matrix):
                     pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                     A = T(pasos[0]) & A
-                elif p:
-                    Tr = T( {i, p} )
+                elif j:
+                    Tr = T( (1, j[0], i) )
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
@@ -2263,22 +2258,17 @@ class DiagonalizaCr(Matrix):
         (incluyendo la multiplicidad de cada uno), tantos negativos como
         autovalores negativos (incluyendo la multiplicidad de cada uno), y tantos
         ceros como la multiplicidad algebraica del autovalor cero. """
-        def BuscaNuevoPivote(self, r=0):
-            ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
-            pp = ppivote(self, r)
-            while pp in colExcluida:
-                pp = ppivote(self, pp)
-            return pp
+        def BuscaPrimerNoNuloEnLaDiagonal(self, i=1):
+            d = (slice(i,None)|self|slice(i,None)).diag().sis()
+            return next((pos for pos, x in enumerate(d) if x), None) + i
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
-        Tex   = latex(A);   
         for i in range(1,A.n):
-            p = BuscaNuevoPivote(i|A)
+            p = BuscaPrimerNoNuloEnLaDiagonal(A,i)
             j = [k for k,col in enumerate(A|slice(i,None),i) if (i|col and not k|col)]
             if not (i|A|i):
-                if j:
-                    Tr = T( (1, j[0], i) )
+                if p:
+                    Tr = T( {i, p} )
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
@@ -2287,8 +2277,8 @@ class DiagonalizaCr(Matrix):
                     pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
                     A = T(pasos[0]) & A
-                elif p:
-                    Tr = T( {i, p} )
+                elif j:
+                    Tr = T( (1, j[0], i) )
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
@@ -2308,14 +2298,14 @@ class DiagonalizaCr(Matrix):
                 A = T(pasos[0]) & A
             colExcluida.add(i)
             
-        self.tex       = Tex
         self.pasos     = pasosPrevios
-        self.TrF       = T(self.pasos[0])
-        self.TrC       = T(self.pasos[1])
-        self.B         = I(A.n) & T(pasosPrevios[1])
+        self.tex       = rprElimCF(Matrix(data),self.pasos) 
+        self.TrF       = filtradopasos(T(self.pasos[0]))
+        self.TrC       = filtradopasos(T(self.pasos[1]))
+        self.B         = I(A.n) & self.TrC
         
         if Rep:
-            display(Math(Tex))
+            display(Math(self.tex))
             
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix

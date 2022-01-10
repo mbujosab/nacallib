@@ -3829,20 +3829,19 @@ como autovalores negativos, y tantos ceros como auntovalores nulos. """
 class DiagonalizaC(Matrix):
     def __init__(self, data, Rep=0):
         <<Texto de ayuda para la clase [[DiagonalizaC]]>>
-        <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
+        <<Definición del método auxiliar [[BuscaPrimerNoNuloEnLaDiagonal]]>>
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
-        #Tex   = latex(A);   
         for i in range(1,A.n):
-            p = BuscaNuevoPivote(i|A)
+            p = BuscaPrimerNoNuloEnLaDiagonal(A,i)
             j = [k for k,col in enumerate(A|slice(i,None),i) if (i|col and not k|col)]
             if not (i|A|i):
-                if j:
-                    Tr = T( (1, j[0], i) )
+                if p:
+                    Tr = T( {i, p} )
                     p = i
                     <<Aplicación de las transformaciones a las columnas y a las filas>>
-                elif p:
-                    Tr = T( {i, p} )
+                elif j:
+                    Tr = T( (1, j[0], i) )
                     p = i
                     <<Aplicación de las transformaciones a las columnas y a las filas>>
             if p:
@@ -3865,6 +3864,15 @@ class DiagonalizaC(Matrix):
 @ %def DiagonalizaC
 \end{codigo}
 
+\begin{codigo}[nobreak=true]
+<<Definición del método auxiliar [[BuscaPrimerNoNuloEnLaDiagonal]]>>=
+def BuscaPrimerNoNuloEnLaDiagonal(self, i=1):
+    d = (slice(i,None)|self|slice(i,None)).diag().sis()
+    return next((pos for pos, x in enumerate(d) if x), None) + i
+@ %def BuscaPrimerNoNuloEnLaDiagonal
+\end{codigo}
+
+%        ##Definición del método auxiliar [[BuscaNuevoPivote]]>>
 %        #self.positivos = sum([1 for c in A.diag() if c>0 ] )
 %        #self.negativos = sum([1 for c in A.diag() if c<0 ] )
 %        #self.nulos     = sum([1 for c in A.diag() if c==0] )
@@ -3906,20 +3914,19 @@ ceros como la multiplicidad algebraica del autovalor cero. """
 class DiagonalizaCr(Matrix):
     def __init__(self, data, Rep=0):
         <<Texto de ayuda para la clase [[DiagonalizaCr]]>>
-        <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
+        <<Definición del método auxiliar [[BuscaPrimerNoNuloEnLaDiagonal]]>>
         A     = Matrix(data);      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
-        Tex   = latex(A);   
         for i in range(1,A.n):
-            p = BuscaNuevoPivote(i|A)
+            p = BuscaPrimerNoNuloEnLaDiagonal(A,i)
             j = [k for k,col in enumerate(A|slice(i,None),i) if (i|col and not k|col)]
             if not (i|A|i):
-                if j:
-                    Tr = T( (1, j[0], i) )
+                if p:
+                    Tr = T( {i, p} )
                     p = i
                     <<Aplicación de las transformaciones a las columnas y a las filas>>
-                elif p:
-                    Tr = T( {i, p} )
+                elif j:
+                    Tr = T( (1, j[0], i) )
                     p = i
                     <<Aplicación de las transformaciones a las columnas y a las filas>>
             if p:
@@ -3927,14 +3934,14 @@ class DiagonalizaCr(Matrix):
                 <<Aplicación de las transformaciones a las columnas y a las filas>>
             colExcluida.add(i)
             
-        self.tex       = Tex
         self.pasos     = pasosPrevios
-        self.TrF       = T(self.pasos[0])
-        self.TrC       = T(self.pasos[1])
-        self.B         = I(A.n) & T(pasosPrevios[1])
+        self.tex       = rprElimCF(Matrix(data),self.pasos) 
+        self.TrF       = filtradopasos(T(self.pasos[0]))
+        self.TrC       = filtradopasos(T(self.pasos[1]))
+        self.B         = I(A.n) & self.TrC
         
         if Rep:
-            display(Math(Tex))
+            display(Math(self.tex))
             
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
