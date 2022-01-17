@@ -181,7 +181,7 @@
     \end{quotation}
   \end{mdframed}}
 
-\def\Jupyter{Notebooks de Jupyter que muestran el uso de la librería \texttt{nacal}}
+\def\Jupyter{Notebooks de Jupyter que muestran el uso del módulo \texttt{nacal}}
 \tikzset{tittut/.style =                                %% TITULO RECUADRADO                                        
        {draw=black, thick, fill=white, 
         text=black, rectangle, rounded corners, right,minimum height=.7cm}}
@@ -311,7 +311,7 @@
 %\renewcommand{\pr}[2]{[\pmb{#2}\cdot {#1}]}
 %\renewcommand{\su}[3]{[\pmb{#1} + {#3}\cdot \pmb{#2}]}
 
-\title{\mbox{Notación Asociativa para un Curso de Álgebra Lineal (NACAL)}\\
+\title{\mbox{Notación Asociativa para un Curso de Álgebra Lineal (NAcAL)}\\
   {\footnotesize (Versión: \input{version.txt})}\\
   {\footnotesize \url{https://github.com/mbujosab/nacallib}}}
 \author{Marcos Bujosa}
@@ -325,12 +325,11 @@
 \cleardoublepage
 \phantomsection
 \section*{Declaración de intenciones}
-\thispagestyle{empty}
-\addcontentsline{toc}{section}{Declaración de intenciones}
-Uno de los objetivos que me he propuesto para el curso Matemáticas II
-(Álgebra Lineal) es mostrar que escribir matemáticas y usar un
-lenguaje de programación son prácticamente la misma cosa. Este modo de
-proceder debería ser un ejercicio muy didáctico ya que:
+\thispagestyle{empty} \addcontentsline{toc}{section}{Declaración de
+  intenciones} Uno de los objetivos que me he propuesto para el curso
+Matemáticas II (Álgebra Lineal) es mostrar que escribir matemáticas y
+usar un lenguaje de programación son prácticamente la misma cosa. Este
+modo de proceder debería ser un ejercicio muy didáctico ya que:
 \begin{quotation}
   \noindent
   \emph{Un PC es muy torpe y se limita a ejecutar literalmente
@@ -351,47 +350,55 @@ proceder debería ser un ejercicio muy didáctico ya que:
 
 Con esta idea en mente:
 \begin{enumerate}
-\item La notación empleada pretende ser operativa; es decir, su uso es
-  directamente traducible en operaciones a realizar por un
+\item La notación del
+  \href{https://github.com/mbujosab/CursoDeAlgebraLineal/blob/master/libro.pdf}{Curso
+    de Álgebra Lineal} pretende ser operativa; es decir, su uso debe
+  ser directamente traducible a operaciones a realizar por un
   ordenador. Para lograr una mayor simplificación, la notación explota
   de manera intensiva la asociatividad.
 
-\item Muchas de las demostraciones de las notas de clase son
-  algorítmicas. En particular las relacionadas con la eliminación
-  Gaussiana. De esta manera, las demostraciones describen literalmente
-  la programación de los correspondientes algoritmos.
+\item Muchas de las demostraciones del
+  \href{https://github.com/mbujosab/CursoDeAlgebraLineal/blob/master/libro.pdf}{libro}
+  son algorítmicas. En particular aquellas las relacionadas con la
+  eliminación. De esta manera las demostraciones describen
+  literalmente la programación de los correspondientes algoritmos.
 \end{enumerate}
 
-\subsubsection*{Una librería de Python específica para la asignatura}
-Aunque Python dispone de librerías para operar con vectores y
-matrices, \emph{nosotros escribiremos nuestra propia librería}. Así
-lograremos que la notación de las notas de clase y las expresiones
-empleadas en la librería de Python se parezcan lo más posible.
+\subsubsection*{Un módulo de Python específico para la asignatura}
+Aunque Python dispone de módulos para operar con vectores y matrices,
+\emph{he decidido escribir un módulo propio}. De este modo logro que
+la notación del
+\href{https://github.com/mbujosab/CursoDeAlgebraLineal/blob/master/libro.pdf}{libro}
+y las expresiones empleadas en el módulo
+% \href{https://pypi.org/project/nacal/}{NAcAL} para Python
+se parezcan lo más posible.
 \begin{center}
-  \HLa {\textsc{Este documento describe tanto el uso de la librería
-      como su código; pero tenga en cuenta que esto no es un
+  \HLa {\textsc{Este documento describe tanto el uso del módulo
+      \href{https://pypi.org/project/nacal/}{NAcAL} como su código;
+      pero tenga en cuenta que esto no es un
       \href{https://docs.python.org/es/3/tutorial/index.html}{tutorial
         de Python}.}}
 \end{center}
-No obstante, he escrito unos notebooks de Jupyter que ofrecen unas
+No obstante, he escrito unos Notebooks de Jupyter que ofrecen unas
 breves nociones de programación en Python (aunque muy
 incompletas). Tenga en cuenta que hay muchos cursos y material
 disponible en la web para aprender Python y que mi labor es enseñar
 Álgebra Lineal (no Python).  \bigskip
 
-Para subrayar el paralelismo entre las definiciones dadas en las
-\href{https://github.com/mbujosab/CursoDeAlgebraLineal/blob/master/ES-Mat2-print.pdf}
-{notas de la asignatura} y los objetos (o [[Clases]]) definidos en la
-librería, las partes auxiliares del código se relegan al
-final\footnote{aquellas que tienen que ver con la comprobación de que
-  los inputs de las funciones son adecuados, con otras formas
-  alternativas de instanciar clases, con la representación de objetos
-  en Jupyter usando código \LaTeX, etc.}  (véase la sección
-\emph{Literate programming} en la
+Para subrayar el paralelismo entre las definiciones dadas en el
+\href{https://github.com/mbujosab/CursoDeAlgebraLineal/blob/master/libro.pdf}{libro}
+y los objetos (o [[Clases]]) definidos en
+\href{https://pypi.org/project/nacal/}{NAcAL}, las partes auxiliares
+del código se relegan al final\footnote{aquellas que tienen que ver
+  con la comprobación de que los inputs de las funciones son
+  adecuados, con otras formas alternativas de instanciar clases, con
+  la representación de objetos en Jupyter usando código \LaTeX, etc.}
+(véase la sección \emph{Literate programming} en la
 Página~\pageref{sec:LiterateProgramming}). Destacar las partes
-centrales del código permitirá apreciar cómo las definiciones de las
-notas de la asignatura son implementadas de manera literal en la
-librería de Python.  \bigskip
+centrales del código permitirá apreciar cómo las definiciones del
+\href{https://github.com/mbujosab/CursoDeAlgebraLineal/blob/master/libro.pdf}{libro}
+son implementadas de manera literal en la librería de Python.
+\bigskip
 
 \begin{notebook}
   \begin{center}
@@ -421,7 +428,7 @@ Y recuerde que \textbf{¡hacer matemáticas y programar son
 \cleardoublepage
 \thispagestyle{empty}
 
-\chapter[Código principal de la librería]{Código principal. La clase \texttt{Sistema}.
+\chapter[Código principal del módulo NAcAL]{Código principal. La clase \texttt{Sistema}.
   Las subclases \texttt{Vector} y \texttt{Matrix}, y la clase \texttt{T}}
 \label{part:CodigoPrincipal}
 \begin{notebook}
@@ -781,7 +788,7 @@ nos lo mostrará cuando tecleemos \texttt{help([[Vector]])}:
 <<Texto de ayuda de la clase [[Vector]]>>=
 """Clase Vector(Sistema)
 
-Vector es un Sistema de números u objetos de la librería Sympy. Se puede
+Vector es un Sistema de números u objetos del módulo Sympy. Se puede
 instanciar con una lista, tupla o Sistema. Si se instancia con un Vector
 se crea una copia del mismo. El atributo 'rpr' indica al entorno Jupyter 
 si el vector debe ser escrito como fila o como columna.
@@ -874,7 +881,7 @@ la librería \href{https://www.sympy.org/en/index.html}{Sympy}\;
 variables simbólicas o polinomios. Al ampliar el tipo de objetos que
 pueden aparecer en la [[lista]] de los [[Vector]]es, ya no nos
 limitamos a implementar vectores de \R[n]; a cambio podremos extender
-las aplicaciones de la librería.
+las aplicaciones del módulo.
 \begin{codigo}
 <<Verificación de que todos los elementos de la [[lista]] son números o de tipo [[sympy.Basic]]>>=
 if not all( [isinstance(e, (int, float, sympy.Basic)) for e in self] ):
@@ -1728,7 +1735,7 @@ cuya transcripción literal sería
   \Verb/ Sistema ( [ x*(self|i) for i in range(1,len(self)+1) ] ) /
 \end{center}
 donde \texttt{x} es un número (\texttt{int}, \texttt{float}) o un
-objeto de la librería Sympy (\texttt{sympy.Basic}) y donde
+objeto del módulo Sympy (\texttt{sympy.Basic}) y donde
 \texttt{self} es \SV{A}.
 
 Como casos particulares tenemos el producto de un \emph{vector}
@@ -1804,7 +1811,7 @@ def __neg__(self):
     \Verb/ x * self /
   \end{center}
   donde \texttt{self} es el [[Sistema]] y \texttt{x} es un número
-  entero, u objeto de la librería Sympy (\texttt{int, float,
+  entero, u objeto del módulo Sympy (\texttt{int, float,
     sympy.Basic}).
 \item El producto de \SV{A}, de [[n]] componentes, por un vector
   \Vect{x} de \R[n] a su derecha se define como
@@ -2681,7 +2688,7 @@ def denom(a,b):
 \begin{Notebook}
   \begin{center}
     Consulte el Notebook sobre el
-    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb}{\textbf{uso de la librería \texttt{nacal}}}
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb}{\textbf{uso del módulo \texttt{nacal}}}
     %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F03_UsoLibreria.ipynb}{\textbf{uso de nuestra librería para Mates 2}}
       en la carpeta
       \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2F}{``Notebooks''}
@@ -3641,7 +3648,7 @@ def latex(self):
 <<Diagonalizando una matriz por bloques triangulares (por [[S]]emejanza)>>=
 class DiagonalizaS(Matrix):
     def __init__(self, A, espectro, Rep=0):
-        <<Texto de ayuda para la clase [[Diagonaliza]]>>
+        <<Texto de ayuda para la clase [[DiagonalizaS]]>>
         <<Definición del método auxiliar [[BuscaNuevoPivote]]>>
         D            = Matrix(A)
         if not D.es_cuadrada: raise ValueError('Matrix no es cuadrada')
@@ -3683,11 +3690,11 @@ class DiagonalizaS(Matrix):
         super(self.__class__ ,self).__init__(D)
         self.__class__ = Matrix
                    
-@ %def Diagonaliza
+@ %def DiagonalizaS
 \end{codigo}
 
 \begin{codigo}
-<<Texto de ayuda para la clase [[Diagonaliza]]>>=
+<<Texto de ayuda para la clase [[DiagonalizaS]]>>=
 """Diagonaliza por bloques triangulares una Matrix cuadrada 
 
 Encuentra una matriz diagonal semejante mediante trasformaciones de sus
@@ -4405,7 +4412,7 @@ El método \texttt{latex} general, intentará llamar al método [[latex]]
 particular del objeto que se quiere representar (para todos los
 objetos de esta librería se define su método de representación). Si el
 objeto no tiene definido el método [[latex]], entonces se emplea el
-método [[latex]] de la librería
+método [[latex]] del módulo
 \href{https://www.sympy.org/en/index.html}{Sympy}\;
 ([[sympy.latex()]]). Además, se pide que el en tal caso, antes de
 representar el objeto se simplifican las expresiones si ello es
@@ -4447,7 +4454,7 @@ simplificadas. Si el objeto es una tupla, lista o [[Sistema]], se
 devuelve un objeto del mismo tipo, pero cuyos elementos han sido
 simplificados. Si [[self]] es otro tipo de objeto, entonces se
 ``sympyfica'' con [[sympy.sympify(self)]], es decir, se transforma un
-objeto de la librería
+objeto del módulo
 \href{https://www.sympy.org/en/index.html}{Sympy},\; para así poder
 ser simplificado con el método [[sympy.simpify()]].
 \begin{codigo}
@@ -5020,7 +5027,7 @@ def inversa(self, rep=0):
 \begin{codigo}[nobreak=true]
 <<Métodos de [[Matrix]] que usan la eliminación>>=
 def diagonalizaS(self, espectro, rep=0):
-    <<Texto de ayuda para la clase [[Diagonaliza]]>>
+    <<Texto de ayuda para la clase [[DiagonalizaS]]>>
     return DiagonalizaS(self, espectro, rep)
 
 @ %def diagonalizaS
@@ -5537,8 +5544,6 @@ def rprElimFyC(data, pasos, TexPasosPrev=[]):
     if isinstance (data, Matrix):
         A.cF, A.cC = data.cF, data.cC
 
-    #pasos[0] = list(reversed(pasos[0]))
-                                                               
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for i in range(len(pasos[1])):
         tex += '\\xrightarrow' \
@@ -5564,8 +5569,6 @@ def rprElimCF(data, pasos, TexPasosPrev=[]):
     A = data.copy()
     if isinstance (data, Matrix):
         A.cF, A.cC = data.cF, data.cC
-                                                               
-    #pasos[0] = list(reversed(pasos[0]))
                                                                
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for i in range(len(pasos[1])):
@@ -5726,7 +5729,7 @@ def latex(self):
 \begin{notebook}
   \begin{center}
     Consulte el Notebook sobre el
-    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb}{\textbf{uso de la librería \texttt{nacal}}}
+    \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb}{\textbf{uso del módulo \texttt{nacal}}}
     %\href{https://mybinder.org/v2/gh/mbujosab/LibreriaDePythonParaMates2/master?filepath=TutorialPython%2F03_UsoLibreria.ipynb}{\textbf{uso de nuestra librería para Mates 2}}
       en la carpeta
       \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2F}{``Notebooks''}
