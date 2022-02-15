@@ -4083,7 +4083,7 @@ def __init__(self,data):
         self.cart  = ~Matrix(SGenENulo(~Matrix(self.sgen)))
         self.Rn    = A.n
 @ %def SubEspacio
-% self.base  = Sistema([ c for c in Elim(A) if c.no_es_nulo() ]) 
+% self.base = Sistema([ c for c in Elim(A) if c.no_es_nulo() ]) 
 \end{codigo}
 
 Una base del espacio nulo está formada por los vectores de [[E]]
