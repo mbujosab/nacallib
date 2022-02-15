@@ -364,7 +364,7 @@ class Sistema:
 class Vector(Sistema):
     """Clase Vector(Sistema)
 
-    Vector es un Sistema de números u objetos de la librería Sympy. Se puede
+    Vector es un Sistema de números u objetos del módulo Sympy. Se puede
     instanciar con una lista, tupla o Sistema. Si se instancia con un Vector
     se crea una copia del mismo. El atributo 'rpr' indica al entorno Jupyter 
     si el vector debe ser escrito como fila o como columna.
@@ -1624,8 +1624,6 @@ def rprElimFyC(data, pasos, TexPasosPrev=[]):
     if isinstance (data, Matrix):
         A.cF, A.cC = data.cF, data.cC
 
-    #pasos[0] = list(reversed(pasos[0]))
-                                                               
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for i in range(len(pasos[1])):
         tex += '\\xrightarrow' \
@@ -1640,8 +1638,6 @@ def rprElimCF(data, pasos, TexPasosPrev=[]):
     A = data.copy()
     if isinstance (data, Matrix):
         A.cF, A.cC = data.cF, data.cC
-                                                               
-    #pasos[0] = list(reversed(pasos[0]))
                                                                
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for i in range(len(pasos[1])):
@@ -1730,7 +1726,7 @@ class SubEspacio:
             raise ValueError(' Argumento debe ser un Sistema o Matrix ')
         if isinstance(data, Sistema):
             A          = Matrix(data)
-            self.base  = Sistema([ c for c in Elim(A) if c.no_es_nulo() ])
+            self.base  = Sistema([A|j for j,v in enumerate(Elim(A),1) if v.no_es_nulo()])
             self.dim   = len(self.base)
             self.sgen  = self.base if self.base else Sistema([ V0(A.m) ])
             self.cart  = ~Matrix(SGenENulo(~A))
