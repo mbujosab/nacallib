@@ -1725,19 +1725,19 @@ class SubEspacio:
         if not isinstance(data, (Sistema, Matrix)):
             raise ValueError(' Argumento debe ser un Sistema o Matrix ')
         if isinstance(data, Sistema):
-            A          = Matrix(data)
-            self.base  = Sistema([A|j for j,v in enumerate(Elim(A),1) if v.no_es_nulo()])
-            self.dim   = len(self.base)
-            self.sgen  = self.base if self.base else Sistema([ V0(A.m) ])
-            self.cart  = ~Matrix(SGenENulo(~A))
-            self.Rn    = A.m
+            A         = Matrix(data)
+            self.base = Sistema([A|j for j,v in enumerate(Elim(A),1) if v.no_es_nulo()])
+            self.dim  = len(self.base)
+            self.sgen = self.base if self.base else Sistema([ V0(A.m) ])
+            self.cart = ~Matrix(SGenENulo(~A))
+            self.Rn   = A.m
         if isinstance(data, Matrix):
-            A          = data
-            self.sgen  = SGenENulo(A)  
-            self.dim   = 0 if self.sgen.es_nulo() else len(self.sgen)
-            self.base  = self.sgen if self.dim else Sistema([])
-            self.cart  = ~Matrix(SGenENulo(~Matrix(self.sgen)))
-            self.Rn    = A.n
+            A         = data
+            self.sgen = SGenENulo(A)  
+            self.dim  = 0 if self.sgen.es_nulo() else len(self.sgen)
+            self.base = self.sgen if self.dim else Sistema([])
+            self.cart = ~Matrix(SGenENulo(~Matrix(self.sgen)))
+            self.Rn   = A.n
     def contenido_en(self, other):
         """Indica si este SubEspacio está contenido en other"""
         self.verificacion(other)
