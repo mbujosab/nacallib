@@ -337,13 +337,13 @@ class Sistema:
     def de_composicion_uniforme(self):
        """Indica si es cierto que todos los elementos son del mismo tipo"""
        return all(type(e)==type(self[0]) for e in self)
-    def es_nulo(self):
+    def es_nulo(self, sust=[]):
         """Indica si es cierto que el Sistema es nulo"""
-        return self==self*0
+        return self.subs(sust) == self*0
 
-    def no_es_nulo(self):
+    def no_es_nulo(self, sust=[]):
         """Indica si es cierto que el Sistema no es nulo"""
-        return self!=self*0
+        return self.subs(sust) != self*0
 
     def junta(self, l):
         """Junta una lista o tupla de Sistemas en uno solo concatenando las
@@ -355,11 +355,15 @@ class Sistema:
         
         return reune([self] + [s for s in l])
         
-    def subs(self, s,v):
+    def subs(self, s=[]):
+        def CreaLista(t):
+            """Devuelve t si t es una lista; si no devuelve la lista [t]"""
+            return t if isinstance(t, list) else [t]
+            
         if isinstance(self, sympy.Basic):
-            return sympy.S(self).subs(s,v)
+            return sympy.S(self).subs(CreaLista(s))
         elif isinstance(self, Sistema):
-            return type(self)([ sympy.S(e).subs(s,v) for e in self ])
+            return type(self)([ sympy.S(e).subs(CreaLista(s)) for e in self ])
         
 class Vector(Sistema):
     """Clase Vector(Sistema)
@@ -1003,9 +1007,15 @@ class T:
             
         return T([(j[0],j[2],j[1]) if len(j)==3 else j for j in CreaLista(self.t)],self.rpr)
         
-    def subs(self,c,v):
-        self.t=[sympy.S(item).subs(c,v) for item in self.t]
+    def subs(self, s=[]):
+        def CreaLista(t):
+            """Devuelve t si t es una lista; si no devuelve la lista [t]"""
+            return t if isinstance(t, list) else [t]
+            
+        t      = [sympy.S(item).subs(CreaLista(s)) for item in CreaLista(self.t)]
+        self.t = [set(i) if isinstance(i, sympy.sets.sets.FiniteSet) else i for i in t]
         return self
+        
     def __eq__(self, other):
         """Indica si es cierto que dos Transformaciones elementales son iguales"""
         return self.t == other.t
@@ -1033,9 +1043,9 @@ class T:
         """ Construye el comando LaTeX para representar una Trans. Elem. """
         def simbolo(t):
             """Escribe el símbolo que denota una trasformación elemental particular"""
-            if isinstance(t,set):
-                return '\\left[\\mathbf{' + latex(min(t)) + \
-                  '}\\rightleftharpoons\\mathbf{' + latex(max(t)) + '}\\right]'
+            if isinstance(t,(set,sympy.sets.sets.FiniteSet)):
+                return '\\left[\\mathbf{' + latex(list(t)[0]) + \
+                  '}\\rightleftharpoons\\mathbf{' + latex(list(t)[1]) + '}\\right]'
             if isinstance(t,(tuple, sympy.core.containers.Tuple)) and len(t) == 2:
                 return '\\left[\\left(' + \
                   latex(t[0]) + '\\right)\\mathbf{'+ latex(t[1]) + '}\\right]'
@@ -1268,22 +1278,23 @@ class BlockM(Sistema):
     
 
 class Elim(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[]):
         """Devuelve una forma pre-escalonada de Matrix(data)
 
            operando con las columnas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0):
+        def BuscaNuevoPivote(self, r=0, sust=[]):
             ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
+                      ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
             while pp in colExcluida:
                 pp = ppivote(self, pp)
             return pp
         celim = lambda x: x > p
-        A = Matrix(data);  r = 0;  transformaciones = [];  colExcluida = set()
+        A = Matrix(data).subs(sust);
+        r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, r, sust); 
             if p:
                 r += 1
                 Tr = T( [ T( [ ( denom((i|A|j),(i|A|p)),    j),    \
@@ -1291,6 +1302,7 @@ class Elim(Matrix):
                                               for j in filter(celim, range(1,A.n+1)) ] )
                 transformaciones += [Tr]  if Tr.t else []
                 A & T( Tr )
+                A = A.subs(sust);
                 colExcluida.add(p)
         pasos = [[], transformaciones]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
@@ -1314,9 +1326,9 @@ class ElimG(Matrix):
 
            operando con las columnas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0):
+        def BuscaNuevoPivote(self, r=0, sust=[]):
             ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
+                      ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
             while pp in colExcluida:
                 pp = ppivote(self, pp)
@@ -1353,9 +1365,9 @@ class ElimGJ(Matrix):
            operando con las columnas (y evitando operar con fracciones  
            hasta el último momento). Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0):
+        def BuscaNuevoPivote(self, r=0, sust=[]):
             ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
+                      ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
             while pp in colExcluida:
                 pp = ppivote(self, pp)
@@ -1408,9 +1420,9 @@ class Elimr(Matrix):
 
            operando con las columnas. Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0):
+        def BuscaNuevoPivote(self, r=0, sust=[]):
             ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
+                      ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
             while pp in colExcluida:
                 pp = ppivote(self, pp)
@@ -1447,9 +1459,9 @@ class ElimrG(Matrix):
 
            operando con las columnas. Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0):
+        def BuscaNuevoPivote(self, r=0, sust=[]):
             ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
+                      ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
             while pp in colExcluida:
                 pp = ppivote(self, pp)
@@ -1485,9 +1497,9 @@ class ElimrGJ(Matrix):
 
            operando con las columnas. Si rep es no nulo, se muestran en
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0):
+        def BuscaNuevoPivote(self, r=0, sust=[]):
             ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
+                      ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
             while pp in colExcluida:
                 pp = ppivote(self, pp)
@@ -1934,7 +1946,7 @@ class Homogenea:
    
            
 class SEL:
-    def __init__(self, A, b, rep=0):
+    def __init__(self, A, b, rep=0, sust=[]):
         """Resuelve un Sistema de Ecuaciones Lineales
 
         mediante eliminación por columnas en la matriz ampliada y muestra
@@ -1943,7 +1955,7 @@ class SEL:
         MA = A.concatena(Matrix([-b])).apila(I(A.n+1))
         MA.cfil( {A.m, A.m+A.n} ).ccol( {A.n} )
         
-        L  = Elim( slice(1,A.m)|MA )
+        L  = Elim( slice(1,A.m)|MA, 0, sust)
         
         EA        = Matrix(MA) & T(L.pasos[1]) 
         Normaliza = T([]) if (0|EA|0)==1 else T([( fracc(1,0|EA|0), EA.n )])
@@ -1953,7 +1965,7 @@ class SEL:
         E = slice(A.m+1,A.m+A.n)|EA|slice(1,A.n)   
         S = slice(A.m+1,A.m+A.n)|EA|slice(A.n+1,None)  
 
-        self.base        = Sistema([ v for j, v in enumerate(E,1) if (K|j).es_nulo() ])
+        self.base        = Sistema([ v for j, v in enumerate(E,1) if (K|j).es_nulo(sust) ])
         self.sgen        = self.base if self.base else Sistema([ V0(A.n) ])
         self.determinado = (len(self.base) == 0)
 
@@ -2010,14 +2022,16 @@ class Determinante:
                 pf = [T([ ( fracc(1, producto(m)) , A.n+1 ) ]) if producto(m)!=1 else T([])]
                 
                 tex = rprElimFyC(ME,[pf,[pc[i]]],tex)
-                
+                 
                 T(pf) & ME & T(pc[i])
                 
                 pasos[0] = pf + pasos[0]
                 pasos[1] = pasos[1] + [pc[i]]
                 
             Det = simplifica( producto( ME.diag() ) )
-            
+
+            tex = latex(ME) if not tex else tex
+
             return [tex, Det, pasos]
             
         
@@ -2054,9 +2068,9 @@ class DiagonalizaS(Matrix):
         matriz diagonal. El atributo S de dicha matriz diagonal es una matriz 
         cuyas columnas son autovectores de los correspondientes autovalores.
         """
-        def BuscaNuevoPivote(self, r=0):
+        def BuscaNuevoPivote(self, r=0, sust=[]):
             ppivote = lambda v, k=0:\
-                      ( [i for i,c in enumerate(v, 1) if (c!=0 and i>k)] + [0] )[0]
+                      ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
             while pp in colExcluida:
                 pp = ppivote(self, pp)
