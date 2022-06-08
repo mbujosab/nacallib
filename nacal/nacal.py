@@ -1283,7 +1283,7 @@ class Elim(Matrix):
 
            operando con las columnas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0, sust=[]):
+        def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
@@ -1294,7 +1294,7 @@ class Elim(Matrix):
         A = Matrix(data).subs(sust);
         r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A, r, sust); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T( [ T( [ ( denom((i|A|j),(i|A|p)),    j),    \
@@ -1326,7 +1326,7 @@ class ElimG(Matrix):
 
            operando con las columnas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0, sust=[]):
+        def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
@@ -1365,7 +1365,7 @@ class ElimGJ(Matrix):
            operando con las columnas (y evitando operar con fracciones  
            hasta el último momento). Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0, sust=[]):
+        def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
@@ -1420,7 +1420,7 @@ class Elimr(Matrix):
 
            operando con las columnas. Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0, sust=[]):
+        def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
@@ -1459,7 +1459,7 @@ class ElimrG(Matrix):
 
            operando con las columnas. Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0, sust=[]):
+        def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
@@ -1497,7 +1497,7 @@ class ElimrGJ(Matrix):
 
            operando con las columnas. Si rep es no nulo, se muestran en
            Jupyter los pasos dados"""
-        def BuscaNuevoPivote(self, r=0, sust=[]):
+        def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)
@@ -2068,7 +2068,7 @@ class DiagonalizaS(Matrix):
         matriz diagonal. El atributo S de dicha matriz diagonal es una matriz 
         cuyas columnas son autovectores de los correspondientes autovalores.
         """
-        def BuscaNuevoPivote(self, r=0, sust=[]):
+        def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
             pp = ppivote(self, r)

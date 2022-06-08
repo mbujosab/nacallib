@@ -2797,7 +2797,7 @@ ocupada por un pivote encontrado anteriormente. Si esto no es posible,
 índice de columna, por lo que habremos terminado de buscar.
 \begin{codigo}[nobreak=true]
 <<Definición del método auxiliar [[BuscaNuevoPivote]]>>=  
-def BuscaNuevoPivote(self, r=0, sust=[]):
+def BuscaNuevoPivote(self, sust=[], r=0):
     ppivote = lambda v, k=0:\
               ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
     pp = ppivote(self, r)
@@ -3037,7 +3037,7 @@ class Elim(Matrix):
         A = Matrix(data).subs(sust);
 	r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A, r, sust); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 <<Uso del pivote para eliminar componentes evitando dividir>>
