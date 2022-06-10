@@ -33,12 +33,19 @@ def latex(a):
     try:
         return a.latex()
     except:
-        return sympy.latex(simplifica(a))
+        return sympy.latex(simplify(a))
          
 def simplifica(self):
     """Devuelve las expresiones simplificadas"""
     if isinstance(self, (list, tuple, Sistema)):
         return type(self)([ simplifica(e) for e in self ])
+    else:
+        return (sympy.sympify(self)).simplify()
+    
+def simplify(self):
+    """Devuelve las expresiones simplificadas"""
+    if isinstance(self, (list, tuple, Sistema)):
+        return type(self)([ simplify(e) for e in self ])
     else:
         return (sympy.sympify(self)).simplify()
     
@@ -55,7 +62,7 @@ def filtradopasos(pasos):
     return T(abv) if isinstance(pasos,T) else abv
 
 def pinta(data):
-    display(Math(latex(simplifica(data))))
+    display(Math(latex(simplify(data))))
 
            
 class Sistema:
@@ -363,8 +370,17 @@ class Sistema:
         if isinstance(self, sympy.Basic):
             return sympy.S(self).subs(CreaLista(s))
         elif isinstance(self, Sistema):
-            return type(self)([ sympy.S(e).subs(CreaLista(s)) for e in self ])
-        
+            Sis = type(self)([ sympy.S(e).subs(2*CreaLista(s)) for e in self ])
+            if isinstance(self, Matrix):
+                Sis.cF, Sis.cC = self.cF, self.cC
+            return Sis
+
+    def simplify(self):
+        if isinstance(self, sympy.Basic):
+            return sympy.S(self).simplify()
+        elif isinstance(self, Sistema):
+            return type(self)([ sympy.S(e).simplify() for e in self ])
+                                                                   
 class Vector(Sistema):
     """Clase Vector(Sistema)
 
@@ -725,21 +741,25 @@ class Matrix(Sistema):
             raise ValueError('La matriz no es cuadrada')
         return self.rg()<self.n
       
-    def K(self,rep=0):
+    def K(self,rep=0, sust=[], repsust=0):
         """Una forma pre-escalonada por columnas (K) de una Matrix"""
-        return Elim(self,rep)
+        return Elim(self, rep, sust, repsust)
         
-    def L(self,rep=0): 
+    def L(self,rep=0, sust=[], repsust=0): 
         """Una forma escalonada por columnas (L) de una Matrix"""
-        return ElimG(self,rep)
+        return ElimG(self, rep, sust, repsust)
         
-    def U(self,rep=0): 
-        """Una forma escalonada por columnas (L) de una Matrix"""
-        return ElimGF(self,rep)
-
-    def R(self,rep=0):
+    def R(self,rep=0, sust=[], repsust=0):
         """Forma escalonada reducida por columnas (R) de una Matrix"""
-        return ElimGJ(self,rep)
+        return ElimGJ(self, rep, sust, repsust)
+
+    def U(self,rep=0, sust=[], repsust=0): 
+        """Una forma escalonada por filas (U) de una Matrix"""
+        return ElimGF(self, rep, sust, repsust)
+
+    def UR(self,rep=0, sust=[], repsust=0): 
+        """Una forma escalonada reducida por filas (U) de una Matrix"""
+        return ElimGJF(self, rep, sust, repsust)
 
     def rg(self):
         """Rango de una Matrix"""
@@ -813,7 +833,7 @@ class Matrix(Sistema):
 
         return M.inversa() if n < 0 else M
 
-    def det(self):
+    def det(self, sust=[]):
         """Calculo del determinate mediante la expansión de Laplace"""
         if not self.es_cuadrada(): raise ValueError('Matrix no cuadrada')
                                                                    
@@ -824,8 +844,10 @@ class Matrix(Sistema):
                                                                    
         if self.m == 1:
             return 1|self|1
-            
-        return sum([(f|self|1)*cof(self,f,1) for f in range(1,self.m+1)]) # columna 1
+
+        A = Matrix(self.subs(sust))
+        # expansión por la 1ª columna 
+        return simplify(sum([((f|A|1)*cof(A,f,1)).subs(sust) for f in range(1,A.m+1)])) 
                                                                                                                                   
     def GS(self):
         """Devuelve una Matrix equivalente cuyas columnas son ortogonales
@@ -1278,11 +1300,29 @@ class BlockM(Sistema):
     
 
 class Elim(Matrix):
-    def __init__(self, data, rep=0, sust=[]):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma pre-escalonada de Matrix(data)
 
            operando con las columnas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
         def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
@@ -1291,7 +1331,7 @@ class Elim(Matrix):
                 pp = ppivote(self, pp)
             return pp
         celim = lambda x: x > p
-        A = Matrix(data).subs(sust);
+        A = Matrix(data.subs(sust)); A.TrC = A.TrF = []; A.pasos=[A.TrF, A.TrC];
         r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
             p = BuscaNuevoPivote(i|A, sust); 
@@ -1306,26 +1346,39 @@ class Elim(Matrix):
                 colExcluida.add(p)
         pasos = [[], transformaciones]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
         
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
+
+        
 class ElimG(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma escalonada de Matrix(data)
 
            operando con las columnas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
         def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
@@ -1333,9 +1386,10 @@ class ElimG(Matrix):
             while pp in colExcluida:
                 pp = ppivote(self, pp)
             return pp
-        A = Elim(data);  r = 0;  transformaciones = [];  colExcluida = set()
+        A = Elim(data, 0, sust);
+        r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T([ {p, r} ])
@@ -1344,27 +1398,39 @@ class ElimG(Matrix):
                 colExcluida.add(r)
         pasos = [ [], A.pasos[1]+[T(transformaciones)] ]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
 
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
+
 class ElimGJ(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma escalonada reducida de Matrix(data)
 
            operando con las columnas (y evitando operar con fracciones  
            hasta el último momento). Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
         def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
@@ -1373,10 +1439,10 @@ class ElimGJ(Matrix):
                 pp = ppivote(self, pp)
             return pp
         celim = lambda x: x < p
-        A = ElimG(data);
+        A = ElimG(data, 0, sust);
         r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T( [ T( [ ( denom((i|A|j),(i|A|p)),    j),    \
@@ -1390,7 +1456,7 @@ class ElimGJ(Matrix):
 
         r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T([ (fracc(1, i|A|p), p) ])
@@ -1400,26 +1466,38 @@ class ElimGJ(Matrix):
                 
         pasos = [ [], A.pasos[1] + transElimIzda  + [T(transformaciones)] ]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
 
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
+
 class Elimr(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma pre-escalonada de Matrix(data)
 
            operando con las columnas. Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
         def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
@@ -1428,37 +1506,51 @@ class Elimr(Matrix):
                 pp = ppivote(self, pp)
             return pp
         celim = lambda x: x > p
-        A = Matrix(data);  r = 0;  transformaciones = [];  colExcluida = set()
+        A = Matrix(data.subs(sust)); A.TrC = A.TrF = []; A.pasos=[A.TrF, A.TrC];
+        r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T([ (-fracc(i|A|j, i|A|p), p, j) for j in filter(celim, range(1,A.n+1)) ])
                 transformaciones += [Tr]  if Tr.t else []
                 A & T( Tr )
+                A = A.subs(sust);
                 colExcluida.add(p)
         pasos = [[], transformaciones]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
+
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
         
 class ElimrG(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma escalonada de Matrix(data)
 
            operando con las columnas. Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
         def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
@@ -1466,9 +1558,9 @@ class ElimrG(Matrix):
             while pp in colExcluida:
                 pp = ppivote(self, pp)
             return pp
-        A = Elimr(data);  r = 0;  transformaciones = [];  colExcluida = set()
+        A = Elimr(data, 0, sust);  r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T([ {p, r} ])
@@ -1477,26 +1569,38 @@ class ElimrG(Matrix):
                 colExcluida.add(r)
         pasos = [ [], A.pasos[1]+[T(transformaciones)] ]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
 
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
+
 class ElimrGJ(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma escalonada reducida de Matrix(data)
 
            operando con las columnas. Si rep es no nulo, se muestran en
            Jupyter los pasos dados"""
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
         def BuscaNuevoPivote(self, sust=[], r=0):
             ppivote = lambda v, k=0:\
                       ( [i for i,c in enumerate(v.subs(sust), 1) if (c!=0 and i>k)] + [0] )[0]
@@ -1505,10 +1609,10 @@ class ElimrGJ(Matrix):
                 pp = ppivote(self, pp)
             return pp
         celim = lambda x: x < p
-        A = ElimrG(data);
+        A = ElimrG(data, 0, sust);
         r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T([ (-fracc(i|A|j, i|A|p), p, j) for j in filter(celim, range(1,A.n+1)) ])
@@ -1518,7 +1622,7 @@ class ElimrGJ(Matrix):
         transElimIzda = transformaciones
         r = 0;  transformaciones = [];  colExcluida = set()
         for i in range(1,A.m+1):
-            p = BuscaNuevoPivote(i|A); 
+            p = BuscaNuevoPivote(i|A, sust); 
             if p:
                 r += 1
                 Tr = T([ (fracc(1, i|A|p), p) ])
@@ -1527,112 +1631,142 @@ class ElimrGJ(Matrix):
                 colExcluida.add(p)                
         pasos = [ [], A.pasos[1] + transElimIzda  + [T(transformaciones)] ]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(A)
         self.__class__ = Matrix
 
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
+
 class ElimF(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma pre-escalonada de Matrix(data)
 
            operando con las filas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
-        A = Elim(~Matrix(data));     r = A.rango
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
+        A = Elim(~Matrix(data), 0, sust);     r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
         self.__class__ = Matrix
+
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
         
 class ElimGF(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma escalonada de Matrix(data)
 
            operando con las filas (y evitando operar con fracciones). 
            Si rep es no nulo, se muestran en Jupyter los pasos dados"""
-        A = ElimG(~Matrix(data));    r = A.rango
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
+        A = ElimG(~Matrix(data), 0, sust);    r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
         self.__class__ = Matrix
+
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
         
 class ElimGJF(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Devuelve una forma escalonada reducida de Matrix(data)
 
            operando con las columnas (y evitando operar con fracciones  
            hasta el último momento). Si rep es no nulo, se muestran en 
            Jupyter los pasos dados"""
-        A = ElimGJ(~Matrix(data));   r = A.rango
+        def texYpasos(data, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            TrF = T(pasos[0])
+            TrC = T(pasos[1])
+            
+            if rep:
+                display(Math(tex))
+            
+            return [tex, pasos, TrF, TrC]
+
+        A = ElimGJ(~Matrix(data), 0, sust);   r = A.rango
         pasos = [ list(reversed([ ~t for t in A.pasos[1] ])), [] ]
         pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-        TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-        self.tex = rprElim(data, pasos, TexPasosPrev)
-        pasos[0] = pasos[0] + pasosPrevios[0] 
-        pasos[1] = pasosPrevios[1] + pasos[1]
-        self.pasos = pasos 
-        self.TrF = T(pasos[0])
-        self.TrC = T(pasos[1])
-        if rep:
-            display(Math(self.tex))                                                               
+        self.tex, self.pasos, self.TrF, self.TrC = texYpasos(data, rep, sust, repsust)
         self.rango = r
         super(self.__class__ ,self).__init__(~A)
         self.__class__ = Matrix
+
+        if isinstance (data, Matrix):
+           self.cF, self.cC = data.cF, data.cC
         
-def rprElim(data, pasos, TexPasosPrev=[]):
+def rprElim(data, pasos, TexPasosPrev=[], sust=[]):
     """Escribe en LaTeX los pasos efectivos y las sucesivas matrices"""
-    A = data.copy()
+    A = data.copy().subs(sust)
     if isinstance (data, Matrix):
         A.cF, A.cC = data.cF, data.cC
         
-    tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    tex = latex(A) if not TexPasosPrev else TexPasosPrev
     for l in 0,1:
         if l==0:
             for i in reversed(range(len(pasos[l]))):
                 tex += '\\xrightarrow[' + latex(pasos[l][i]) + ']{}' 
-                tex += latex( pasos[l][i] & A )
+                tex += latex( (pasos[l][i] & A).subs(sust) )
         if l==1:
             for i in range(len(pasos[l])):
                 tex += '\\xrightarrow{' + latex(pasos[l][i]) + '}'
-                tex += latex( A & pasos[l][i] )
-                                                               
+                tex += latex( (A & pasos[l][i]).subs(sust) )
+
     return tex
 
-def rprElimFyC(data, pasos, TexPasosPrev=[]):
+def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[]):
     """Escribe en LaTeX los pasos efectivos y las sucesivas matrices"""
-    A = data.copy()
+    A = data.copy().subs(sust)
     if isinstance (data, Matrix):
         A.cF, A.cC = data.cF, data.cC
 
@@ -1641,22 +1775,22 @@ def rprElimFyC(data, pasos, TexPasosPrev=[]):
         tex += '\\xrightarrow' \
                 + '[' + latex(T(pasos[0][-i-1])) + ']' \
                 + '{' + latex(T(pasos[1][i])) + '}'
-        tex += latex( pasos[0][-i-1] & A & pasos[1][i] )
+        tex += latex( (pasos[0][-i-1] & A & pasos[1][i]).subs(sust) )
                                                                
     return tex
 
-def rprElimCF(data, pasos, TexPasosPrev=[]):
+def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
     """Escribe en LaTeX los pasos efectivos y las sucesivas matrices"""
-    A = data.copy()
+    A = data.copy().subs(sust)
     if isinstance (data, Matrix):
         A.cF, A.cC = data.cF, data.cC
                                                                
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
     for i in range(len(pasos[1])):
         tex += '\\xrightarrow[]{' + latex(T(pasos[1][i])) + '}'
-        tex += latex( A & pasos[1][i] )
+        tex += latex( (A & pasos[1][i]).subs(sust) )
         tex += '\\xrightarrow['   + latex(T(pasos[0][-i-1])) + ']{}' 
-        tex += latex( pasos[0][-i-1] & A )
+        tex += latex( (pasos[0][-i-1] & A).subs(sust) )
                                                                
     return tex
 
@@ -1670,61 +1804,56 @@ def dispElimCF(self, pasos, TexPasosPrev=[]):
     display(Math(rprElimCF(self, pasos, TexPasosPrev)))
 
 class InvMat(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[]):
         """Devuelve la matriz inversa y los pasos dados sobre las columnas"""
-        A          = Matrix(data)        
+        A          = Matrix(data.subs(sust))        
         if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
-        R          = ElimGJ(A)
+        R          = ElimGJ(A, 0, sust)
         self.pasos = R.pasos 
         self.TrF   = R.TrF 
         self.TrC   = R.TrC 
-        self.tex   = rprElim( A.apila( I(A.n), 1 ) , self.pasos)
-        if R.rango < A.n:        raise ArithmeticError('Matrix singular')        
+        self.tex   = rprElim( A.apila( I(A.n), 1 ) , self.pasos, [], sust)
+        if rep:
+            display(Math(self.tex))
+        if R.es_singular():      raise ArithmeticError('Matrix singular')        
         Inversa    = I(A.n) & T(R.pasos[1])  
         super(self.__class__ ,self).__init__(Inversa)
         self.__class__ = Matrix
-        if rep:
-            display(Math(self.tex))
 
 class InvMatF(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[]):
         """Devuelve la matriz inversa y los pasos dados sobre las filas"""
-        A          = Matrix(data)
-        if A.m != A.n:
-            raise ValueError('Matrix no cuadrada')
-        M          = ElimGJF(A)
+        A          = Matrix(data.subs(sust))
+        if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
+        M          = ElimGJF(A, 0, sust)
         self.pasos = M.pasos 
         self.TrF   = M.TrF 
         self.TrC   = M.TrC 
-        self.tex   = rprElim( A.concatena(I(A.m),1) , self.pasos)
-        if M.rango < A.n:
-            raise ArithmeticError('Matrix singular')        
+        self.tex   = rprElim( A.concatena(I(A.m),1), self.pasos, [], sust )
+        if rep:
+            display(Math(self.tex))
+        if M.es_singular():      raise ArithmeticError('Matrix singular')        
         Inversa    = T(M.pasos[0]) & I(A.n)   
         super(self.__class__ ,self).__init__(Inversa)
         self.__class__ = Matrix
-        if rep:
-            display(Math(self.tex))
 
 class InvMatFC(Matrix):
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[]):
         """Devuelve la matriz inversa y los pasos dados sobre las filas y columnas"""
-        A          = Matrix(data)
-        if A.m != A.n:
-            raise ValueError('Matrix no cuadrada')
-        M          = ElimGJ(ElimGF(A))
+        A          = Matrix(data.subs(sust))
+        if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
+        M          = ElimGJ(ElimGF(A,0,sust),0,sust)
         self.pasos = M.pasos  
         self.TrF   = M.TrF 
-        self.TrC   = M.TrC 
-        self.tex   = rprElim( \
-                     A.apila(I(A.n),1).concatena(I(A.n).apila(M0(A.n,A.n),1),1), \
-                              self.pasos)
-        if M.rango < A.n:
-            raise ArithmeticError('Matrix singular')        
+        self.TrC   = M.TrC
+        Aext       = A.apila(I(A.n),1).concatena(I(A.n).apila(M0(A.n,A.n),1),1)
+        self.tex   = rprElim( Aext, self.pasos, [], sust )
+        if rep:
+            display(Math(self.tex))
+        if M.es_singular():      raise ArithmeticError('Matrix singular')        
         Inversa    = ( I(A.n) & T(M.pasos[1]) ) * ( T(M.pasos[0]) & I(A.n) )
         super(self.__class__ ,self).__init__(Inversa)
         self.__class__ = Matrix
-        if rep:
-            display(Math(self.tex))
 
 class SubEspacio:
     def __init__(self,data):
@@ -1908,22 +2037,27 @@ class EAfin:
         return self.EcParametricas() + '\\; = \\;' + self.EcCartesianas()
             
 class Homogenea:
-    def __init__(self, data, rep=0):
+    def __init__(self, data, rep=0, sust=[], repsust=0):
         """Resuelve un Sistema de Ecuaciones Lineales Homogéneo
     
         y muestra los pasos para encontrarlo"""
         
-        A     = Matrix(data)
-        L     = Elim( A )  
+        A     = Matrix(data.subs(sust))
+        L     = Elim( A, 0, sust )  
         E     = I(A.n) & T(L.pasos[1])
-        base  = [ v for j, v in enumerate(E, 1) if (L|j).es_nulo() ]
+        base  = [ v.subs(sust) for j, v in enumerate(E, 1) if (L|j).es_nulo(sust) ]
         
         self.sgen        = Sistema(base) if base else Sistema([ V0(A.n) ])
         self.determinado = (len(base) == 0)
         self.pasos       = L.pasos; 
         self.TrF         = L.TrF 
         self.TrC         = L.TrC
-        self.tex         = rprElim( A.apila( I(A.n) ,1 ) , self.pasos)
+        
+        if repsust:
+            self.tex         = rprElim( A.apila( I(A.n) ,1 ) , self.pasos, [], sust)
+        else:
+            self.tex         = rprElim( A.apila( I(A.n) ,1 ) , self.pasos)
+           
         self.enulo       = SubEspacio(self.sgen)
         
         if rep:
@@ -1946,20 +2080,20 @@ class Homogenea:
    
            
 class SEL:
-    def __init__(self, A, b, rep=0, sust=[]):
+    def __init__(self, A, b, rep=0, sust=[], repsust=0):
         """Resuelve un Sistema de Ecuaciones Lineales
 
         mediante eliminación por columnas en la matriz ampliada y muestra
         los pasos dados"""
-        A  = Matrix(A)
+        A  = Matrix(A.subs(sust))
         MA = A.concatena(Matrix([-b])).apila(I(A.n+1))
         MA.cfil( {A.m, A.m+A.n} ).ccol( {A.n} )
         
         L  = Elim( slice(1,A.m)|MA, 0, sust)
         
-        EA        = Matrix(MA) & T(L.pasos[1]) 
+        EA        = (Matrix(MA) & T(L.pasos[1])).subs(sust)
         Normaliza = T([]) if (0|EA|0)==1 else T([( fracc(1,0|EA|0), EA.n )])
-        EA & Normaliza
+        EA        = (EA & Normaliza).subs(sust)
 
         K =         slice(1,A.m)|EA|slice(1,A.n);
         E = slice(A.m+1,A.m+A.n)|EA|slice(1,A.n)   
@@ -1973,13 +2107,18 @@ class SEL:
             self.solP  = set()
             self.eafin = set()
         else:
-            self.solP  = S|1 
+            self.solP  = S|1
             self.eafin = EAfin(self.sgen, self.solP, 1)
 
         self.pasos       = [[], L.pasos[1]+[Normaliza] ] if Normaliza.t else [[], L.pasos[1]]
         self.TrF         = T(self.pasos[0]) 
-        self.TrC         = T(self.pasos[1]) 
-        self.tex         = rprElim( MA, self.pasos )
+        self.TrC         = T(self.pasos[1])
+
+        if repsust:
+            self.tex     = rprElim( MA, self.pasos, [], sust )
+        else:
+            self.tex     = rprElim( MA, self.pasos)
+
         if rep:
             display(Math(self.tex))           
     def __repr__(self):
@@ -1999,21 +2138,16 @@ class SEL:
 
               
 class Determinante:
-    def __init__(self, data, disp=0):
+    def __init__(self, data, disp=0, sust=[]):
         """Calcula el determinante
 
         mediante eliminación Gaussiana por columnas y muestra los pasos dados"""
-        
-        A  = Matrix(data)
-        
-        if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
-        
-        def calculoDet(A):
+        def calculoDet(A, sust=[]):
             producto  = lambda x: 1 if not x else x[0] * producto(x[1:])
             
-            pc  = (A.L().pasos[1])
+            pc  = (A.L(0,sust).pasos[1])
             ME  = A.extDiag(I(1),1)
-            tex = ''
+            tex = latex(ME)
             pasos = [[],[]]
             
             for i in range(len(pc)):
@@ -2028,14 +2162,16 @@ class Determinante:
                 pasos[0] = pf + pasos[0]
                 pasos[1] = pasos[1] + [pc[i]]
                 
-            Det = simplifica( producto( ME.diag() ) )
-
-            tex = latex(ME) if not tex else tex
+            Det = simplify( producto( ME.diag() ) )
 
             return [tex, Det, pasos]
             
+
+        A  = Matrix(data.subs(sust))
         
-        self.tex, self.valor, self.pasos = calculoDet( A )
+        if not A.es_cuadrada():  raise ValueError('Matrix no cuadrada')
+                
+        self.tex, self.valor, self.pasos = calculoDet( A.subs(sust) )
         
         self.TrF   = T(self.pasos[0])
         self.TrC   = T(self.pasos[1])
@@ -2057,7 +2193,7 @@ class Determinante:
 
 
 class DiagonalizaS(Matrix):
-    def __init__(self, A, espectro, Rep=0):
+    def __init__(self, A, espectro, Rep=0, sust=[]):
         """Diagonaliza por bloques triangulares una Matrix cuadrada 
 
         Encuentra una matriz diagonal semejante mediante trasformaciones de sus
@@ -2075,64 +2211,68 @@ class DiagonalizaS(Matrix):
             while pp in colExcluida:
                 pp = ppivote(self, pp)
             return pp
-        D            = Matrix(A)
-        if not D.es_cuadrada: raise ValueError('Matrix no es cuadrada')
+        if not A.es_cuadrada: raise ValueError('Matrix no es cuadrada')
         if not isinstance(espectro, list):
             raise ValueError('espectro no es una lista')
-        if len(espectro)!=D.n:
+        if len(espectro)!=A.n:
             raise ValueError('número inadecuado de autovalores en la lista espectro')
+        if not all([(A-l*I(A.n)).es_singular() for l in espectro]):
+            raise ValueError('alguno de los valores proporcionados no es autovalor')
+        
+        D            = Matrix(A.subs(sust))
+        espectro     = [sympy.S(l).subs(sust) for l in espectro]
+        
         S            = I(D.n)
         Tex          = latex( D.apila(S,1) )
         pasosPrevios = [[],[]]
         selecc       = list(range(1,D.n+1))
         for lamda in espectro:
             m = selecc[-1]
-            D = D-(lamda*I(D.n))
+            D = (D-(lamda*I(D.n))).subs(sust)
             Tex += '\\xrightarrow[' + latex(lamda) + '\\mathbf{I}]{(-)}' \
-                                    + latex(D.apila(S,1))
-            TrCol = filtradopasos(ElimG(selecc|D|selecc).pasos[1])
+                                    + latex((D.apila(S,1)).subs(sust))
+            TrCol = filtradopasos(ElimG(selecc|D|selecc,0,sust).pasos[1])
             pasos           = [ [], TrCol ]
             pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 
-            Tex = rprElim( D.apila(S,1), pasos, Tex) if TrCol else Tex
-            D = D & T(pasos[1])
-            S = S & T(pasos[1])
+            Tex = rprElim( D.apila(S,1), pasos, Tex, sust) if TrCol else Tex
+            D = (D & T(pasos[1])).subs(sust)
+            S = (S & T(pasos[1])).subs(sust)
 
             pasos           = [ [T(pasos[1]).espejo()**-1] , []]
             pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 
-            Tex = rprElim( D.apila(S,1), pasos, Tex) if TrCol else Tex
-            D   = T(pasos[0]) & D
+            Tex = rprElim( D.apila(S,1), pasos, Tex, sust) if TrCol else Tex
+            D   = (T(pasos[0]) & D).subs(sust)
             if m < D.n:
                 transf = []; colExcluida = set(selecc)
                 for i in range(m,D.n+1):
-                    p = BuscaNuevoPivote(i|D);
+                    p = BuscaNuevoPivote(i|D, sust);
                     if p:
                         TrCol = filtradopasos([ T([(-fracc(i|D|m, i|D|p), p, m)]) ])
                         pasos           = [ [], TrCol ]
                         pasosPrevios[1] = pasosPrevios[1] + pasos[1]
 
-                        Tex = rprElim( D.apila(S,1), pasos, Tex) if TrCol else Tex
-                        D = D & T(pasos[1])
-                        S = S & T(pasos[1])
+                        Tex = rprElim( D.apila(S,1), pasos, Tex, sust) if TrCol else Tex
+                        D = (D & T(pasos[1])).subs(sust)
+                        S = (S & T(pasos[1])).subs(sust)
 
                         pasos           = [ [T(pasos[1]).espejo()**-1] , []]
                         pasosPrevios[0] = pasos[0] + pasosPrevios[0]
 
-                        Tex = rprElim( D.apila(S,1), pasos, Tex) if TrCol else Tex
-                        D   = T(pasos[0]) & D
+                        Tex = rprElim( D.apila(S,1), pasos, Tex, sust) if TrCol else Tex
+                        D   = (T(pasos[0]) & D).subs(sust)
                         colExcluida.add(p)                        
-            D = D+(lamda*I(D.n))
+            D = (D+(lamda*I(D.n))).subs(sust)
             Tex += '\\xrightarrow[' + latex(lamda) + '\\mathbf{I}]{(+)}' \
-                                    + latex(D.apila(S,1))
+                                    + latex((D.apila(S,1)).subs(sust))
             
             selecc.pop()
             
         if Rep:
             display(Math(Tex))
             
-        espectro.sort(reverse=True)                
-        self.espectro = espectro
+        self.espectro = espectro[::-1]
         self.tex = Tex
         self.S   = S
         self.TrF = T(pasosPrevios[0])
@@ -2142,7 +2282,7 @@ class DiagonalizaS(Matrix):
         self.__class__ = Matrix
                    
 class DiagonalizaO(Matrix):
-    def __init__(self, A, espectro, Rep=0):
+    def __init__(self, A, espectro, Rep=0, sust=[]):
         """ Diagonaliza ortogonalmente una Matrix simétrica 
 
         Encuentra una matriz diagonal por semejanza empleando una matriz
@@ -2160,40 +2300,43 @@ class DiagonalizaO(Matrix):
             l = l[1:len(l)]+[l[0]]
             return (M|l).normalizada()
            
-        D =Matrix(A)
-        if not D.es_simetrica:
+        if not A.es_simetrica:
            raise ValueError('La matriz no es simétrica')
-        if not isinstance(espectro,list) or len(espectro)!=A.n:
-           raise ValueError('Espectro incorrecto')
+        if not isinstance(espectro, list):
+            raise ValueError('espectro no es una lista')
+        if len(espectro)!=A.n:
+            raise ValueError('número inadecuado de autovalores en la lista espectro')
+        if not all([(A-l*I(A.n)).es_singular() for l in espectro]):
+            raise ValueError('alguno de los valores proporcionados no es autovalor')
            
+        D        = Matrix(A.subs(sust))
         S        = I(A.n)
-        espectro = list(espectro);
+        espectro = [sympy.S(l).subs(sust) for l in espectro];
         selecc   = list(range(1,D.n+1))
         for l in espectro:
-            D = D - l*I(D.n)
-            TrCol = ElimG(selecc|D|selecc).pasos[1]
-            D = D + l*I(D.n)
+            D = (D - l*I(D.n)).subs(sust)
+            TrCol = ElimG(selecc|D|selecc,0,sust).pasos[1]
+            D = (D + l*I(D.n)).subs(sust)
             k       = len(selecc)
             nmenosk = (D.n)-k
             selecc.pop()
 
-            q = ( I(k) & T(TrCol) )|0
+            q = ( (I(k) & T(TrCol)).subs(sust) )|0
             q = (sympy.sqrt(q*q)) * q
            
             Q = BaseOrtNor(q).concatena(M0(k,nmenosk)).apila( \
                 M0(nmenosk,k).concatena(I(nmenosk)))  if nmenosk else BaseOrtNor(q)
-           
-            S = S *Q     
-            D = ~Q*D*Q
+            
+            S = (S*Q).subs(sust)
+            D = (~Q*D*Q).subs(sust)
             
         self.Q = S
-        espectro.sort(reverse=True)                
-        self.espectro = espectro
+        self.espectro = espectro[::-1]
         super(self.__class__ ,self).__init__(D)
         self.__class__ = Matrix
                    
 class DiagonalizaC(Matrix):
-    def __init__(self, data, Rep=0):
+    def __init__(self, data, Rep=0, sust=[]):
         """ Diagonaliza por congruencia una Matrix simétrica (evitando dividir)
 
         Encuentra una matriz diagonal por conruencia empleando una matriz B 
@@ -2208,7 +2351,7 @@ class DiagonalizaC(Matrix):
             d = (slice(i,None)|self|slice(i,None)).diag().sis()
             return next((pos for pos, x in enumerate(d) if x), -i) + i
 
-        A     = Matrix(data);      colExcluida  = set()
+        A     = Matrix(data.subs(sust));     colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
         for i in range(1,A.n):
             p = BuscaPrimerNoNuloEnLaDiagonal(A,i)
@@ -2219,36 +2362,36 @@ class DiagonalizaC(Matrix):
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-                    A = A & T(pasos[1])
+                    A = (A & T(pasos[1])).subs(sust)
 
                     pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-                    A = T(pasos[0]) & A
+                    A = (T(pasos[0]) & A).subs(sust)
                 elif j:
                     Tr = T( (1, j[0], i) )
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-                    A = A & T(pasos[1])
+                    A = (A & T(pasos[1])).subs(sust)
 
                     pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-                    A = T(pasos[0]) & A
+                    A = (T(pasos[0]) & A).subs(sust)
             if p:
                 Tr = T( [ T( [ ( denom((i|A|j),(i|A|p)),    j),    \
                                (-numer((i|A|j),(i|A|p)), p, j)  ] ) \
                                               for j in filter(celim, range(1,A.n+1)) ] )
                 pasos = [ [], filtradopasos([Tr]) ]
                 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-                A = A & T(pasos[1])
+                A = (A & T(pasos[1])).subs(sust)
 
                 pasos = [ filtradopasos([~Tr]) , []]
                 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-                A = T(pasos[0]) & A
+                A = (T(pasos[0]) & A).subs(sust)
             colExcluida.add(i)
            
         self.pasos     = pasosPrevios
-        self.tex       = rprElimCF(Matrix(data),self.pasos) 
+        self.tex       = rprElimCF(Matrix(data.subs(sust)), self.pasos, [], sust) 
         self.TrF       = filtradopasos(T(self.pasos[0]))
         self.TrC       = filtradopasos(T(self.pasos[1]))
         self.B         = I(A.n) & self.TrC
@@ -2260,7 +2403,7 @@ class DiagonalizaC(Matrix):
         self.__class__ = Matrix
                    
 class DiagonalizaCr(Matrix):
-    def __init__(self, data, Rep=0):
+    def __init__(self, data, Rep=0, sust=[]):
         """ Diagonaliza por congruencia una Matrix simétrica
 
         Encuentra una matriz diagonal congruente multiplicando por una matriz
@@ -2277,7 +2420,7 @@ class DiagonalizaCr(Matrix):
             d = (slice(i,None)|self|slice(i,None)).diag().sis()
             return next((pos for pos, x in enumerate(d) if x), -i) + i
 
-        A     = Matrix(data);      colExcluida  = set()
+        A     = Matrix(data.subs(sust));      colExcluida  = set()
         celim = lambda x: x > p;   pasosPrevios = [ [], [] ]
         for i in range(1,A.n):
             p = BuscaPrimerNoNuloEnLaDiagonal(A,i)
@@ -2288,34 +2431,34 @@ class DiagonalizaCr(Matrix):
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-                    A = A & T(pasos[1])
+                    A = (A & T(pasos[1])).subs(sust)
 
                     pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-                    A = T(pasos[0]) & A
+                    A = (T(pasos[0]) & A).subs(sust)
                 elif j:
                     Tr = T( (1, j[0], i) )
                     p = i
                     pasos = [ [], filtradopasos([Tr]) ]
                     pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-                    A = A & T(pasos[1])
+                    A = (A & T(pasos[1])).subs(sust)
 
                     pasos = [ filtradopasos([~Tr]) , []]
                     pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-                    A = T(pasos[0]) & A
+                    A = (T(pasos[0]) & A).subs(sust)
             if p:
                 Tr = T([ (-fracc(i|A|j, i|A|p), p, j) for j in filter(celim, range(1,A.n+1)) ])
                 pasos = [ [], filtradopasos([Tr]) ]
                 pasosPrevios[1] = pasosPrevios[1] + pasos[1]
-                A = A & T(pasos[1])
+                A = (A & T(pasos[1])).subs(sust)
 
                 pasos = [ filtradopasos([~Tr]) , []]
                 pasosPrevios[0] = pasos[0] + pasosPrevios[0]
-                A = T(pasos[0]) & A
+                A = (T(pasos[0]) & A).subs(sust)
             colExcluida.add(i)
             
         self.pasos     = pasosPrevios
-        self.tex       = rprElimCF(Matrix(data),self.pasos) 
+        self.tex       = rprElimCF(Matrix(data.subs(sust)), self.pasos, [], sust) 
         self.TrF       = filtradopasos(T(self.pasos[0]))
         self.TrC       = filtradopasos(T(self.pasos[1]))
         self.B         = I(A.n) & self.TrC
