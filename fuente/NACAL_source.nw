@@ -1090,6 +1090,7 @@ class Matrix(Sistema):
     <<Métodos útiles para la clase [[Matrix]]>>
     <<Comprobación de que una [[Matrix]] es singular>>
     <<Métodos de [[Matrix]] que usan la eliminación>>
+    <<Métodos de [[Matrix]] para obtener los subespacios asociados>>
     <<Potencia de una [[Matrix]]>>
     <<Determinante mediante la expansión de Laplace>>
     <<Método Gram-Schmidt para ortogonalizar un sistema de Vectores>>
@@ -5012,6 +5013,29 @@ def rg(self):
 @ 
 \end{codigo}
 
+
+\subsubsection{Cuatro subespacios fundamentales de una matriz}
+\begin{codigo}[nobreak=true]
+<<Métodos de [[Matrix]] para obtener los subespacios asociados>>=
+def enulo(self):
+    """Rango de una Matrix"""
+    return SubEspacio(  self )
+                                                               
+def enuloIzda(self):
+    """Rango de una Matrix"""
+    return SubEspacio( ~self )
+                                                               
+def ecol(self):
+    """Rango de una Matrix"""
+    return SubEspacio(  self.sis() )
+                                                               
+def efila(self):
+    """Rango de una Matrix"""
+    return SubEspacio( (~self).sis() )
+                                                               
+@
+\end{codigo}
+
 \subsection{Otros métodos de la clase {\tt Matrix} específicos de las matrices cuadradas}
 \subsubsection{Potencias de una \texttt{Matrix} cuadrada}
 Ahora podemos calcular la [[n]]-ésima potencia de una [[Matrix]].
@@ -5594,9 +5618,9 @@ def texYpasos(data, rep=0, sust=[], repsust=0):
     pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
     TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
     if repsust:
-        tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+        tex = rprElim(data, pasos, TexPasosPrev, sust)
     else:
-        tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+        tex = rprElim(data, pasos, TexPasosPrev)
     pasos[0] = pasos[0] + pasosPrevios[0] 
     pasos[1] = pasosPrevios[1] + pasos[1]
     

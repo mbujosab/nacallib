@@ -822,6 +822,22 @@ class Matrix(Sistema):
         ceros como la multiplicidad algebraica del autovalor cero. """
         return DiagonalizaCr(self, rep)
 
+    def enulo(self):
+        """Rango de una Matrix"""
+        return SubEspacio(  self )
+                                                                   
+    def enuloIzda(self):
+        """Rango de una Matrix"""
+        return SubEspacio( ~self )
+                                                                   
+    def ecol(self):
+        """Rango de una Matrix"""
+        return SubEspacio(  self.sis() )
+                                                                   
+    def efila(self):
+        """Rango de una Matrix"""
+        return SubEspacio( (~self).sis() )
+                                                                   
     def __pow__(self,n):
         """Calcula la n-ésima potencia de una Matrix"""
         if not isinstance(n,int): raise ValueError('La potencia no es un entero')
@@ -1309,9 +1325,9 @@ class Elim(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1365,9 +1381,9 @@ class ElimG(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1417,9 +1433,9 @@ class ElimGJ(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1484,9 +1500,9 @@ class Elimr(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1537,9 +1553,9 @@ class ElimrG(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1587,9 +1603,9 @@ class ElimrGJ(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1649,9 +1665,9 @@ class ElimF(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1684,9 +1700,9 @@ class ElimGF(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
@@ -1720,9 +1736,9 @@ class ElimGJF(Matrix):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
             TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
             if repsust:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
             else:
-                tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
+                tex = rprElim(data, pasos, TexPasosPrev)
             pasos[0] = pasos[0] + pasosPrevios[0] 
             pasos[1] = pasosPrevios[1] + pasos[1]
             
