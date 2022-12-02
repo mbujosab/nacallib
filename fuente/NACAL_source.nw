@@ -2629,7 +2629,9 @@ Jupyter lo simplificara, representándolo como $\sqrt{2}$).
 <<nacal.py>>=
 # coding=utf8
 import sympy
-from IPython.display import display, Math
+from IPython.display import display, Math, display_png
+import tempfile
+from os.path import join           
 <<Métodos auxiliares para usar coeficientes racionales cuando sea posible>>
 
 <<Método html general>>
@@ -4516,6 +4518,26 @@ def latex(a):
          
 @ 
 \end{codigo}
+
+
+% def latex(a):
+%     try:
+%         return a.latex()
+%     #except:
+%     #    return a.as_expr()
+%     except:
+%         if isinstance(a, sympy.polys.polytools.Poly):
+%             #print(type(a))
+%             return a.as_expr()
+%         else:
+%             #print(type(a))
+%             return sympy.latex(a) #simplify(a))
+%         #try: 
+%         #    return sympy.latex(simplify(a))
+%         #except:
+%         #    return a.as_expr()
+
+
 Con el método [[simplifica]] se devuelven las expresiones
 simplificadas. Si el objeto es una tupla, lista o [[Sistema]], se
 devuelve un objeto del mismo tipo, pero cuyos elementos han sido
@@ -4540,6 +4562,13 @@ def simplify(self):
     else:
         return (sympy.sympify(self)).simplify()
     
+def factor(self):
+    """Devuelve las expresiones factorizadas"""
+    if isinstance(self, (list, tuple, Sistema)):
+        return type(self)([ factor(e) for e in self ])
+    else:
+        return sympy.factor(self)
+
 @ %def simplifica
 \end{codigo}
 
@@ -4590,13 +4619,35 @@ def _repr_html_(self):
 
 def latex(self):
     """ Construye el comando LaTeX para representar un Sistema """
-    pc = ';' if len(self.lista) else '\\ '
-    return '\\left[' + \
-        ';\;'.join( latex(e) for e in self ) + \
-        pc + '\\right]'
+    pc = ';' if len(self.lista) else r'\ '
+    return r'\begin{bmatrix}' + \
+           r';& '.join([latex(e) for e in self]) + pc + \
+           r'\end{bmatrix}' 
 
 @
 \end{codigo}
+
+% return '\\left[' + \
+% ';\;'.join( latex(e) for e in self ) + \
+% pc + '\\right]'
+
+Añado dos métodos más para escibir notebooks dentro de scimax-jupiter
+
+\begin{codigo}[nobreak=true] 
+<<Métodos de representación de la clase [[Sistema]]>>=  
+def _repr_latex_(self):
+    return '$'+self.latex()+'$'
+
+def _repr_png_(self):
+    expr = '$'+self.latex()+'$'
+    workdir = tempfile.mkdtemp()
+    with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
+        sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
+    return open(join(workdir, 'borrame.png'),'rb').read()
+                                                               
+@
+\end{codigo}
+
 
 \subsection{Otros métodos de la clase \texttt{Sistema}}
 Con el método [[sis]] obtendremos el [[Sistema]] correspondiente a
@@ -4650,6 +4701,12 @@ def simplify(self):
     elif isinstance(self, Sistema):
         return type(self)([ sympy.S(e).simplify() for e in self ])
                                                                
+def factor(self):
+    if isinstance(self, sympy.Basic):
+        return sympy.S(self).factor()
+    elif isinstance(self, Sistema):
+        return type(self)([ sympy.S(e).factor() for e in self ])
+
 @ 
 \end{codigo}
 % def subs(self, s=[]):
@@ -4723,13 +4780,13 @@ def _repr_html_(self):
 def latex(self):
     """ Construye el comando LaTeX para representar un Vector"""
     if self.rpr == 'fila' or self.n==1:    
-        return '\\begin{pmatrix}' + \
-               ',&'.join([latex(e) for e in self]) + \
-               ',\\end{pmatrix}' 
+        return r'\begin{pmatrix}' + \
+               ',& '.join([latex(e) for e in self]) + \
+               r',\end{pmatrix}' 
     else:
-        return '\\begin{pmatrix}' + \
-               '\\\\'.join([latex(e) for e in self]) + \
-               '\\end{pmatrix}'
+        return r'\begin{pmatrix}' + \
+               r'\\ '.join([latex(e) for e in self]) + \
+               r'\end{pmatrix}'
                
 @ 
 \end{codigo}

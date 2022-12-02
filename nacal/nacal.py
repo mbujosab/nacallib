@@ -1,6 +1,8 @@
 # coding=utf8
 import sympy
-from IPython.display import display, Math
+from IPython.display import display, Math, display_png
+import tempfile
+from os.path import join           
 def fracc(a,b):
     """Transforma la fracción a/b en un número racional si ello es posible"""
     if all( [ isinstance(i, (int, float, sympy.Rational) ) for i in (a,b) ] ):
@@ -49,6 +51,13 @@ def simplify(self):
     else:
         return (sympy.sympify(self)).simplify()
     
+def factor(self):
+    """Devuelve las expresiones factorizadas"""
+    if isinstance(self, (list, tuple, Sistema)):
+        return type(self)([ factor(e) for e in self ])
+    else:
+        return sympy.factor(self)
+
 def filtradopasos(pasos):
     abv = pasos.t if isinstance(pasos,T) else pasos
            
@@ -336,11 +345,21 @@ class Sistema:
 
     def latex(self):
         """ Construye el comando LaTeX para representar un Sistema """
-        pc = ';' if len(self.lista) else '\\ '
-        return '\\left[' + \
-            ';\;'.join( latex(e) for e in self ) + \
-            pc + '\\right]'
+        pc = ';' if len(self.lista) else r'\ '
+        return r'\begin{bmatrix}' + \
+               r';& '.join([latex(e) for e in self]) + pc + \
+               r'\end{bmatrix}' 
 
+    def _repr_latex_(self):
+        return '$'+self.latex()+'$'
+
+    def _repr_png_(self):
+        expr = '$'+self.latex()+'$'
+        workdir = tempfile.mkdtemp()
+        with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
+            sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
+        return open(join(workdir, 'borrame.png'),'rb').read()
+                                                                   
     def de_composicion_uniforme(self):
        """Indica si es cierto que todos los elementos son del mismo tipo"""
        return all(type(e)==type(self[0]) for e in self)
@@ -381,6 +400,12 @@ class Sistema:
         elif isinstance(self, Sistema):
             return type(self)([ sympy.S(e).simplify() for e in self ])
                                                                    
+    def factor(self):
+        if isinstance(self, sympy.Basic):
+            return sympy.S(self).factor()
+        elif isinstance(self, Sistema):
+            return type(self)([ sympy.S(e).factor() for e in self ])
+
 class Vector(Sistema):
     """Clase Vector(Sistema)
 
@@ -456,13 +481,13 @@ class Vector(Sistema):
     def latex(self):
         """ Construye el comando LaTeX para representar un Vector"""
         if self.rpr == 'fila' or self.n==1:    
-            return '\\begin{pmatrix}' + \
-                   ',&'.join([latex(e) for e in self]) + \
-                   ',\\end{pmatrix}' 
+            return r'\begin{pmatrix}' + \
+                   ',& '.join([latex(e) for e in self]) + \
+                   r',\end{pmatrix}' 
         else:
-            return '\\begin{pmatrix}' + \
-                   '\\\\'.join([latex(e) for e in self]) + \
-                   '\\end{pmatrix}'
+            return r'\begin{pmatrix}' + \
+                   r'\\ '.join([latex(e) for e in self]) + \
+                   r'\end{pmatrix}'
                    
     
 class Matrix(Sistema):
