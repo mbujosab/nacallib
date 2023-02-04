@@ -354,11 +354,14 @@ class Sistema:
         return '$'+self.latex()+'$'
 
     def _repr_png_(self):
-        expr = '$'+self.latex()+'$'
-        workdir = tempfile.mkdtemp()
-        with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
-            sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
-        return open(join(workdir, 'borrame.png'),'rb').read()
+        try:
+            expr = '$'+self.latex()+'$'
+            workdir = tempfile.mkdtemp()
+            with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
+                sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
+            return open(join(workdir, 'borrame.png'),'rb').read()
+        except:
+            return '$'+self.latex()+'$'
                                                                    
     def de_composicion_uniforme(self):
        """Indica si es cierto que todos los elementos son del mismo tipo"""

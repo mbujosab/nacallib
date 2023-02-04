@@ -1,0 +1,233 @@
+\documentclass[12pt,a4paper]{article} % tipo de documento con tamaño de letra y de papel
+
+\usepackage[spanish]{babel}   % multi-language support
+
+\usepackage{amsmath} % es necesario para que pinte OK el proceso de eliminación
+
+\usepackage{pythontex} % para usar Python en el documento
+\pythontexcustomc{pyconsole}{from nacal import *}
+\pythontexcustomc{py}{from nacal import *}
+
+\usepackage{fancyvrb} % para mostrar el código de manera literal
+
+\title{Ejemplo mínimo para usar NAcAL en un documento de \LaTeX{}}
+\author{Marcos Bujosa}
+
+\begin{document}
+\maketitle
+\section{Primeros pasos del asunto}
+
+\subsection{Preámbulo}
+
+En el preámbulo del documento de \LaTeX{} hay que cargar el paquete
+\texttt{pythontex} e indicar a \texttt{pythontex} que debe usar el
+módulo NAcAL\dots{} El preámbulo de este documento incluye lo
+siguiente:
+\begin{Verbatim}
+  \usepackage{pythontex}
+  \pythontexcustomc{pyconsole}{from nacal import *}
+  \pythontexcustomc{py}{from nacal import *}
+\end{Verbatim}
+
+\subsection{Compilación}
+Para compilar el documento es necesario dar varias pasadas. Como
+mínimo debemos ejecutar estas tres órdenes
+\begin{Verbatim}
+  pdflatex ParaMisCompis.tex
+  
+  pythontex --interpreter python:python3 ParaMisCompis.tex
+  
+  pdflatex ParaMisCompis.tex
+  
+\end{Verbatim}
+donde \texttt{ParaMisCompis.tex} es el nombre del fichero que queréis
+compilar. Si vuestro documento tiene enlaces internos, índice de
+contenidos, glosario, bibliografía, etc. hay que compilar más veces y
+ejecutar más comandos para que todo esté OK. Como éste es un ejemplo
+mínimo, con esos tres comandos es sufi.
+
+
+\section{Uso de Python}
+Lo mejor es mirar la documentación de \texttt{pythontex}\\
+(\texttt{https://www.ctan.org/pkg/pythontex})
+\medskip
+
+Otra cosa importante es que hay que tener en cuenta que en Python los
+espacios (o tabuladores) delante de los comandos son importantes. Por
+tanto el código Python debe empezar al comienzo de la línea. Por
+ejemplo: este código es OK
+\begin{Verbatim}
+C = Matrix([[1,1,2,4],[1,0,3,4]])  
+\end{Verbatim}
+pero este otro daría error
+\begin{Verbatim}
+  C = Matrix([[1,1,2,4],[1,0,3,4]])  
+\end{Verbatim}
+(nótese que hay dos espacios en blanco al inicio).  \medskip
+
+El código se puede incluir en el texto con \verb+\py+. Por ejemplo
+\begin{Verbatim}
+Dos más dos son $\py{2+2}$.
+\end{Verbatim}
+genera el siguiente texto:
+\begin{quote}
+  Dos más dos son $\py{2+2}$.
+\end{quote}
+
+NAcAL define una representación \LaTeX{} para la mayoría de objetos
+que implementa (sistemas, vectores, matrices, transformaciones
+elementales, subespacios afines, etc.) pero Python solo usa dicha
+representación con los Notebooks de Jupyter. Si no se indica
+explícitamente, Python no usa la representación \LaTeX{}. Por tanto,
+con
+\begin{Verbatim}
+Sea la matriz $\py{ Matrix([[1,1,2,4],[1,0,3,4]]) }$.
+\end{Verbatim}
+obtenemos el texto
+\begin{quote}
+  Sea la matriz $\py{ Matrix([[1,1,2,4],[1,0,3,4]]) }$.
+\end{quote}
+Que es correcto pero muy feo.
+\medskip
+
+
+Si queremos que las cosas se pinten de manera bonita hay que decir
+explícitamente a Python que use la representación \LaTeX{} con el
+comando \texttt{latex()}. Por ejemplo, el código:
+
+\begin{Verbatim}
+Sea la matriz $\py{ latex( Matrix([[1,1,2,4],[1,0,3,4]]) ) }$.
+\end{Verbatim}
+nos escribe
+\begin{quote}
+  Sea la matriz $\py{ latex( Matrix([[1,1,2,4],[1,0,3,4]]) ) }$.
+\end{quote}
+\medskip
+
+
+Hay otra forma de trabajar (que es la que uso con más frecuencia). El
+entorno \texttt{pycode} ejecuta código de Python pero no muestra el
+resultado (hay que mirar la documentación de Pythontex).
+\begin{pycode}
+C = Matrix([[1,1,2,4],[1,0,3,4]])
+\end{pycode}  
+Así, con
+\begin{Verbatim}
+\begin{pycode}
+C = Matrix([[1,1,2,4],[1,0,3,4]])
+\end{pycode}  
+\end{Verbatim}
+ya hemos definido la matriz $\mathbf{C}$. Ahora podemos escribir
+\begin{Verbatim}
+  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rg()}$ y
+  cuya forma escalonada por filas es $\py{ latex(C.U()) }$.
+\end{Verbatim}
+y obtener
+\begin{quote}
+  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rg()}$ y
+  cuya forma escalonada por filas es $\py{ latex(C.U()) }$.
+\end{quote}
+
+\section{Uso de NAcAL}
+Algunos procedimientos del curso (como la eliminación) dan como
+resultado una matriz, pero también muestran como llegar al
+resultado. Por ejemplo, podemos escalonar por columnas la matriz
+$\mathbf{C}$
+\begin{Verbatim}
+  \begin{displaymath}
+    \py{latex( Elim(C) ) }
+  \end{displaymath}
+\end{Verbatim}
+\begin{displaymath}
+  \py{latex( Elim(C) ) }
+\end{displaymath}
+Pero solo nos ha mostrado el resultado final (es decir, la matriz
+escalonada por eliminación). Afortunadamente NAcAL guarda el código
+\LaTeX{} de los pasos dados para llegar al resultado en el atributo
+\texttt{.tex}. Como dicho atributo ya es código \LaTeX{}, no hay que
+usar el comando \texttt{latex()} dentro de Python.
+\begin{Verbatim}
+  \begin{displaymath}
+    \py{Elim(C).tex}
+  \end{displaymath}
+\end{Verbatim}
+nos muestra lo siguiente
+\begin{displaymath}
+  \py{Elim(C).tex}
+\end{displaymath}
+
+Hay muchos objetos molestos para escribir en \LaTeX{} pero que
+resultan inmediatos con NAcAL. Por ejemplo el conjunto de soluciones
+$\mathbf{C}\boldsymbol{x}=}\boldsymbol{0}$
+\begin{Verbatim}
+  \begin{displaymath}
+    \py{ latex( C.enulo() ) }
+  \end{displaymath}
+\end{Verbatim}
+nos muestra lo siguiente
+\begin{displaymath}
+  \py{latex(C.enulo())}
+\end{displaymath}
+Si solo estamos interesados en escribir las ecuaciones paramétricas
+\begin{Verbatim}
+  \begin{displaymath}
+    \py{ C.enulo().EcParametricas() }
+  \end{displaymath}
+\end{Verbatim}
+nos muestra lo siguiente
+\begin{displaymath}
+  \py{C.enulo().EcParametricas()}
+\end{displaymath}
+(escribiendo esto me doy cuenta de que no he sido sistemático con los
+nombres\ldost{} \texttt{C.enulo().EcParametricas()} ya es código
+\LaTeX{}, y por el nombre no está claro\dots{} quizá debería darle una
+vuelta a eso).  \medskip
+
+En ocasiones he elegido otra representación para lo mismo. Por
+ejemplo, la clase \texttt{Homogenea} resuelve el sistema de ecuaciones
+homogéneo
+\begin{Verbatim}
+  \begin{displaymath}
+    \py{ latex( Homogenea(C) )}
+  \end{displaymath}
+\end{Verbatim}
+nos muestra lo siguiente
+\begin{displaymath}
+  \py{ latex( Homogenea(C) )}
+\end{displaymath}
+Y si queremos ver cómo lo ha calculado\dots
+\begin{Verbatim}
+  \begin{displaymath}
+    \py{ Homogenea(C).tex }
+  \end{displaymath}
+\end{Verbatim}
+nos muestra lo siguiente
+\begin{displaymath}
+  \py{ Homogenea(C).tex }
+\end{displaymath}
+La clase \texttt{Homogenea} guarda el espacio nulo como atributo, así que 
+\begin{Verbatim}
+  \begin{displaymath}
+    \py{ latex( Homogenea(C).enulo ) }
+  \end{displaymath}
+\end{Verbatim}
+nos muestra lo siguiente
+\begin{displaymath}
+  \py{ latex( Homogenea(C).enulo ) }
+\end{displaymath}
+\dots{} hay muchas maneras de obtener lo mismo (al igual que pasa en
+un curso de Álgebra Lineal).  \bigskip
+
+Como podéis ver, escribir con Pythontex + NAcAL es bastante
+productivo, ahorra mucho trabajo y evita muchos
+errores. \textbf{!Espero que os animéis a usarlo!}\dots{} que yo sepa
+no hay nada igual
+
+Como podéis imaginar la inversión de tiempo, trabajo y aprendizaje ha
+sido bastante considerable\dots{} sería un desperdicio que solo lo use
+yo.  \bigskip
+
+Además, el código es abierto, así que podéis añadir lo que le falte.
+
+
+\end{document}

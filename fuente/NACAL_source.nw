@@ -217,12 +217,12 @@
     \end{quotation}
   \end{mdframed}}
 
-
-\input{00Notacion.tex}
+\usepackage{nacal}
+%\input{00Notacion.tex}
 \newcommand{\abs}[1]{\left| #1 \right|}
 %\newcommand{\cls}[2]{\overline{#1}_{#2}}
-\newcommand{\Rr}{\mathbb R}
-\newcommand{\Qq}{\mathbb Q}
+%\newcommand{\Rr}{\mathbb R}
+%\newcommand{\Qq}{\mathbb Q}
 %\newcommand{\Zz}{\mathbb Z}
 %\newcommand{\Nn}{\mathbb N}
 
@@ -279,7 +279,7 @@
 %\newcommand{\Rr}{\mathbb R}
 %\newcommand{\Qq}{\mathbb Q}
 %\newcommand{\Zz}{\mathbb Z}
-\newcommand{\Nn}{\mathbb N}
+%\newcommand{\Nn}{\mathbb N}
 
 % \newcommand{\Kk}{\mathbb K}
 %\newcommand{\domvarphi}{\dom(\varphi)}
@@ -940,8 +940,8 @@ En las notas de la asignatura usamos la siguiente definición:
 Al representar las matrices, mostramos la lista de vectores entre
 corchetes y sin signos de puntuación:
 \begin{displaymath}
-  \Mat{A}=[\Vect[1]{v}\;\Vect[2]{v}\;\ldots\Vect[n]{v}],
-  \quad\text{donde las $n$ columnas}\;\Vect[i]{v}\;\text{son vectores de }\R[m].
+  \Mat{A}=[\Vect{v}{1}\;\Vect{v}{2}\;\ldots\Vect{v}{n}],
+  \quad\text{donde las $n$ columnas}\;\Vect{v}{i}\;\text{son vectores de }\R[m].
 \end{displaymath}
 Vamos a crear una nueva subclase de [[Sistema]] que denominaremos
 [[Matrix]]. El atributo [[lista]] de [[Matrix]] será la lista de
@@ -1178,12 +1178,12 @@ permitirá definir las operaciones de suma, producto, etc\dots
     entonces
     \begin{math}
       \begin{cases}
-        \VectC[j]{A}=
+        \VectC{A}{j}=
         \begin{pmatrix}
           a_{1j}\\ \vdots \\ a_{nj}
         \end{pmatrix}
         \;\text{para todo}\; j\in\{1,\ldots,m\} \\
-        \VectF[i]{A}= (a_{i1},\ldots,a_{im})
+        \VectF{A}{i}= (a_{i1},\ldots,a_{im})
         \;\text{para todo}\;
         i\in\{1,\ldots,n\}
       \end{cases}.
@@ -1197,9 +1197,9 @@ de un elemento:
   \begin{itemize}
   \item $\elemL{\Vect{v}}{(i_1,\ldots, i_r)}=\Big(\Vect{v}_{i_1},\ldots, \Vect{v}_{i_r}\Big)=\elemR{\Vect{v}}{(i_1,\ldots, i_r)}$
     \hfill (es un vector formado por elementos de \Vect{v})
-  \item $\VectF[(i_1,\ldots, i_r)]{A}=\Big[\VectF[i_1]{A}\ \ldots\ \VectF[i_r]{A}\Big]^\T$ 
+  \item $\VectF{A}{(i_1,\ldots, i_r)}=\Big[\VectF{A}{i_1}\ \ldots\ \VectF{A}{i_r}\Big]^\T$ 
     \hfill (es una matriz cuyas filas son filas de \Mat{A})
-  \item $\VectC[(j_1,\ldots, j_r)]{A}=\Big[\VectC[j_1]{A}\ \ldots\ \VectC[j_r]{A}\Big]$ 
+  \item $\VectC{A}{(j_1,\ldots, j_r)}=\Big[\VectC{A}{j_1}\ \ldots\ \VectC{A}{j_r}\Big]$ 
     \hfill (es una matriz formada por columnas de \Mat{A})
   \end{itemize}
 \end{NotMat2}
@@ -1232,8 +1232,8 @@ barra vertical a derecha e izquierda, usaremos el convenio:
     \hline\hline
     \elemR{\Vect{v}}{i} & \text{{\tt v|i}}\vphantom{\Big)} & %\\ \hline
     \elemL{\Vect{v}}{i} & \text{{\tt i|v}}\vphantom{\Big)}\\ \hline
-    \VectC[j]{A} & \text{{\tt A|j}}\vphantom{\Big)} & %\\ \hline
-    \VectF[i]{A} & \text{{\tt i|A}}\vphantom{\Big)}\\      
+    \VectC{A}{j} & \text{{\tt A|j}}\vphantom{\Big)} & %\\ \hline
+    \VectF{A}{i} & \text{{\tt i|A}}\vphantom{\Big)}\\      
     \hline
   \end{array}
 \end{displaymath}
@@ -1442,7 +1442,7 @@ mediante la selección de las columnas de la transpuesta).\smallskip
   Denotamos la \emph{transpuesta} de \Mat{A} con:\quad \MatT{A};\quad que
   es la matriz tal que
   \begin{math}
-    \quad\VectTC[j]{A}=\VectF[j]{A};\qquad j=1:n. 
+    \quad\VectTC{A}{j}=\VectF{A}{j};\qquad j=1:n. 
   \end{math}
 \end{NotMat2}
 
@@ -1624,7 +1624,7 @@ En las notas de la asignatura hemos definido la suma de dos vectores de \R[n] co
 \end{displaymath}
 y la suma de matrices como la matriz tal que
 \begin{displaymath}
-  \fbox{\begin{math} \elemRP{\Mat{A}+\Mat{B}}{j}=\VectC[j]{A}+\VectC[j]{B} \vphantom{\Big(} \end{math}}
+  \fbox{\begin{math} \elemRP{\Mat{A}+\Mat{B}}{j}=\VectC{A}{j}+\VectC{B}{j} \vphantom{\Big(} \end{math}}
   \quad\text{para}\quad i=1:n.
 \end{displaymath}
 Ambas son casos particulares de sumas elemento a elemento entre dos
@@ -1750,7 +1750,7 @@ Y el producto de una \emph{matriz} \Mat{A} por un escalar $x$ a su
 izquierda, que es la \emph{matriz}:
 \begin{displaymath}
   \fbox{\begin{math} 
-      \elemRP{x\Mat{A}}{j}=x\VectCPE[j]{A}
+      \elemRP{x\Mat{A}}{j}=x\VectCPE{A}{j}
     \end{math}}\quad\text{para}\quad i=1:n.
 \end{displaymath}
 Como en los casos particulares se obtienen \emph{sistemas} de tipos
@@ -1835,7 +1835,7 @@ def __neg__(self):
   matriz \Matdim{x}{p}{n} de \R[n] a su derecha se define como el
   sistema tal que
   \begin{displaymath}
-    \fbox{$\elemR{(\SV{A}\Mat{X})}{j}=\SV{A}(\VectC[j]{X})$}
+    \fbox{$\elemR{(\SV{A}\Mat{X})}{j}=\SV{A}(\VectC{X}{j})$}
     \qquad\text{para}\; j=1:n.
   \end{displaymath}
   cuya transcripción será
@@ -1936,7 +1936,7 @@ def __mul__(self,x):
 \section{La clase transformación elemental \texttt{T}}
 
 \begin{NotMat2}
-  Si $\mat{A}$ es una matriz, consideramos las siguientes transformaciones:
+  Si $\Mat{A}$ es una matriz, consideramos las siguientes transformaciones:
   \begin{description}
   \item[Tipo I:]\; \TESF{\lambda}{i}{j}{\Mat{A}} suma $\lambda$ veces la fila $i$
     a la fila $j$ ($i\ne j$);\hfill
@@ -1954,22 +1954,20 @@ elemental se puede lograr mediante un producto con una matriz
 elemental, \HLa{\bf la notación empleada busca parecerse a la notación
   del producto matricial}:
 \begin{quotation}
-  Al poner la \HLa{\emph{abreviatura}} ``$\TrEE$'' de la
+  Al poner la \HLa{\emph{abreviatura}} ``$\TrEl$'' de la
   transformación elemental a derecha es como si multiplicáramos la
   matriz \Matdim{A}{m}{n} por la derecha por la correspondiente matriz
   elemental
   \begin{displaymath}
-    \STEC[\TrEE]{\Mat{A}}=\Mat{A}\STEC[\TrEE]{\Mat{I}}=\Mat{A}\Mat{E}\quad \text{donde} \quad
-    \Mat{E}=\STEC[\TrEE]{\Mat{I}}\quad \text{y donde la matriz \Mat{I} es de orden $n$}.
+    \TEC{\Mat{A}}=\Mat{A}\TECpE{\Mat{I}}\quad \text{donde la matriz \Mat{I} es de orden $n$}.
   \end{displaymath}
 
-  De manera similar, al poner la \HLa{\emph{abreviatura}} ``$\TrEE$''
+  De manera similar, al poner la \HLa{\emph{abreviatura}} ``$\TrEl$''
   de la transformación elemental a izquierda, es como si
   multiplicáramos la matriz \Matdim{A}{m}{n} por la izquierda por la
   correspondiente matriz elemental
   \begin{displaymath}
-    \STEF[\TrEE]{\Mat{A}}=\STEF[\TrEE]{\Mat{I}}\Mat{A}=\Mat{E}\Mat{A}\quad \text{donde} \quad
-    \Mat{E}=\STEF[\TrEE]{\Mat{I}}\quad \text{y donde la matriz \Mat{I} es de orden $m$}.
+    \TEF{\Mat{A}}=\TEFpE{\Mat{I}}\Mat{A}\quad \text{ donde la matriz \Mat{I} es de orden $m$}.
   \end{displaymath}
 \end{quotation}
 Con ello se gana, entre otras cosas, que la notación sea
@@ -1984,10 +1982,10 @@ elemental es casi una matriz identidad salvo por uno de sus elementos;
 por tanto, para describir completamente una matriz elemental basta
 indicar su orden $n$ y qué componente que no coincide con los de la
 matriz $\Mat{I}$ de orden $n$.~\footnote{Fíjese que la notación usada
-  en las notas de la asignatura para las matrices elementales \Mat{E},
-  no las describe completamente (se deja al lector la deducción de
-  cuál es el orden \Mat{E} adecuado para poder realizar el producto
-  $\Mat{A}\Mat{E}$ o el producto \MN{E}{A})}
+  en las notas de la asignatura para las matrices elementales 
+  no las describe completamente; se deja al lector la deducción de
+  cuál es el orden adecuado para poder realizar el producto
+  $\Mat{A}\TECpE{\Mat{I}}$ o el producto $\TEFpE{\Mat{I}}\Mat{A}$.}
 \begin{center}
   La ventaja es que \HLa{las transformaciones elementales omiten el orden $n$}.
 \end{center}
@@ -2022,7 +2020,7 @@ Vemos que:
 Empleando listas de abreviaturas extendemos la notación para expresar
 secuencias de transformaciones elementales, es decir,
 \begin{math}
-  \TrEE_{1}\cdots\TrEE_{k}.
+  \TrEl_{1}\cdots\TrEl_{k}.
 \end{math}
 Así logramos la siguiente equivalencia entre expresiones
 \begin{displaymath}
@@ -2032,28 +2030,28 @@ Así logramos la siguiente equivalencia entre expresiones
 \end{displaymath}
 De esta manera
 \begin{eqnarray*}
-  \STEC{\Mat{A}}:\qquad &
+  \TrC{\Mat{A}}:\qquad &
   \Mat{A} \text{\tt{ \& T(}}\ t_1 \text{\tt{) \& T(}}\ t_2\ \text{\tt{) \&}} \cdots \text{\tt{\& T(}}\ t_k \text{\tt{)}} 
   \;=\; \Mat{A} \text{\tt{ \& T( [}} t_1 \text{\tt{,}} t_2 \text{\tt{,}} \ldots \text{\tt{,}} t_k \text{\tt{] )}}
   \\\\
-  \SSTEF{k}{1}{\Mat{A}}:\qquad &
+  \TrF{\Mat{A}}:\qquad &
   \text{\tt{ T(}}\ t_1 \text{\tt{) \& T(}}\ t_2\ \text{\tt{) \&}} \cdots \text{\tt{\& T(}}\ t_k \text{\tt{) \& }} \Mat{A}
   \;=\; \text{\tt{ T( [}} t_1 \text{\tt{,}} t_2 \text{\tt{,}} \ldots \text{\tt{,}} t_k \text{\tt{] ) \& }} \Mat{A}.
 \end{eqnarray*}
 @
 Así, usando abreviaturas y si \Mat{A} es de orden $m\times n$, el primer caso es equivalente a escribir el producto de matrices
 \begin{displaymath}
-  \STEC{\Mat{A}}\;=\;\Mat{A}\Mat[1]{E}\Mat[2]{E}\cdots\Mat[k]{E}
+  \TrC{\Mat{A}}\;=\;\Mat{A}\TECpE*[1]{\Mat{I}}\TECpE*[2]{\Mat{I}}\cdots\TECpE*[k]{\Mat{I}}
   \qquad
-  \text{donde $\Mat[j]{E}=\STEC[\TrEE_j]{\Mat{I}}$ y donde \Mat{I} es de orden $n$};
+  \text{donde \Mat{I} es de orden $n$};
 \end{displaymath}
 y el segundo caso es equivalente a escribir el producto de matrices
 \begin{displaymath}
-  \SSTEF{k}{1}{\Mat{A}}
+  \TrF{\Mat{A}}
   \;=\;
-  \Mat[1]{E}\Mat[2]{E}\cdots\Mat[k]{E}\Mat{A}
+  \TEFpE*[1]{\Mat{I}}\TEFpE*[2]{\Mat{I}}\cdots\TEFpE*[k]{\Mat{I}}\Mat{A}
   \qquad
-  \text{donde $\Mat[i]{E}=\STEF[\TrEE_i]{\Mat{I}}$ y donde \Mat{I} es de orden $m$.}
+  \text{donde \Mat{I} es de orden $m$.}
 \end{displaymath}
 \dots ¡Pero gracias a las abreviaturas no hemos necesitado indicar el orden de las matrices elementales en ningún momento!
 
@@ -2144,7 +2142,7 @@ no puede ser programado como un método de la clase [[Matrix]].
 \smallskip
 
 Así pues, definiremos una nueva clase que almacene las
-\HLa{\emph{abreviaturas}} ``$t_i$'' %``$\TrEE$'' de las operaciones
+\HLa{\emph{abreviaturas}} ``$t_i$'' %``$\TrEl$'' de las operaciones
 elementales, de manera que podamos definir
 \begin{math}
   \text{\tt{T(}}\ t_i\ \text{\tt{) \& T(}} \ t_j \text{\tt{)}},
@@ -2265,19 +2263,21 @@ def __and__(self, other):
 
 Puesto que
 \begin{math}
-  \;\SSTEC{1}{k}{\Mat{I}}=(\Mat{E}_1\dotsm\Mat{E}_k)\;
+  \;\SITEC{1}{k}{\Mat{I}}=(\TECpE*[1]{\Mat{I}}\dotsm\TECpE*[k]{\Mat{I}})\;
 \end{math}
 y puesto que el producto de matrices es asociativo, deducimos que la
-transpuesta de \STEC[\TrEE_1\TrEE_2\cdots\TrEE_k]{\Mat{I}} es
+transpuesta de \TrC[\TrEl_1\TrEl_2\cdots\TrEl_k]{\Mat{I}} es
 \begin{displaymath}
-  \big(\STEC[\TrEE_1\TrEE_2\cdots\TrEE_k]{\Mat{I}}\big)^\T
+  \big(\TrC[\TrEl_1\TrEl_2\cdots\TrEl_k]{\Mat{I}}\big)^\T
   \;=\;
-  (\Mat{I}\Mat[1]{E}\dotsm\Mat[k]{E})^\T
+  \big(\TECpE*[1]{\Mat{I}}\TECpE*[2]{\Mat{I}}\dotsm\TECpE*[k]{\Mat{I}}\big)^\T
   \;=\;
-  \MatT[k]{E}\dotsm\MatT[1]{E}\Mat{I}
-  \;=\;\STEF[\TrEE_k\cdots\TrEE_2\TrEE_1]{\Mat{I}}
+  \TECpE*[k]{\Mat{I}}^\T\dotsm\TECpE*[2]{\Mat{I}}^\T\TECpE*[1]{\Mat{I}}^\T
+  \;=\;
+  \TEFpE*[k]{\Mat{I}}\dotsm\TEFpE*[2]{\Mat{I}}\TEFpE*[1]{\Mat{I}}
+  \;=\;\TrF[\TrEl_k\cdots\TrEl_2\TrEl_1]{\Mat{I}}
 \end{displaymath}
-% \STEF[\TrEE_k\cdots\TrEE_2\TrEE_1]{\Mat{I}}\;
+% \STEF[\TrEl_k\cdots\TrEl_2\TrEl_1]{\Mat{I}}\;
 Nótese cómo al transponer no solo cambiamos de lado los subíndices,
 sino también invertimos el orden de la secuencia de transformaciones
 (de la misma manera que también cambia el orden en el que se
@@ -2285,14 +2285,14 @@ multiplican las matrices elementales).  Esto sugiere denotar a la
 operación de invertir el orden de las transformaciones como una
 transposición:
 \begin{displaymath}
-  (\TrEE_1\cdots\TrEE_k)^\T = \TrEE_k\cdots\TrEE_1;
+  (\TrEl_1\cdots\TrEl_k)^\T = \TrEl_k\cdots\TrEl_1;
 \end{displaymath}
 así
 \begin{displaymath}
-  \hphantom{\STEF[\TrEE_k\cdots\TrEE_1]{\MatT{A}}}\qquad\hphantom{=}\qquad
-  \big(\STEC[\TrEE_1\cdots\TrEE_k]{\Mat{A}}\big)^\T=
-  \STEF[(\TrEE_1\cdots\TrEE_k)^\T]{\MatT{A}} \qquad=\qquad
-  \STEF[\TrEE_k\cdots\TrEE_1]{\MatT{A}}
+  \hphantom{\TrF[\TrEl_k\cdots\TrEl_1]{\MatT{A}}}\qquad\hphantom{=}\qquad
+  \big(\TrC[\TrEl_1\cdots\TrEl_k]{\Mat{A}}\big)^\T=
+  \TrF[(\TrEl_1\cdots\TrEl_k)^\T]{\MatT{A}} \qquad=\qquad
+  \TrF[\TrEl_k\cdots\TrEl_1]{\MatT{A}}
 \end{displaymath}
 \HLa{¡Fíjese como efectivamente hemos logrado que la notación con abreviaturas se comporte como la notación matricial!}
 \medskip
@@ -2310,18 +2310,17 @@ def __invert__(self):
 \end{codigo}
 
 \subsection{Potencias e inversa de transformaciones elementales}
-Cualquier matriz de la forma \STEC{\Mat{I}} o de la forma
-\STEF{\Mat{I}} es invertible por ser producto de matrices elementales:
+Cualquier matriz de la forma \TrC{\Mat{I}} o de la forma
+\TrF{\Mat{I}} es invertible por ser producto de matrices elementales:
 \begin{displaymath}
-  \Big(\STEC{\Mat{I}}\Big)\Big(\STEC[\TrEE^{-1}_{k}\cdots\TrEE^{-1}_{1}]{\Mat{I}}\Big)=
-  \Mat[1]{E}\cdots\Mat[k]{E}\cdot\InvMat[k]{E}\cdots\InvMat[1]{E}=
-  \STEC[\TrEE_1\cdots\TrEE_k\cdot\TrEE^{-1}_{k}\cdots\TrEE^{-1}_{1}]{\Mat{I}}=
+  \Big(\TrC{\Mat{I}}\Big)\Big(\TrC[\TrEl^{-1}_{k}\cdots\TrEl^{-1}_{1}]{\Mat{I}}\Big)=
+  \TrC[\TrEl_1\cdots\TrEl_k\cdot\TrEl^{-1}_{k}\cdots\TrEl^{-1}_{1}]{\Mat{I}}=
   \Mat{I};
 \end{displaymath}
-por lo que podemos denotar por $\Big(\TrEE_1\cdots\TrEE_k\Big)^{-1}$ a
-la sucesión de transformaciones $\TrEE^{-1}_{k}\cdots\TrEE^{-1}_{1}$. De este modo
+por lo que podemos denotar por $\Invp{\TrEl_1\cdots\TrEl_k}$ a
+la sucesión de transformaciones $\TrEl^{-1}_{k}\cdots\TrEl^{-1}_{1}$. De este modo
 \begin{displaymath}
-  \Big(\STEC{\Mat{I}}\Big)^{-1}=\STEC[(\TrEE_1\cdots\TrEE_k)^{-1}]{\Mat{I}}.
+  \Invp{\TrC{\Mat{I}}}=\TrC[\Invp*{\TrEl_1\cdots\TrEl_k}]{\Mat{I}}.
 \end{displaymath}
 El siguiente método devuelve la potencia [[n]]-ésima de una
 transformación elemental. Si [[n]] es $-1$, calcula la inversa:
@@ -2335,7 +2334,7 @@ que en Jupyter veríamos como\;
 Al implementar el método, definimos la potencia de manera recursiva
 (con una función auxiliar [[lambda]]). Además, si [[n]] es cero,
 devolveremos una transformación que no haga nada (identidad); por ejemplo
-$\underset{\begin{subarray}{c}\left[\mathbf{1}\rightleftharpoons\mathbf{1}\right]\end{subarray}}{\TrEE}$.
+$\underset{\begin{subarray}{c}\left[\mathbf{1}\rightleftharpoons\mathbf{1}\right]\end{subarray}}{\TrEl}$.
 \begin{codigo}
 <<Potencia de una [[T]]>>=
 def __pow__(self,n):
@@ -2545,9 +2544,9 @@ transpuesta y de nuevo transponer el resultado: %
 \Verb/~(~self & t)/.\; Pero hay que recordar que las transformaciones
 más próximas a la matriz se ejecutan primero, puesto que
 \begin{math}
-  \;\SSTEF{k}{1}{\Mat{A}}
+  \;\SITEF{k}{1}{\Mat{A}}
   \;=\;
-  \Mat[1]{E}\Mat[2]{E}\cdots\Mat[k]{E}\Mat{A}.\;
+  \TEFpE*[1]{\Mat{I}}\TEFpE*[2]{\Mat{I}}\cdots\TEFpE*[k]{\Mat{I}}\Mat{A}.\;
 \end{math}
 Con la función
 \texttt{reversed} aplicamos la sucesión de transformaciones en el
@@ -2862,7 +2861,7 @@ correspondientes a las columnas de los componentes a eliminar (tal
 como se ha descrito la función [[celim]]), de manera que se define la
 sucesión de transformaciones
 \begin{displaymath}
-  \TrE{\su{\frac{-a_{ij}}{a_{ip}}}{p}{j}},\quad
+  \OEsu{\frac{-a_{ij}}{a_{ip}}}{p}{j},\quad
   \text{con $\pmb{j}$ recorriendo las columnas a la derecha del pivote (si eliminamos de izda a dcha)}
 \end{displaymath}
 donde\; [[i|A|j]]\; es el componente\; $a_{ij}$,\; a eliminar y\;
@@ -2890,15 +2889,15 @@ transformaciones elementales Tipo II y Tipo I:
   \Verb/  (-(i|A|p),    j)   # Tipo II /
   \hphantom{\qquad es decir,\;
     \begin{math}
-      \TrE{\pr{-a_{ip}}{j}}\;
-      \TrE{\su{a_{ij}}{p}{j}}.
+      \OEpr{-a_{ip}}{j}\;
+      \OEsu{a_{ij}}{p}{j}.
     \end{math}}
   \\
   \Verb/  ( (i|A|j), p, j)   # Tipo I  /
   \qquad es decir,\;
   \begin{math}
-    \TrE{\pr{-a_{ip}}{j}}\;
-    \TrE{\su{a_{ij}}{p}{j}}.
+    \OEpr{-a_{ip}}{j}\;
+    \OEsu{a_{ij}}{p}{j}.
   \end{math}
 \end{center}
 El problema de esta solución es que si $a=3$ y $b=3$, bastaría con
@@ -4639,14 +4638,25 @@ def _repr_latex_(self):
     return '$'+self.latex()+'$'
 
 def _repr_png_(self):
-    expr = '$'+self.latex()+'$'
-    workdir = tempfile.mkdtemp()
-    with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
-        sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
-    return open(join(workdir, 'borrame.png'),'rb').read()
+    try:
+        expr = '$'+self.latex()+'$'
+        workdir = tempfile.mkdtemp()
+        with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
+            sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
+        return open(join(workdir, 'borrame.png'),'rb').read()
+    except:
+        return '$'+self.latex()+'$'
                                                                
 @
 \end{codigo}
+
+% def _repr_png_(self):
+%     expr = '$'+self.latex()+'$'
+%     workdir = tempfile.mkdtemp()
+%     with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
+%         sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
+%     return open(join(workdir, 'borrame.png'),'rb').read()
+                                                               
 
 
 \subsection{Otros métodos de la clase \texttt{Sistema}}
@@ -5378,7 +5388,7 @@ permitir con el ordenador.
           0&\text{si }j\neq i          
         \end{cases}.
       \end{math}
-    % \item $\VectC[i]{I}=\VectF[i]{I}=%\e{i}{n}=
+    % \item $\VectC[i]{\Mat{I}}=\VectF[i]{\Mat{I}}=%\e{i}{n}=
     %   (\delta_i^1,\ldots,\delta_i^n)$ donde
     %   $\delta_i^j=\left\{
     %     \begin{array}{cl}
@@ -5386,7 +5396,7 @@ permitir con el ordenador.
     %       0&\text{si }j\neq i
     %     \end{array}
     %   \right.$      
-    % \item \Mat{I} (de orden $n$) $=[\VectC[1]{I},\ldots,\VectC[n]{I}]$
+    % \item \Mat{I} (de orden $n$) $=[\VectC[1]{\Mat{I}},\ldots,\VectC[n]{\Mat{I}}]$
     \end{itemize}  
 \end{NotMat2}
 
@@ -5517,7 +5527,7 @@ la izquierda de la matriz
       \begin{subarray}{c}
         \\\left[\pr{2}{1}\right]
         \\\left[\su{1}{3}{2}\right]
-      \end{subarray}}{\TrEE}
+      \end{subarray}}{\TrEl}
     \\\hline
   \end{array}
 \end{displaymath}
@@ -5595,15 +5605,15 @@ def latex(self):
 %   \EI{\lambda}{i}{\HLa{j}} =
 %   \TESC{\lambda}{i}{\HLa{j}}{\Mat{I}}.
 % \end{displaymath}
-% Por tanto \STEC[\TrEE]{\Mat{I}} es la transpuesta de
-% \STEF[\TrEE]{\Mat{I}}.\; En general, la transpuesta de
-% \STEC[\TrEE_1\TrEE_2\cdots\TrEE_k]{\Mat{I}} es
-% \STEF[\TrEE_k\cdots\TrEE_2\TrEE_1]{\Mat{I}}.  Por ejemplo, si \Mat{A}
+% Por tanto \TrC[\TrEl]{\Mat{I}} es la transpuesta de
+% \TrF[\TrEl]{\Mat{I}}.\; En general, la transpuesta de
+% \TrC[\TrEl_1\TrEl_2\cdots\TrEl_k]{\Mat{I}} es
+% \TrF[\TrEl_k\cdots\TrEl_2\TrEl_1]{\Mat{I}}.  Por ejemplo, si \Mat{A}
 % es de orden $m\times n$, entonces
 % \begin{displaymath}
-%   \STEC
-%   [\underset{\left[\pr{2}{1}\right]}{\TrEE}
-%    \underset{\left[\su{1}{3}{2}\right]}{\TrEE}]
+%   \TrC
+%   [\underset{\left[\pr{2}{1}\right]}{\TrEl}
+%    \underset{\left[\su{1}{3}{2}\right]}{\TrEl}]
 %   {\Mat{A}}
 %   \;=\;
 %   \Mat{A}\cdot\EII{2}{1}\EI{1}{3}{2},
@@ -5615,9 +5625,9 @@ def latex(self):
 % \end{displaymath}
 % y
 % \begin{displaymath}
-%   \STEF
-%   [\underset{\left[\su{1}{3}{2}\right]}{\TrEE}
-%   \underset{\left[\pr{2}{1}\right]}{\TrEE}]
+%   \TrF
+%   [\underset{\left[\su{1}{3}{2}\right]}{\TrEl}
+%   \underset{\left[\pr{2}{1}\right]}{\TrEl}]
 %   {\Mat{A}}
 %   \;=\;
 %   \EI{1}{2}{3}\EII{2}{1}\cdot\Mat{A},
@@ -5629,8 +5639,8 @@ def latex(self):
 % \end{displaymath}
 % Así, 
 % \begin{math}
-%   \underset{\left[\pr{2}{1}\right]}{\TrEE}
-%   \underset{\left[\su{1}{3}{2}\right]}{\TrEE}
+%   \underset{\left[\pr{2}{1}\right]}{\TrEl}
+%   \underset{\left[\su{1}{3}{2}\right]}{\TrEl}
 % \end{math}
 % \; no es el producto de matrices\dots\; ¡pero casi se puede
 % interpretar como tal! Tan solo nos falta que las transformaciones
