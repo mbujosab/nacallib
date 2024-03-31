@@ -1,4 +1,4 @@
-% Created 2024-03-30 sáb 18:19
+% Created 2024-03-31 dom 23:23
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{report}
 \usepackage[utf8]{inputenc}
@@ -44,7 +44,7 @@ citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue]{hyperref}
 \maketitle
 
 \section*{Declaración de intenciones}
-\label{sec:org6dccba7}
+\label{sec:orgb65601e}
 Uno de los objetivos que me he propuesto para el curso Matemáticas II
 (Álgebra Lineal) es mostrar que escribir matemáticas y usar un
 lenguaje de programación son prácticamente la misma cosa. Este modo de
@@ -78,7 +78,7 @@ de los correspondientes algoritmos.
 \end{enumerate}
 
 \section*{Un módulo específico para el curso de Álgebra Lineal}
-\label{sec:org87cec32}
+\label{sec:orgfecd066}
 Aunque Python dispone de módulos para operar con vectores y matrices,
 he decidido escribir mi propio módulo. De este modo logro que la
 notación del \href{https://github.com/mbujosab/CursoDeAlgebraLineal/blob/master/libro.pdf}{libro} y las expresiones empleadas con este módulo para
@@ -117,10 +117,10 @@ Y recuerde que
 
 
 \part{La clase \texttt{Sistema} y sus subclases \texttt{BlockV}, \texttt{Vector}, \texttt{BlockM} y \texttt{Matrix}}
-\label{sec:orgf6eeeac}
+\label{sec:org7226da9}
 
 \subsubsection*{Introducción}
-\label{sec:org924f1a3}
+\label{sec:org219d292}
 En el primer capítulo se define una \emph{clase} para los
 \emph{sistemas} (listas ordenadas de objetos) denominada \texttt{Sistema}; en
 los capítulos siguientes se definen algunas subclases de la clase
@@ -143,7 +143,7 @@ que actúan sobre ella.
 
 
 \chapter{La clase \texttt{Sistema}}
-\label{sec:org882eb6e}
+\label{sec:org7a816ec}
 
 En el \href{https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf\#chapter.1}{libro} del curso se dice que
 \begin{center}
@@ -191,10 +191,10 @@ lo más parecido posible a lo que vemos y escribimos en el \href{https://mbujosa
 \newpage
 
 \section{Implementación de los sistemas (o listas ordenadas) en la clase \texttt{Sistema}}
-\label{sec:org7f79920}
+\label{sec:org4d42cdd}
 
 \subsection{Texto de ayuda}
-\label{sec:org9cb59ef}
+\label{sec:org92529ef}
 
 El texto de ayuda de la clase \texttt{Sistema} es auto-explicativo y Python
 lo muestra al teclear \texttt{help(Sistema)}:
@@ -223,13 +223,13 @@ Ejemplos:
 \end{minted}
 
 \subsection{Método de inicialización}
-\label{sec:orgc9d45d1}
+\label{sec:orge1b00c4}
 
 La clase se inicia con el método: \texttt{def\_\_init\_\_(self,...)}.
 
 \begin{itemize}
 \item Un \texttt{Sistema} se instancia con el argumento \texttt{arg} (que es una
-\hyperref[sec:org7badd30]{\emph{ristra}} de objetos ---Sección \ref{sec:org7badd30}).
+\hyperref[sec:org7d279d6]{\emph{ristra}} de objetos ---Sección \ref{sec:org7d279d6}).
 
 \item Añadimos un breve texto de ayuda que Python mostrará con: \texttt{help Sistema.\_\_init\_\_}
 
@@ -242,10 +242,10 @@ mensaje de error.
 
 \item El atributo \texttt{.n} contiene el número de elementos del \texttt{Sistema}.
 
-\item El atributo \texttt{.posicionDivisiones} tiene que ver con una modificación
-de la \hyperref[sec:org5e7dd66]{Representación de la clase \texttt{Sistema}} para \emph{visualmente} cortar
+\item El atributo \texttt{.corteSistema} tiene que ver con una modificación
+de la \hyperref[sec:org8c6bb9b]{Representación de la clase \texttt{Sistema}} para \emph{visualmente} cortar
 el Sistema en sublistas con unas líneas verticales en las posiciones
-indicadas en este atributo (Véase la Sección \ref{sec:org5e7dd66}).
+indicadas en este atributo (Véase la Sección \ref{sec:org8c6bb9b}).
 \end{itemize}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
@@ -253,12 +253,12 @@ indicadas en este atributo (Véase la Sección \ref{sec:org5e7dd66}).
 def __init__(self, arg):
     """Inicializa un Sistema con una lista, tupla o Sistema"""                        
     if es_ristra(arg):
-        self.lista = list(arg)                        
+        self.lista = list(arg)
     else:
         raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
 
-    self.n  = len(self)
-    self.posicionDivisiones = {0}
+    self.n            = len(self)
+    self.corteSistema = set()
 
 \end{minted}
 
@@ -269,7 +269,7 @@ comporte como una \texttt{list} de Python en ciertos aspectos.
 \medskip
 
 \subsection{Métodos similares a los de una \texttt{list}}
-\label{sec:orgdf940fd}
+\label{sec:orgc4262f8}
        Los siguientes métodos replican en la clase \texttt{Sistema} algunos aspectos
 de la clase \texttt{list} de Python.
 
@@ -280,7 +280,7 @@ obtendremos el primer elemento del sistema \texttt{A} y con \texttt{A[2] = 0}
 sustituiremos su tercer elemento por cero.\footnote{¡Recuerde que en
 Python los índices comienzan en \texttt{0}!  Aunque aquí incorporamos este
 ``pythonesco'' modo de indexar \texttt{Sistemas}, posteriormente (Sección
-\ref{sec:orgb2fdbe3}) añadiremos otro método adicional que implementa el operador
+\ref{sec:org806d22a}) añadiremos otro método adicional que implementa el operador
 selector `` \texttt{|} '' y que, tal como se hace en el \href{https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf\#chapter.1}{libro}, emplea el \texttt{1}
 como primer índice.}
 
@@ -318,7 +318,7 @@ def copy(self):
 
 \end{minted}
 
-Más adelante se añade otro \hyperref[sec:org85c56e1]{Método para copiar un Sistema y sus atributos} (\texttt{fullcopy()}).
+Más adelante se añade otro \hyperref[sec:org6a210c6]{Método para copiar un Sistema y sus atributos} (\texttt{fullcopy()}).
 
 Comprobamos si \texttt{A} y \texttt{B} son iguales con \texttt{A == B} y si son distintos con
 \texttt{A != B}.
@@ -343,7 +343,7 @@ los elementos de \texttt{A} en el orden inverso a como aparecen en \texttt{A}.
 
 def reverse(self):
     """Da la vuelta al orden de la lista del sistema"""
-    self.posicionDivisiones =  {len(self)-i for i in self.posicionDivisiones}
+    self.corteSistema =  {len(self)-i for i in self.corteSistema}
     self.lista.reverse()
     
 def __reversed__(self):
@@ -355,7 +355,7 @@ def __reversed__(self):
 \end{minted}
 
 \subsection{Concatenación de \texttt{Sistemas}}
-\label{sec:orgd09ef43}
+\label{sec:orged1e459}
 
 Concatenamos dos \texttt{Sistemas} con el método \texttt{concatena()}. 
 
@@ -367,7 +367,7 @@ un mensaje de error.
 
 Cuando el \texttt{Sistema} no es vacío el procedimiento arranca con una copia
 completa de dicho sistema (es decir, una copia que también incluye
-valor del atributo \texttt{.posicionDivisiones}). Pero si el \texttt{Sistema} es
+valor del atributo \texttt{.corteSistema}). Pero si el \texttt{Sistema} es
 vacío obtenemos una copia completa del segundo sistema (y con dicha
 copia el método termina).
 
@@ -393,9 +393,9 @@ el tipo de objeto resultante será un \texttt{Sistema} genérico.
 def concatena(self, other, marcasVisuales = False):
     """Concatena dos Sistemas"""    
     def nuevoConjuntoMarcas(Sistema_A, Sistema_B):
-        return Sistema_A.posicionDivisiones.union(
+        return Sistema_A.corteSistema.union(
             {len(Sistema_A)},
-            {len(Sistema_A)+indice for indice in Sistema_B.posicionDivisiones} )
+            {len(Sistema_A)+indice for indice in Sistema_B.corteSistema} )
     
     if not isinstance(other, Sistema):
         raise ValueError('Un Sistema solo se puede concatenar a otro Sistema')
@@ -409,7 +409,7 @@ def concatena(self, other, marcasVisuales = False):
     sistemaAmpliado.n     = len(self)  + len(other)
         
     if marcasVisuales: 
-        sistemaAmpliado.posicionDivisiones = nuevoConjuntoMarcas(self, other)
+        sistemaAmpliado.corteSistema = nuevoConjuntoMarcas(self, other)
 
     return sistemaAmpliado if self.es_arreglo_rectangular() else Sistema(sistemaAmpliado)
 
@@ -442,10 +442,10 @@ def amplia(self, args, marcas = False):
 \end{minted}
 
 \subsection{Sustitución y simplificación de expresiones simbólicas en un \texttt{Sistema}}
-\label{sec:orge5757f9}
+\label{sec:org96b0a35}
 
 \subsubsection{Sustitución de variables simbólicas.}
-\label{sec:org74dfe5a}
+\label{sec:org90e10d1}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -471,7 +471,7 @@ Cuando hay una única regla de sustitución, basta escribir como
 argumento el correspondiente par. Por ejemplo: \texttt{A.subs( (a,0) )}.
 
 \subsubsection{Métodos para \href{https://docs.sympy.org/latest/tutorials/intro-tutorial/simplification.html}{simpificar} expresiones simbólicas}
-\label{sec:orgceda43e}
+\label{sec:org05a1ebe}
 
 Simplificación de las expresiones simbólicas contenidas en la \texttt{lista} de un \texttt{Sistema}
 
@@ -479,11 +479,15 @@ Simplificación de las expresiones simbólicas contenidas en la \texttt{lista} d
 
 def simplify(self):
     """ Simplificación de expresiones simbólicas """
-    self.lista = [ sympy.S(elemento).simplify() for elemento in self.lista ]
+    self.lista = [ simplify(elemento) for elemento in self.lista ]
                                                                
 def factor(self):
     """ Factorización de expresiones simbólicas """
-    self.lista = [ sympy.S(elemento).factor() for elemento in self.lista ]
+    self.lista = [ factor(elemento) for elemento in self.lista ]
+
+def expand(self):
+    """ Factorización de expresiones simbólicas """
+    self.lista = [ expand(elemento) for elemento in self.lista ]
 
 \end{minted}
 
@@ -501,9 +505,9 @@ A.simplify()
 $$\left[ \begin{array}{cc}x - 1;& z \left(x^{2} + 4 x y + 4 y^{2}\right);\end{array} \right]$$
 
 \subsection{Otros métodos de la clase \texttt{Sistema}}
-\label{sec:org414163d}
+\label{sec:org14adcea}
 \subsubsection{Método para copiar un Sistema con todos sus atributos}
-\label{sec:org85c56e1}
+\label{sec:org6a210c6}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -516,7 +520,7 @@ def fullcopy(self):
 \end{minted}
 
 \subsubsection{Método para recuperar el \texttt{Sistema} genérico de cualquier subclase de \texttt{Sistema}}
-\label{sec:org709c519}
+\label{sec:org9c0a14b}
 
 Con el método \texttt{sis} obtendremos el \texttt{Sistema} correspondiente a
 cualquier \texttt{Sistema} o subclase de \texttt{Sistema}. Así, si \texttt{A} es una
@@ -531,7 +535,7 @@ def sis(self):
 \end{minted}
 
 \subsubsection{Comprobación de que un \texttt{Sistema} es nulo}
-\label{sec:org63c26ff}
+\label{sec:org25b4d28}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -546,7 +550,7 @@ def no_es_nulo(self, sust=[]):
 \end{minted}
 
 \subsubsection{Comprobación de que un \texttt{Sistema}  tiene estructura de arreglo rectangular}
-\label{sec:org2373686}
+\label{sec:org3debff8}
 
 Un \texttt{Sistema} es un arreglo rectangular de objetos si es un \texttt{Sistema}
 de \texttt{Sistemas} con idéntica longitud (como en el caso de una matriz,
@@ -575,7 +579,7 @@ def no_es_arreglo_rectangular(self):
 \end{minted}
 
 \subsubsection{Comprobación de que todos los elementos de un \texttt{Sistema} son del mismo tipo}
-\label{sec:orgf6a734b}
+\label{sec:org0b3f1bd}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -589,7 +593,7 @@ def es_de_composicion_uniforme(self):
 \end{minted}
 
 \subsubsection{Comprobación de que todos los elementos de un \texttt{Sistema} son del mismo tipo y tienen la misma longitud}
-\label{sec:org88a2afb}
+\label{sec:orgf209bd8}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -608,7 +612,7 @@ def es_de_composicion_y_longitud_uniforme(self):
 \end{minted}
 
 \subsubsection{Búsqueda del primer, o del último, elemento no nulo del \texttt{Sistema}}
-\label{sec:org2f65c99}
+\label{sec:orge1963c3}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -635,7 +639,7 @@ elementoAntiPivote = lambda self:  self.extractor(self.ultimo_no_nulo()) if self
 \end{minted}
 
 \subsubsection{Extractor de un elemento dada una lista de indices (coordenadas)}
-\label{sec:orgeddb735}
+\label{sec:org05f078e}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -652,7 +656,7 @@ def extractor(self, listaDeIndices = []):
 \end{minted}
 
 \subsubsection{Reordena un \texttt{Sistema} para generar un \texttt{BlockM}}
-\label{sec:org737c281}
+\label{sec:orga88a970}
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
    
 def reshape(self, orden=[]):
@@ -668,9 +672,9 @@ def reshape(self, orden=[]):
 \end{minted}
 
 \subsection{Métodos que devuelven \texttt{SubEspacios}}
-\label{sec:org2d8c316}
+\label{sec:org1713e0d}
 \subsubsection{Espacio generado los los elementos del \texttt{Sistema}}
-\label{sec:org2cf2d64}
+\label{sec:orgd32e554}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -680,7 +684,7 @@ def span(self, sust=[], Rn=[]):
 \end{minted}
 
 \subsubsection{Espacio Nulo de un \texttt{Sistema} de composición y longitud uniforme}
-\label{sec:org7b3b015}
+\label{sec:org3ba4819}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -694,7 +698,7 @@ def espacio_nulo(self, sust=[], Rn=[]):
 \end{minted}
 
 \subsection{Método de resolución de sistema de Ecuaciones lineales}
-\label{sec:org254bada}
+\label{sec:org97e24db}
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
 def sel(self, v, sust=[]):
@@ -711,7 +715,7 @@ def sel(self, v, sust=[]):
     if (K|0).no_es_nulo():
         return Sistema([])
     else:
-        solP = (I(self.n).amplia(V0(self.n)) & T(pasos))|0
+        solP = factor(I(self.n).amplia(V0(self.n)) & T(pasos))|0
         if self.espacio_nulo().sgen.es_nulo():
             return Sistema([solP])
         else:
@@ -720,10 +724,10 @@ def sel(self, v, sust=[]):
 \end{minted}
 
 \section{Operaciones algebraicas sobre \texttt{Sistemas}}
-\label{sec:org347cbd0}
+\label{sec:orgaf72447}
 
 \subsection{Implementación del operador selector por la derecha para la clase \texttt{Sistema}}
-\label{sec:orgb2fdbe3}
+\label{sec:org806d22a}
 
 Esta sección muestra la implementación del operador selector tal como
 se describe en el curso, es decir, la selección de elementos de un
@@ -815,7 +819,7 @@ El operador selector por la derecha funciona de la misma manera tanto
 para la clase \texttt{Sistema} como para cualquiera de sus subclases.
 
 \subsection{Implementación del operador selector por la izquierda para la clase \texttt{Sistema}}
-\label{sec:org45ea7d0}
+\label{sec:org57b2fc8}
 
 En el curso de Álgebra Lineal admitimos la selección de elementos por
 la izquierda, \(\;\elemL{\Vect{v}}{i}=\elemR{\Vect{v}}{i}\).
@@ -835,7 +839,7 @@ def __ror__(self,i):
 (\emph{Tenga en cuenta que este método cambia en las subclases \texttt{BlockM} y \texttt{Matrix}, pues lo usaremos para seleccionar las filas de dichos arreglos rectangulares de objetos.})
 
 \subsection{Suma y diferencia de \texttt{Sistemas}}
-\label{sec:org6a36b5d}
+\label{sec:orgfae398c}
 
 Con la definición de la clase \texttt{Sistema} y el operador selector \texttt{|} por
 la derecha, ya podemos definir las operaciones de suma de dos sistemas
@@ -928,8 +932,8 @@ def __add__(self, other):
         raise ValueError ('Solo se suman Sistemas del mismo tipo y misma longitud')
     suma = self.fullcopy()
     suma.lista = [ (self|i) + (other|i) for i in range(1,len(self)+1) ]
-    suma.posicionDivisiones.update(other.posicionDivisiones)
-    return suma
+    suma.corteSistema.update(other.corteSistema)
+    return factor(suma)
             
 def __sub__(self, other):
     <<Texto de ayuda para el operador diferencia en la clase Sistema>>
@@ -937,13 +941,13 @@ def __sub__(self, other):
         raise ValueError ('Solo se restan Sistemas del mismo tipo y misma longitud')
     diferencia = self.fullcopy()
     diferencia.lista = [ (self|i) - (other|i) for i in range(1,len(self)+1) ]
-    diferencia.posicionDivisiones.update(other.posicionDivisiones)
-    return diferencia
+    diferencia.corteSistema.update(other.corteSistema)
+    return factor(diferencia)
             
 \end{minted}
 
 \subsection{Producto de un \texttt{Sistema} por un escalar a su izquierda}
-\label{sec:org128a365}
+\label{sec:orge535f1d}
 
 El producto de un sistema \SV{a} por un escalar \(x\) a su izquierda es
 el \emph{sistema}
@@ -1004,7 +1008,7 @@ def __rmul__(self, x):
     if es_numero(x):
         multiplo = self.fullcopy()
         multiplo.lista = [ x*(self|i) for i in range(1,len(self)+1) ]
-        return multiplo
+        return factor(multiplo)
 
 \end{minted}
 
@@ -1022,7 +1026,7 @@ def __neg__(self):
 \end{minted}
 
 \subsection{Producto de un \texttt{Sistema} por escalar, \texttt{Vector} o  \texttt{Matrix} a su derecha}
-\label{sec:org085e622}
+\label{sec:org2d54843}
 
 En el curso se acepta que el producto de un \texttt{Sistema} por un escalar
 es conmutativo. Por tanto,
@@ -1158,22 +1162,22 @@ def __mul__(self,x):
         elif not self.es_de_composicion_y_longitud_uniforme():
             raise ValueError('El sistema de la derecha debe tener elementos de composicion y longitud uniforme')
             
-        return sum([(self|j)*(x|j) for j in range(1,len(self)+1)], 0*self|1)
+        return factor(sum([(self|j)*(x|j) for j in range(1,len(self)+1)], 0*self|1))
     
     elif isinstance(x, Matrix):
         if len(self) != x.m:
             raise ValueError('Sistema y Matrix incompatibles')
         if isinstance(self, BlockV):
-            return BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' )
+            return factor(BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' ))
         elif isinstance(self, BlockM):
-            return BlockM ( [ self*(x|j) for j in range(1,(x.n)+1)] )
+            return factor(BlockM ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
         else:
-            return type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] )
+            return factor(type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
 
 \end{minted}
 
 \section{Transformaciones elementales de un \texttt{Sistema}}
-\label{sec:org5743e31}
+\label{sec:org8bdfc25}
 
 En el \href{https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf\#section.9.3}{libro} del curso se definen las transformaciones elementales de
 \texttt{Sistemas} de vectores como una generalización a las transformaciones
@@ -1189,7 +1193,7 @@ elementos al otro obtendremos un error (aunque esto no pasará con los
 intercambios).
 
 \subsection{Texto de ayuda transformaciones elementales por la derecha}
-\label{sec:org472e2cf}
+\label{sec:org4b7fd7e}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Transforma los elementos de un Sistema 
@@ -1205,7 +1209,7 @@ Ejemplos:
 \end{minted}
 
 \subsection{Implementación de las transformaciones elementales por la derecha}
-\label{sec:org5910c56}
+\label{sec:orgb779627}
 
 (\emph{aunque sea una composición de transformaciones elementales, también
 se incluye el intercambio.})
@@ -1225,13 +1229,14 @@ def __and__(self,operaciones):
                                                     for k in range(1,len(self)+1)].copy()
 
         elif isinstance(abrv,tuple) and (len(abrv) == 3):
-            self.lista = [ (abrv[0])*(self|abrv[1]) + (self|k) if k==abrv[2] else (self|k)
+            colPivote = abrv[1]-1
+            self.lista = [ (abrv[0])*(self.lista[colPivote]) + (self|k) if k==abrv[2] else (self|k)
                                                     for k in range(1,len(self)+1)].copy()
 
     for abrv in operaciones.abreviaturas:
         transformacionDelSistema(abrv)
 
-    return self
+    return factor(self)
         
 \end{minted}
 
@@ -1239,7 +1244,7 @@ def __and__(self,operaciones):
 \texttt{Sistemas} sino que modifican el \texttt{Sistema} sobre el que actúan.}
 
 \subsection{Implementación de las transformaciones elementales por la izquierda}
-\label{sec:orgde67f1c}
+\label{sec:orgd46eda2}
 
 Hacen lo mismo que por la derecha (como ocurre con el operador selector)
 
@@ -1252,9 +1257,9 @@ def __rand__(self, operaciones):
 \end{minted}
 
 \section{Eliminación}
-\label{sec:orgf3030db}
+\label{sec:orgc7a5476}
 \subsection{Reducción por eliminación mediante transformaciones elementales}
-\label{sec:orgb7719cc}
+\label{sec:org091face}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -1359,7 +1364,7 @@ def transformacionYPasos(sistema, operacion, pasosPrevios):
     else:
         pasosAcumulados = pasosPrevios  + [pasoDado] if pasoDado else pasosPrevios
     sistema & T(pasoDado)
-    return sistema.subs(sust), pasosAcumulados
+    return factor(sistema.subs(sust)), pasosAcumulados
 
 
 def sistemaFinalYPasosDchaIzda(sistema,transformaciones):
@@ -1377,7 +1382,7 @@ def sistemaFinalYPasosDchaIzda(sistema,transformaciones):
     SistemaFinal.tex, SistemaFinal.pasos = texYpasos(self, pasos, rep, sust, repsust)
     SistemaFinal.TrF = T(SistemaFinal.pasos[0])
     SistemaFinal.TrC = T(SistemaFinal.pasos[1])
-    return SistemaFinal
+    return factor(SistemaFinal)
 
 \end{minted}
 
@@ -1443,7 +1448,7 @@ def UR(self,rep=0, sust=[], repsust=0):
 \end{minted}
 
 \subsection{Representación de los procesos de eliminación Gaussiana}
-\label{sec:orgdb7c1f0}
+\label{sec:orgfde6e29}
 
 Cuando hemos encadenado varios procedimientos de eliminación,
 deberíamos poder ver los pasos desde el principio hasta el final. Para
@@ -1501,15 +1506,15 @@ def rprElim(data, pasos, TexPasosPrev=[], sust=[]):
     for  _,pasoDeEliminacion in enumerate(pasos[0][::-1]):
         if data.es_arreglo_rectangular(): # entonces transforman las filas
             tex += '\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}' 
-            tex += latex( ( pasoDeEliminacion & A).subs(sust) )
+            tex += latex( factor((pasoDeEliminacion & A).subs(sust)) )
         else:  # hacen lo mismo que por la derecha
             tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-            tex += latex( (A & pasoDeEliminacion ).subs(sust) )
+            tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
         
     # transformaciones por la derecha
     for  _,pasoDeEliminacion in enumerate(pasos[1]):
         tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-        tex += latex( (A & pasoDeEliminacion ).subs(sust) )
+        tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
                 
     return tex
 
@@ -1529,9 +1534,9 @@ def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
 
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
         tex += '\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}'
-        tex += latex( (A & pasos[1][i]).subs(sust) )
+        tex += latex( factor((A & pasos[1][i]).subs(sust)) )
         tex += '\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}' 
-        tex += latex( (pasoDeEliminacionFilas & A).subs(sust) )
+        tex += latex( factor((pasoDeEliminacionFilas & A).subs(sust)) )
                                                                
     return tex
 
@@ -1553,7 +1558,7 @@ def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[]):
         tex += '\\xrightarrow' \
                 + '[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']' \
                 + '{' + latex( (pasos[1][i]).subs(sust)            ) + '}'
-        tex += latex( ( pasoDeEliminacionFilas & A & pasos[1][i] ).subs(sust) )
+        tex += latex( factor(( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust) )
                                                                
     return tex
 
@@ -1575,7 +1580,7 @@ def dispElimCF(self, pasos, TexPasosPrev=[]):
 \end{minted}
 
 \section{Representación de la clase \texttt{Sistema}}
-\label{sec:org5e7dd66}
+\label{sec:org8c6bb9b}
 Necesitamos indicar a Python cómo representar los objetos de tipo
 \texttt{Sistema}. Los sistemas, son secuencias finitas de objetos que
 representaremos con corchetes, separando los elementos por ``;''
@@ -1593,10 +1598,10 @@ y está formada por caracteres ASCII. Es la que se ve en la línea de
 comandos. Entre corchetes muestra todos los elementos de
 \texttt{self.lista} separados por ``puntos y comas'' (\texttt{;}):
 
-Si, por ejemplo, el atributo \texttt{.posicionDivisiones} (\emph{``corta Sistema''}) indica que
+Si, por ejemplo, el atributo \texttt{.corteSistema} (\emph{``corta Sistema''}) indica que
 se separen las dos primeras componentes del sistema respecto de la
 última, esta representación pinta una barra vertical detrás de la
-segunda componente (véase la Sección \ref{sec:orgf9cb3f9}).
+segunda componente (véase la Sección \ref{sec:orga7c037d}).
 \end{itemize}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
@@ -1604,10 +1609,10 @@ segunda componente (véase la Sección \ref{sec:orgf9cb3f9}).
 def __str__(self):
     """ Muestra un Sistema en su representación python """
     pc = ';' if len(self.lista) else ''
-    ln = [len(n) for n in particion(self.posicionDivisiones,self.n)]
+    ln = [len(n) for n in particion(self.corteSistema,self.n)]
     return '[' + \
              ';|'.join(['; '.join([str(c) for c in s]) \
-                       for s in [ self|i for i in particion(self.posicionDivisiones, self.n)] ]) + pc + ']'
+                       for s in [ self|i for i in particion(self.corteSistema, self.n)] ]) + pc + ']'
 
 \end{minted}
 
@@ -1634,7 +1639,7 @@ def __repr__(self):
 \item La representación \texttt{latex} (\LaTeX{}) es similar a la primera
 representación (\texttt{str}), pues también muestra barras
 verticales que separan la lista de elementos en sub-listas si el
-atributo \texttt{.posicionDivisiones} así lo indica. La única diferencia es que los
+atributo \texttt{.corteSistema} así lo indica. La única diferencia es que los
 elementos aparecen con su representación \texttt{latex} (cuando la
 tienen).
 
@@ -1651,7 +1656,7 @@ Llamamos a la representación \texttt{latex} con los métodos \texttt{display()}
 def latex(self):
     """ Construye el comando LaTeX para representar un Sistema """
     pc = ';' if len(self) else r'\ '
-    ln = [len(i) for i in particion(self.posicionDivisiones, len(self))]                                                           
+    ln = [len(i) for i in particion(self.corteSistema, len(self))]                                                           
     return \
         r'\left[ \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
         r';& '.join([latex(e) for e in self]) + pc + \
@@ -1662,7 +1667,7 @@ def latex(self):
 
 \begin{itemize}
 \item Jupyter llama al método \texttt{\_\_repr\_html\_\_} (que a su vez llama al
-método general \texttt{html} (véase \ref{sec:orgb0e4579}) para mostrar la representación \texttt{latex} de los
+método general \texttt{html} (véase \ref{sec:org6d01ab5}) para mostrar la representación \texttt{latex} de los
 objetos en el navegador.
 \end{itemize}
 
@@ -1700,7 +1705,7 @@ def _repr_png_(self):
 \end{minted}
 
 \subsubsection{Método para establecer los índices donde poner marcas de corte de un Sistema}
-\label{sec:org17d5de3}
+\label{sec:org1363836}
 
 Para separar visualmente distintas partes de un sistema es necesario
 indicar los índices de los componentes tras lo que se mostrará una
@@ -1710,17 +1715,17 @@ matriz).
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
 def ccol(self, conjuntoIndices={}):
-    """Modifica el atributo posicionDivisiones para insertar lineas entre
+    """Modifica el atributo corteSistema para insertar lineas entre
     determinados elementos del sistema
 
     """
-    self.posicionDivisiones = set(conjuntoIndices) if conjuntoIndices else {0}
+    self.corteSistema = set(conjuntoIndices) if conjuntoIndices else {0}
     return self
 
 \end{minted}
 
 \subsection{Ejemplo de representación de un \texttt{Sistema}}
-\label{sec:orgf9cb3f9}
+\label{sec:orga7c037d}
 Veamos la representación \texttt{str} de un sistema \texttt{A} con tres elementos:
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 A = Sistema([ 2, fracc(a,b), sympy.sqrt(5), ])
@@ -1757,7 +1762,7 @@ pinta(A)
 \(\displaystyle \left[ \begin{array}{cc|c}2;& \frac{a}{b};& \sqrt{5};\end{array} \right]\)
 
 \subsection{Ejemplo de representación con un \texttt{Sistema} más complejo}
-\label{sec:org5527972}
+\label{sec:org8c65177}
 Únicamente cuando un \texttt{Sistema} tiene una estructura muy sencilla las
 tres formas de representación de \texttt{Sistemas} son prácticas. Por
 ejemplo, la representación \texttt{str} se ve mal cuando el sistema contiene
@@ -1790,7 +1795,7 @@ ZZ
 \clearpage
 
 \section{La clase \texttt{Sistema} completa}
-\label{sec:orga164c31}
+\label{sec:org7cfe956}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 class Sistema:
@@ -1801,7 +1806,7 @@ class Sistema:
     <<Método que junta una lista de Sistemas en un único Sistema>>
     <<Método que amplía la lista de un Sistema con nuevos elementos>>
     <<Sustitución de variables simbólicas>>
-    <<Simplificación de expresiones simbólicas>>
+    <<Simplificación de expresiones simbólicas en la lista de un Sistema>>
     <<Sustitución de un símbolo por otro símbolo o valor en un Sistema>>
     <<Otros métodos de la clase Sistema>>
     <<Métodos que devuelven SubEspacios>>
@@ -1823,7 +1828,7 @@ class Sistema:
 
 
 \chapter{La subclase \texttt{BlockV}}
-\label{sec:org1dd773e}
+\label{sec:orge975439}
 
 En el curso de Álgebra Lineal empleamos arreglos rectangulares de
 objetos (principalmente las matrices). En NAcAL, la clase de los
@@ -1851,10 +1856,10 @@ si no se indica nada) u horizontal. En todo lo demás, un \texttt{BlockV} es
 como un \texttt{Sistema} genérico.
 
 \section{Implementación}
-\label{sec:org7c49b77}
+\label{sec:org5e3ee7d}
 
 \subsection{Texto de ayuda}
-\label{sec:orgdc8e5c7}
+\label{sec:orgfe17bb1}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """BlockV es un Sistema que se puede representar verticalmente.
@@ -1877,7 +1882,7 @@ Atributos de la subclase:
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Ejemplos:
@@ -1896,7 +1901,7 @@ Vector( [1,2,3] )
 \end{minted}
 
 \subsection{Método de inicialización:}
-\label{sec:org5e23b56}
+\label{sec:orgc6c0e44}
 
 \texttt{BlockV} es una subclase \texttt{Sistema}. Se inicia con el método: \texttt{def
 \_\_init\_\_(self, arg, rpr='columna')}.
@@ -1915,7 +1920,7 @@ de ser la cadena de caracteres \texttt{fila}, es decir, \texttt{rpr='fila'}.
 
 \item Con \texttt{super().\_\_init\_\_(arg)} la subclase \texttt{BlockV} hereda los métodos
 y atributos de la clase \texttt{Sistema}. En consecuencia \texttt{BlockV} tendrá
-los atributos \texttt{lista}, \texttt{n} y \texttt{posicionDivisiones} así como todos los
+los atributos \texttt{lista}, \texttt{n} y \texttt{corteSistema} así como todos los
 métodos definidos para la clase \texttt{Sistema}.
 
 \item El atributo \texttt{rpr} tomará el valor indicado al instanciar la clase
@@ -1925,8 +1930,8 @@ elementos del sistema (su longitud).
 \item Por último, un \texttt{BlockV} cuya lista tan solo contiene números es un
 vector de \R[n].
 
-Consecuentemente, cuando todos los elementos de \texttt{arg} son \hyperref[sec:orgeee62cd]{números}
-(Véase la Sección \ref{sec:orgeee62cd}) el objeto que se crea es un \texttt{Vector} (una
+Consecuentemente, cuando todos los elementos de \texttt{arg} son \hyperref[sec:org357ed9b]{números}
+(Véase la Sección \ref{sec:org357ed9b}) el objeto que se crea es un \texttt{Vector} (una
 subclase de \texttt{BlockV} que solo contiene números).
 \end{itemize}
 
@@ -1944,7 +1949,7 @@ def __init__(self, arg, rpr='columna'):
 \end{minted}
 
 \section{Representación de la clase \texttt{BlockV}}
-\label{sec:orgf1d64bd}
+\label{sec:org9da3629}
 Un \texttt{BlockV} es una secuencia finita de objetos; es decir, un
 \texttt{Sistema}.  La única diferencia respecto de un \texttt{Sistema} genérico es
 su representación. Por tanto solo necesitamos redefinir las
@@ -1960,32 +1965,42 @@ def __repr__(self):
 def __str__(self):
     """ Muestra el BlockV en su representación Python """
     pc = ',' if len(self.lista) else ''
-    ln = [len(n) for n in particion(self.posicionDivisiones,self.n)]
+    ln = [len(n) for n in particion(self.corteSistema,self.n)]
     return '(' + \
         ',|'.join([', '.join([str(c) for c in s]) \
-                   for s in [ self|i for i in particion(self.posicionDivisiones, self.n)]]) + \
+                   for s in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
         pc + ')'
 
 def latex(self):
     """ Construye el comando LaTeX para representar un BlockV """
-    pc = ',' if len(self) else r'\ '
-    ln = [len(n) for n in particion(self.posicionDivisiones,self.n)]
-    if self.rpr == 'fila' or self.n==1:    
-        return \
-            r'\left( \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
-            r',& '.join([latex(e) for e in self]) + pc + \
-            r'\\ \end{array} \right)'
+    if bool(self.corteSistema):
+        pc = ',' if len(self) else r'\ '
+        ln = [len(n) for n in particion(self.corteSistema,self.n)]
+        if self.rpr == 'fila' or self.n==1:    
+            return \
+                r'\left( \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
+                r',& '.join([latex(e) for e in self]) + pc + \
+                r'\\ \end{array} \right)'
+        else:
+            return \
+                r'\left( \begin{array}{c}' + \
+                r'\\ \hline '.join([r'\\'.join([latex(c) for c in e]) \
+                    for e in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
+                r'\\ \end{array} \right)'
     else:
-        return \
-            r'\left( \begin{array}{c}' + \
-            r'\\ \hline '.join([r'\\'.join([latex(c) for c in e]) \
-                                for e in [ self|i for i in particion(self.posicionDivisiones, self.n)]]) + \
-            r'\\ \end{array} \right)'
+        if self.rpr == 'fila' or self.n==1:
+            return r'\begin{pmatrix}' + \
+                ',& '.join([latex(e) for e in self]) + \
+                r',\end{pmatrix}'
+        else:
+            return r'\begin{pmatrix}' + \
+                r'\\ '.join([latex(e) for e in self]) + \
+                r'\end{pmatrix}'
 
 \end{minted}
 
 \subsection{Ejemplo de representación de un \texttt{BlockV}}
-\label{sec:org420f1cb}
+\label{sec:org409709f}
 Veamos la representación de un \texttt{BlockM} cuya lista contiene una matriz
 dos por tres y tres números.
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
@@ -2008,7 +2023,7 @@ y también la podemos usar en horizontal:
 \(\displaystyle \left( \begin{array}{cccc}\left[ \begin{array}{ccc}1&2&3\\4&5&6\\ \end{array} \right],& 1,& 0,& 0,\\ \end{array} \right)\)
 
 \section{La clase \texttt{BlockV} completa}
-\label{sec:org39e67b7}
+\label{sec:org5e69c1f}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 class BlockV(Sistema):
@@ -2019,7 +2034,7 @@ class BlockV(Sistema):
 
 
 \chapter{La subclase \texttt{Vector}}
-\label{sec:org55b4a84}
+\label{sec:org2ed346d}
 
 El \href{https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf\#section.1.1}{curso} de Álgebra Lineal define un vector de \R[n] del siguiente
 modo
@@ -2041,10 +2056,10 @@ subclase \texttt{Vector} hereda el resto de métodos y atributos de la clase
 \texttt{Sistema} y la subclase \texttt{BlockV}.
 
 \section{Implementación de los vectores de \R[n] en la subclase \texttt{Vector}}
-\label{sec:org56ffd9d}
+\label{sec:orgb19bf41}
 
 \subsection{Texto de ayuda}
-\label{sec:org0fb94da}
+\label{sec:org14ac6c8}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Clase para los Sistemas de números.
@@ -2068,7 +2083,7 @@ Atributos heredados de la subclase BlockV::
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Ejemplos:
@@ -2083,7 +2098,7 @@ Vector([1,2,3])
 \end{minted}
 
 \subsection{Método de inicialización:}
-\label{sec:org6fa7ceb}
+\label{sec:org9eee0d7}
 
 La clase se inicia con el método: \texttt{def \_\_init\_\_(self, arg, rpr='columna')}.
 
@@ -2099,7 +2114,7 @@ la subclase \texttt{BlockV}).
 \texttt{help Vector.\_\_init\_\_}
 
 \item Se verifica que \texttt{arg} es una secuencia de números (Sección
-\ref{sec:org7badd30}). Si no lo es obtenemos un error.
+\ref{sec:org7d279d6}). Si no lo es obtenemos un error.
 
 \item Con \texttt{super().\_\_init\_\_(arg)} la subclase \texttt{Vector} hereda los métodos
 y atributos de la clase \texttt{BlockV} (por tanto, \texttt{Vector} tendrá un
@@ -2114,13 +2129,13 @@ def __init__(self, arg, rpr='columna'):
     """Inicializa Vector con una lista, tupla o Sistema de números"""                       
     if not es_ristra_de_numeros(arg):
         raise ValueError('no todos los elementos son números o parámetros!')
-    
-    super().__init__(arg)
+
+    super().__init__(arg, rpr)
 
 \end{minted}
 
 \section{Métodos específicos de la subclase \texttt{Vector}}
-\label{sec:org96aea3d}
+\label{sec:orgcc934cb}
 
 Aquí se definen algunos métodos específicos de la subclase
 \texttt{Vector}. El primero calcula la norma euclídea de un \texttt{Vector} de
@@ -2155,7 +2170,7 @@ def diag(self):
 \end{minted}
 
 \section{Representación de la clase \texttt{Vector}}
-\label{sec:org66a99c9}
+\label{sec:orge976fae}
 
 Necesitamos indicar a Python cómo representar los objetos de tipo
 \texttt{Vector}.
@@ -2183,7 +2198,7 @@ def __repr__(self):
 
 \end{minted}
 \section{La clase \texttt{Vector} completa}
-\label{sec:orgbc1421b}
+\label{sec:org8a415db}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 class Vector(BlockV):
@@ -2196,7 +2211,7 @@ class Vector(BlockV):
 
 
 \chapter{Las subclases \texttt{V0} y \texttt{V1}}
-\label{sec:org71f82ce}
+\label{sec:orgdc4521e}
 
 La clase \texttt{V0} corresponde a vectores nulos. La clase \texttt{V1} corresponde
 a vectores constantes cuyas componentes son todas iguales a 1. En
@@ -2242,16 +2257,16 @@ class V1(Vector):
 
 
 \chapter{La subclase \texttt{BlockM}}
-\label{sec:orged0ca16}
+\label{sec:orgad8d869}
 
 Un \texttt{BlockM} es un sistema de \texttt{BlockVs} de la misma longitud, es decir,
 es un arreglo rectangular de objetos. A sus elementos los llamaremos
 \emph{columnas} del \texttt{BlockM}.
 
 \section{Implementación}
-\label{sec:orgbb42f32}
+\label{sec:orgf9260e7}
 \subsection{Texto de ayuda}
-\label{sec:org9412f63}
+\label{sec:orgc497a3d}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Clase para arreglos rectangulares de objetos.
@@ -2275,7 +2290,7 @@ Atributos:
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Ejemplos:
@@ -2293,7 +2308,7 @@ BlockM([BlockV(['Hola', 2, 3]), Vector([1, 2, 5]), Vector([1, 2, 7])])
 \end{minted}
 
 \subsection{Método de inicialización:}
-\label{sec:org9a04add}
+\label{sec:orge54ea46}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2334,7 +2349,7 @@ def __init__(self, arg):
     except:
         self.m  = 0
             
-    self.corteElementos = {0}
+    self.corteElementos = set()
    
     for v in self.lista:
         v.rpr='columna'
@@ -2344,9 +2359,9 @@ def __init__(self, arg):
 \end{minted}
 
 \section{Métodos de la clase \texttt{BlockM}}
-\label{sec:orgba9236e}
+\label{sec:org121514c}
 \subsection{Transposición de un BlockM}
-\label{sec:orgb1e0566}
+\label{sec:orge96bd79}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2360,13 +2375,13 @@ def __invert__(self):
     Matrix([ Vector([1, 2, 3]), Vector([2, 4, 6]) ])
     """
     M = BlockM([ Sistema(columna) for columna in self ])
-    M.corteElementos, M.posicionDivisiones = self.posicionDivisiones, self.corteElementos
+    M.corteElementos, M.corteSistema = self.corteSistema, self.corteElementos
     return M
 
 \end{minted}
 
 \subsection{Comprobación de que las filas o columnas son de composición homogenea}
-\label{sec:org34be8cd}
+\label{sec:org2f80313}
 
 Si queremos aplicar transformaciones elementales a las columnas o a
 las filas de un \texttt{BlockM} es necesario que las operaciones entre
@@ -2386,7 +2401,7 @@ def filas_homogeneas(self):
 \end{minted}
 
 \subsection{Apilado de \texttt{BlockMs}}
-\label{sec:org101ec93}
+\label{sec:org9c757ff}
 
 Creamos un \texttt{BlockM} apilando \texttt{BlockMs} uno encima de otro si tienen el
 mismo número de elementos.
@@ -2404,7 +2419,7 @@ def apila(self, lista, marcasVisuales = False):
 \end{minted}
 
 \subsection{Operador selector por la izquierda}
-\label{sec:org85e52fa}
+\label{sec:orge97baf2}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Extrae la j-ésima fila de un BlockM en forma de BlockV; o crea un
@@ -2453,9 +2468,9 @@ def __ror__(self,i):
 \end{minted}
 
 \section{Otros métodos de la clase \texttt{BlockM}}
-\label{sec:org9478bc4}
+\label{sec:org5ce1e4f}
 \subsection{Extiende una \texttt{BlockM} a lo largo de la diagonal con una lista de \texttt{BlockMs}}
-\label{sec:org287374c}
+\label{sec:orga15aaf2}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
    
@@ -2471,7 +2486,7 @@ def extDiag(self, lista, c=False):
 \end{minted}
 
 \subsection{Vectoriza un \texttt{BlockM} apilando sus elementos para formar un \texttt{BlockV}}
-\label{sec:orgde6a8ae}
+\label{sec:org67f7698}
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
    
 def vec(self):
@@ -2481,10 +2496,10 @@ def vec(self):
 \end{minted}
 
 \section{Transformaciones elementales de las filas de un \texttt{BlockM}}
-\label{sec:orgd1c095e}
+\label{sec:org4af8236}
 
 \subsection{Texto de ayuda}
-\label{sec:org8d05c36}
+\label{sec:org5176f27}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Transforma las filas de un BlockM
@@ -2503,7 +2518,7 @@ Ejemplos:
 \end{minted}
 
 \subsection{Implementación de las transformaciones elementales de las filas}
-\label{sec:org080ad3e}
+\label{sec:orgc034475}
 
 Para implementar las transformaciones elementales de las filas usamos
 el truco de aplicar las operaciones sobre las columnas de la
@@ -2534,7 +2549,7 @@ def __rand__(self, operaciones):
 \end{minted}
 
 \section{Representación de la clase BlockM}
-\label{sec:org7920279}
+\label{sec:orga3e0d6a}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2549,12 +2564,12 @@ def __repr__(self):
 
 def __str__(self):
     """ Muestra un BlockM en su representación Python str """
-    ln  = [len(n) for n in particion(self.posicionDivisiones,self.n)]
+    ln  = [len(n) for n in particion(self.corteSistema,self.n)]
     car = max([len(str(e)) for c in self for e in c])
 
     def escribeFila(f,d=0):
         parte = lambda f,d=0: str(' '.join([str(e).rjust(d) for e in f])) 
-        s = '|'+'|'.join([parte([e for e in c],d) for c in [p|f for p in particion(self.posicionDivisiones, self.n)] ])+'|'
+        s = '|'+'|'.join([parte([e for e in c],d) for c in [p|f for p in particion(self.corteSistema, self.n)] ])+'|'
         return s
     
     num_guiones = len(escribeFila(1|self, car))
@@ -2564,7 +2579,7 @@ def __str__(self):
 
 def latex(self):
     """ Construye el comando LaTeX para representar una BlockM """
-    ln = [len(n) for n in particion(self.posicionDivisiones, self.n)]                                                           
+    ln = [len(n) for n in particion(self.corteSistema, self.n)]                                                           
     return \
         '\\left[ \\begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
         '\\\\ \\hline '.join(['\\\\'.join(['&'.join([latex(e) for e in f.lista]) \
@@ -2575,7 +2590,7 @@ def latex(self):
 \end{minted}
 
 \subsubsection{Método para definir por puntos de corte en los elementos un BlockM (sus ``filas'')}
-\label{sec:org7d016f3}
+\label{sec:orgeb78a5e}
 
 Para separar visualmente distintas partes de los \texttt{BlockV} (las
 columnas) de un \texttt{BlockM} es necesario indicar los índices de los
@@ -2600,7 +2615,7 @@ def cfil(self, conjuntoIndices={}):
 \clearpage
 
 \section{La clase \texttt{BlockM} completa}
-\label{sec:orgf53398c}
+\label{sec:org51c8ad2}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 class BlockM(Sistema):
@@ -2620,13 +2635,13 @@ class BlockM(Sistema):
 
 
 \chapter{La subclase \texttt{Matrix}}
-\label{sec:org0d73885}
+\label{sec:orgc036706}
 
 \section{Implementación de las matrices en la subclase \texttt{Matrix}}
-\label{sec:org7e0acab}
+\label{sec:orgb0ba86c}
 
 \subsection{Texto de ayuda}
-\label{sec:orga39e4a0}
+\label{sec:org2f12e13}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Matrix un Sistema de Vectores con el mismo número de componentes.
@@ -2646,7 +2661,7 @@ Parámetros:
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Atributos heredados de la subclase BlockM:
@@ -2673,7 +2688,7 @@ Matrix([ Vector([1, 2]); Vector([1, 0]); Vector([9, 2]) ])
 \end{minted}
 
 \subsection{Método de inicialización:}
-\label{sec:org85b835f}
+\label{sec:orga4fd934}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2715,9 +2730,9 @@ def __init__(self, data):
 \end{minted}
 
 \section{Métodos específicos de la subclase \texttt{Matrix}}
-\label{sec:orgb9d6fb7}
+\label{sec:org9fcca67}
 \subsection{Disposición de los elementos de una \texttt{Matrix}}
-\label{sec:org8788a8e}
+\label{sec:org2cfb47a}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2749,7 +2764,7 @@ def es_diagonal(self):
 \end{minted}
 
 \subsection{Creación de un \texttt{Vector} a partir de la diagonal de una \texttt{Matrix}}
-\label{sec:org9654147}
+\label{sec:org0c59576}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2760,7 +2775,7 @@ def diag(self):
 \end{minted}
 
 \subsection{Normalizado de las columnas (o filas) de una matriz}
-\label{sec:org1ae7c83}
+\label{sec:org0ee41b0}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2775,7 +2790,7 @@ def normalizada(self, opcion='Columnas'):
 \end{minted}
 
 \subsection{Potencias de una \texttt{Matrix} cuadrada}
-\label{sec:org8e47061}
+\label{sec:orgc632df9}
 Ahora podemos calcular la \texttt{n}-ésima potencia de una \texttt{Matrix}.
 Cuando \texttt{n} es un entero positivo; basta multiplicar la \texttt{Matrix}
 por si misma \texttt{n} veces.
@@ -2801,7 +2816,7 @@ def __pow__(self,n):
 \end{minted}
 
 \subsection{Determinante mediante la expansión de Laplace}
-\label{sec:org110b1f1}
+\label{sec:org5fc53d4}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2824,7 +2839,7 @@ def det(self, sust=[]):
 \end{minted}
 
 \subsection{Método de Gram-Schmidt}
-\label{sec:org7b8d95d}
+\label{sec:org8d3294d}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2841,9 +2856,9 @@ def GS(self):
 \end{minted}
 
 \subsection{Otros métodos específicos de las matrices cuadradas que usan eliminación}
-\label{sec:org3d751f9}
+\label{sec:org6e99d3c}
 \subsubsection{Rango de una Matrix}
-\label{sec:org99d9220}
+\label{sec:org37c60e3}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2854,7 +2869,7 @@ def rg(self):
 \end{minted}
 
 \subsubsection{Comprobación de que una Matrix es singular o de que es invertible}
-\label{sec:orgf301d41}
+\label{sec:org6231ca7}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2871,7 +2886,7 @@ def es_invertible(self):
 \end{minted}
 
 \subsubsection{Cálculo de la matriz inversa}
-\label{sec:org3d4c847}
+\label{sec:org3d2accb}
 
 En la representación se muestra primero la reducción adelante y atrás,
 luego se escalona y finalmente se normaliza.
@@ -2904,7 +2919,7 @@ def inversa(self, rep=0):
 \end{minted}
 
 \subsubsection{Cálculo del determinante}
-\label{sec:org98902a1}
+\label{sec:orgebc96dd}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -2917,12 +2932,12 @@ def determinante(self, rep = False, sust = []):
 \end{minted}
 
 \subsubsection{Diagonalización por Semejanza}
-\label{sec:orgcf3239e}
+\label{sec:orgcc1fbad}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 def diagonalizaS(self, espectro, rep=False, sust=[]):
     <<Texto de ayuda para la clase DiagonalizaS>>
-    D            = Matrix(self.subs(sust))
+    D            = Matrix(self).copy().subs(sust)
     <<Comprobaciones previas a la diagonalización>>
     espectro     = [sympy.S(l).subs(sust) for l in espectro]    
     S            = I(D.n)
@@ -3036,15 +3051,16 @@ if T(TrCol):
 \end{minted}
 
 \subsubsection{Diagonalización por Congruencia}
-\label{sec:org5f00e6b}
+\label{sec:org6f2817a}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Diagonaliza por congruencia una Matrix simétrica (evitando dividir)
 
 Encuentra una matriz diagonal por conruencia empleando una matriz B
-invertible (y entera si es posible) por la derecha y su transpuesta
-por la izquierda. No emplea los autovalores. En general los elementos
-en la diagonal principal no son autovalores, pero hay tantos elementos
+invertible (evitando fracciones por defecto, si variante=1 entonces no
+evita las fracciones) por la derecha y su transpuesta por la
+izquierda. No emplea los autovalores. En general los elementos en la
+diagonal principal no son autovalores, pero hay tantos elementos
 positivos en la diagonal como autovalores positivos, tantos negativos
 como autovalores negativos, y tantos ceros como auntovalores nulos.
 
@@ -3053,11 +3069,13 @@ como autovalores negativos, y tantos ceros como auntovalores nulos.
 
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
-def diagonalizaC(self, rep=False, sust=[]):
+def diagonalizaC(self, rep=False, sust=[], variante=0):
     <<Texto de ayuda para la clase DiagonalizaC>>
     <<Definición del método auxiliar BuscaPrimerNoNuloEnLaDiagonal>>
+    if not variante in {0,1}:
+        raise ValueError('La variante debe ser 0 ó 1')
     
-    D            = Matrix(self.subs(sust))
+    D            = Matrix(self).copy().subs(sust)
     
     if not D.es_simetrica():
         raise ValueError('La matriz no es simétrica')
@@ -3078,11 +3096,11 @@ def diagonalizaC(self, rep=False, sust=[]):
                 p = i
                 <<Aplicación de las transformaciones a las columnas y a las filas>>
         if p:
-            Tr = T(((i,)|D).elim(1).pasos[1]) 
+            Tr = T(((i,)|D).elim(variante).pasos[1]) 
             <<Aplicación de las transformaciones a las columnas y a las filas>>
            
     D.pasos     = pasosPrevios
-    D.tex       = rprElimCF(Matrix(self.subs(sust)), D.pasos, [], sust) 
+    D.tex       = rprElimCF(Matrix(self).subs(sust), D.pasos, [], sust) 
     D.TrF       = filtradopasos(T(D.pasos[0]))
     D.TrC       = filtradopasos(T(D.pasos[1]))
     D.B         = I(self.n) & D.TrC
@@ -3118,15 +3136,14 @@ D = (T(pasos[0]) & D & T(pasos[1])).subs(sust)
 
 \end{minted}
 
-
 \subsection{Diagonalización ortogonal de una matriz simétrica}
-\label{sec:org587f73a}
+\label{sec:org7250750}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
 def diagonalizaO(self, espectro, sust=[]):
     <<Texto de ayuda para la clase DiagonalizaO>>
-    D            = Matrix(self.subs(sust))
+    D            = Matrix(self).copy().subs(sust)
     
     if not D.es_simetrica():
         raise ValueError('La matriz no es simétrica')
@@ -3192,7 +3209,7 @@ def BaseOrtNor(q):
 \end{minted}
 
 \section{Representación de la clase \texttt{Matrix}}
-\label{sec:org1a1bf83}
+\label{sec:org05aa6ab}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -3203,7 +3220,7 @@ def __repr__(self):
 \end{minted}
 
 \section{La clase \texttt{Matrix} completa}
-\label{sec:org99da3ec}
+\label{sec:orgb4bdc3d}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 class Matrix(BlockM):
@@ -3227,7 +3244,7 @@ class Matrix(BlockM):
 
 
 \chapter{Las subclases \texttt{M0}, \texttt{M1} e \texttt{I}}
-\label{sec:org41a75cc}
+\label{sec:org89a70a6}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -3257,14 +3274,14 @@ class I(Matrix):
 
 
 \chapter{Las subclases \texttt{Elim}, \texttt{ElimG}, \texttt{ElimGJ},  \texttt{ElimGF}, \texttt{ElimGJF}, \texttt{InvMat}, \texttt{InvMatF} e \texttt{InvMatFC}}
-\label{sec:org6c766ea}
+\label{sec:org22454e5}
 
 Por comodidad y compatibilidad con la versión anterior de NAcAL
 creamos las siguientes subclases de Sistema que resultan tras aplicar
 ciertos pasos de eliminación.
 
 \section{Subclases de \texttt{Sistema}: \texttt{Elim}, \texttt{ElimG}, \texttt{ElimGJ},  \texttt{ElimGF} y  \texttt{ElimGJF}}
-\label{sec:orga79f248}
+\label{sec:orgccf7694}
 Son una forma alternativa de llamar a los métodos \texttt{.K()}, \texttt{.L()},
 \texttt{.R()}, \texttt{.U()} y \texttt{.UR()}. Los dos últimos, \texttt{.U()} y \texttt{.UR()} (es decir,
 \texttt{ElimGF} y \texttt{ElimGJF}) solo tienen sentido si el Sistema es un arreglo
@@ -3351,7 +3368,7 @@ class ElimGJF(Sistema):
 \end{minted}
 
 \section{Subclases de \texttt{Matrix}: \texttt{InvMat}, \texttt{InvMatF} e \texttt{InvMatFC}}
-\label{sec:orgbcd659c}
+\label{sec:org01ac552}
 Son una forma alternativa de llamar al método \texttt{.inversa()},
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -3430,13 +3447,13 @@ class InvMatFC(Sistema):
 
 
 \part{La clase \texttt{T} (transformación elemental)}
-\label{sec:orgf4b9e04}
+\label{sec:org65f2263}
 
 \chapter{La clase \texttt{T}}
-\label{sec:orga18ec97}
+\label{sec:org8b4dcf8}
 
 \section{Introducción}
-\label{sec:org6d2dff8}
+\label{sec:org24e6e43}
 
 Vamos a implementar las transformaciones de un sistema \(\SV{A}\)
 mediante secuencias de \emph{transformaciones elementales de Tipo I y II} e
@@ -3454,7 +3471,7 @@ elemento \(i\) al elemento \(j\) (\(i\ne j\));
 \end{description}
 
 \subsubsection{Comentario sobre la notación.}
-\label{sec:org5f4b896}
+\label{sec:orgecd807c}
 
 Cualquier trasformación elemental de un sistema se puede lograr con el
 producto del sistema por una matriz elemental, y \emph{la notación empleada
@@ -3505,7 +3522,7 @@ pues solo necesitan indicar el índice de los elementos que intervienen
 en la transformación.
 
 \subsubsection{Traducción de las transformaciones elementales a Python}
-\label{sec:org1fb454b}
+\label{sec:org98d2349}
 
 Vamos a definir la siguiente traducción de esta notación a Python:
 
@@ -3583,7 +3600,7 @@ no es necesario indicar el orden (el número de filas y columnas) de
 las matrices elementales en ningún momento!
 
 \subsubsection{Necesidad de creación de una nueva clase}
-\label{sec:orgfe3afa8}
+\label{sec:org62379cd}
 
 Python ejecuta las órdenes de izquierda a derecha. Fijándonos en la
 expresión
@@ -3638,10 +3655,10 @@ instanciar \texttt{T} o bien creará la lista de abreviaturas a partir de
 otra  \texttt{T} (o lista de objetos \texttt{T}) empleada para instanciar.
 
 \section{Implementación de las transformaciones elementales}
-\label{sec:orgb7c01a5}
+\label{sec:org1d56907}
 
 \subsection{Texto de ayuda}
-\label{sec:orgcdf59d0}
+\label{sec:orgeb00ca4}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Clase para las transformaciones elementales
@@ -3717,17 +3734,18 @@ T( [(-8, 2), (2, 1, 2), (-8, 3), (3, 1, 3)] )
 \end{minted}
 
 \subsection{Método de inicialización}
-\label{sec:orgc37bc99}
+\label{sec:org111b2b1}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
 def __init__(self, *args, rpr='v'):
     """Inicializa una transformación elemental"""
     <<Verificación de que las .abreviaturas corresponden a transformaciones elementales o intercambios>>
-    
+    <<Simplificacion de expresiones simbólicas en las abreviaturas>>
     def CreaListaAbreviaturas(arg):
         if isinstance(arg, (tuple, set)):
             verificacion(arg)
+            arg = simplificacionSimbolica(arg)
             return [arg]
         if isinstance(arg, list):
             return [abrv for item in arg for abrv in CreaListaAbreviaturas(item)]
@@ -3743,7 +3761,7 @@ def __init__(self, *args, rpr='v'):
 \end{minted}
 
 \subsubsection{Verificación de que las abreviaturas corresponden a transformaciones elementales o intercambios}
-\label{sec:orge3acbdb}
+\label{sec:org0b358bd}
 
 Un transformación elemental no puede multiplicar ningún elemento por
 cero, ni sumar a un elemento un múltiplo de si mismo. Además, un
@@ -3760,11 +3778,26 @@ def verificacion(abrv):
     
 \end{minted}
 
+\subsubsection{Simplificacion de expresiones simbólicas en las abreviaturas}
+\label{sec:org0c3b11a}
+
+\begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
+
+def simplificacionSimbolica(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (sympy.factor(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (sympy.factor(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
+
+\end{minted}
+
 \section{Composición de Transformaciones o transformación de un \texttt{Sistema} por la izquierda}
-\label{sec:org9771185}
+\label{sec:orgdf60ce8}
 
 \subsection{Texto de ayuda}
-\label{sec:orgb7b8638}
+\label{sec:org0b3cf0a}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Composición de transformaciones elementales (o transformación filas)
@@ -3796,7 +3829,7 @@ T( [{1, 2}, (2, 4), (2, 1), {3, 1}] )
 \end{minted}
 
 \subsection{Implementación}
-\label{sec:orgaf20037}
+\label{sec:org6444a68}
 
 Describimos la composición de transformaciones
 \begin{math}
@@ -3822,7 +3855,7 @@ def __and__(self, other):
 \end{minted}
 
 \section{Transposición de transformaciones elementales}
-\label{sec:org79aa494}
+\label{sec:org57e1613}
 
 
 
@@ -3873,7 +3906,7 @@ def __invert__(self):
 \end{minted}
 
 \section{Potencias e inversa de transformaciones elementales}
-\label{sec:org52f99f2}
+\label{sec:orga196a85}
 
 Toda matriz de la forma \(\TrC{\Mat{I}}\) ó \(\TrF{\Mat{I}}\) es
 invertible por ser producto de matrices elementales:
@@ -3932,7 +3965,7 @@ def Tinversa ( self ):
 \end{minted}
 
 \section{Transformaciones elementales ``espejo''}
-\label{sec:orgda99721}
+\label{sec:orgc3d6677}
 
 Al diagonalizar por semejanza, y aplicar transformaciones elementales
 por la derecha, que es lo mismo que multiplicar por una matriz
@@ -3951,7 +3984,7 @@ def espejo ( self ):
 \end{minted}
 
 \section{Sustitución de variables simbólicas}
-\label{sec:orgda8717d}
+\label{sec:org913965a}
 
 Sustituye la variable \texttt{c} por \texttt{v}, donde \texttt{v} puede ser un valor, u otra variable simbólica.
 
@@ -3973,12 +4006,36 @@ def subs(self, regla_de_sustitucion=[]):
     self = T([sustitucion(operacion, regla_de_sustitucion) for operacion in self.abreviaturas])
     return self
 
+def simplify(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (simplify(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (simplify(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
+
+def factor(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (factor(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (factor(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
+
+def expand(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (expand(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (expand(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
+
 \end{minted}
 
 \section{Métodos similares a los de una \texttt{list}}
-\label{sec:orgbcaa0ee}
+\label{sec:orgdcbfa71}
 \subsection{T es iterable}
-\label{sec:orgc4ce80d}
+\label{sec:org88cd776}
 
 Haremos que \texttt{T} sea iterable con los procedimientos ``mágicos'' \texttt{\_\_getitem\_\_}, que permite seleccionar pasos de \texttt{T}, y 
 \texttt{\_\_setitem\_\_}, que permite modificar pasos de \texttt{T}. Con \texttt{\_\_len\_\_}
@@ -4001,7 +4058,7 @@ def __len__(self):
 \end{minted}
 
 \subsection{Igualdad entre transformaciones elementales}
-\label{sec:org9970228}
+\label{sec:orgd11b06e}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4012,7 +4069,7 @@ def __eq__(self, other):
 \end{minted}
 
 \section{Representación de la clase \texttt{T}}
-\label{sec:org81d328e}
+\label{sec:org95c9173}
 
 De nuevo construimos los dos métodos de presentación. Uno para la
 consola de comandos que escribe \texttt{T} y entre paréntesis la
@@ -4059,7 +4116,7 @@ a las operaciones sobre las columnas:
 \end{displaymath}
 
 \subsection{Secuencias de transformaciones}
-\label{sec:org1eb2ee1}
+\label{sec:orgc78d5df}
 
 Considere las siguientes transformaciones
 \begin{itemize}
@@ -4091,7 +4148,7 @@ la izquierda de la matriz
 \end{itemize}
 
 \subsubsection{Representación de una secuencia de transformaciones}
-\label{sec:orgf63fc15}
+\label{sec:org12caaa0}
 
 \begin{displaymath}
   \begin{array}{|l||c|}
@@ -4109,7 +4166,7 @@ la izquierda de la matriz
 \end{displaymath}
 
 \subsubsection{Representación de transformaciones identidad}
-\label{sec:orge66ce91}
+\label{sec:org264f174}
 
 Si las transfomaciones multiplican un vector por 1, y suman un vector
 nulo a otro vector, dichas transformaciones no cabian el sistema de
@@ -4164,7 +4221,7 @@ def latex(self):
 \end{minted}
 
 \section{La clase \texttt{T} completa}
-\label{sec:org991747c}
+\label{sec:org53bad7e}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4184,10 +4241,10 @@ class T:
 
 
 \part{Las clases \texttt{SubEspacio} y  \texttt{EAfin}}
-\label{sec:org565f36a}
+\label{sec:org79fffd8}
 
 \chapter{La clase \texttt{SubEspacio} (de \R[m])}
-\label{sec:org167ba32}
+\label{sec:org7b2dee2}
 
 El conjunto de vectores \Vect{x} que resuelven el sistema
 \SEL{A}{x}{0} es un subespacio de \R[n]; y el conjunto de vectores
@@ -4266,7 +4323,7 @@ las ecuaciones cartesianas. En el ejemplo
 \end{itemize}
 
 \section{Implementación de \texttt{SubEspacio}}
-\label{sec:org60f13db}
+\label{sec:org6c77a95}
 
 La implementación requiere encontrar un \texttt{Sistema} base del
 \texttt{SubEspacio} columna de una \texttt{Matrix} \texttt{A}. Lo haremos pre-escalonando
@@ -4339,9 +4396,8 @@ def vector_nulo(self):
 
 \end{minted}
 
-
 \section{Métodos de la clase \texttt{SubEspacio}}
-\label{sec:orga4f7936}
+\label{sec:org8a1a492}
 Definimos un método que nos indique si es cierto que un \texttt{SubEspacio}
 está contenido en otro (\texttt{contenido\_en}). Si \texttt{A} y \texttt{B} son
 \texttt{SubEspacios}, la siguiente expresión
@@ -4442,7 +4498,7 @@ def __and__(self, other):
         A  = self.base
         B  = other.base
         AB = A.concatena(B)
-        X  = slice(1,self.dim)|Matrix(AB.espacio_nulo().base)
+        X  = slice(1,self.dim)|Matrix(AB.espacio_nulo().sgen)
         return SubEspacio(A*X)
     
     elif  isinstance(other, EAfin):
@@ -4493,7 +4549,7 @@ def __contains__(self, other):
 \end{minted}
 
 \section{Métodos de representación de la clase \texttt{SubEspacio}}
-\label{sec:org643c54e}
+\label{sec:org0f42f6d}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4517,9 +4573,8 @@ def latex(self):
 
 \end{minted}
 
-
 \section{La clase \texttt{SubEspacio} completa}
-\label{sec:org6232cdf}
+\label{sec:org36df995}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4533,7 +4588,7 @@ class SubEspacio:
 
 
 \chapter{La clase \texttt{EAfin} (de \R[m])}
-\label{sec:org6218ea2}
+\label{sec:org86e4556}
 
 El conjunto de soluciones de un sistema de ecuaciones homogéneo
 \SEL{A}{x}{0} forma un subespacio (que llamamos espacio nulo
@@ -4542,7 +4597,7 @@ El conjunto de soluciones de un sistema de ecuaciones homogéneo
 
 
 \section{Implementación de \texttt{EAfin}}
-\label{sec:orgc495327}
+\label{sec:org372e71a}
 
 Vamos a crear la clase \texttt{EAfin}. La definiremos como un par
 \((\EV{S},\Vect{v})\) cuyo primer elemento, \EV{S}, sea un \texttt{SubEspacio}
@@ -4587,7 +4642,7 @@ def __init__(self, data, v, vi=0):
 
 
 \section{Métodos de la clase \texttt{EAfin}}
-\label{sec:org62776ca}
+\label{sec:org8491c90}
 Un vector \Vect{x} pertenece al espacio afín \EV{S} si verifica las
 ecuaciones cartesianas, cuya matriz de coeficientes es \texttt{self.S.cart},
 y cuyo vector del lado derecho es \texttt{(self.S.cart)*self.v}. Así pues
@@ -4687,7 +4742,7 @@ def __invert__(self):
 
 
 \section{Métodos de representación de la clase \texttt{EAfin}}
-\label{sec:orgba2af6e}
+\label{sec:orgffb49df}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4746,7 +4801,7 @@ def latex(self):
 
 
 \section{La clase \texttt{EAfin} completa}
-\label{sec:org85c91d5}
+\label{sec:orgd1fe573}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4759,10 +4814,10 @@ class EAfin:
 
 
 \part{Las clases \texttt{Homogenea} y  \texttt{SEL}}
-\label{sec:org04a7a56}
+\label{sec:orgc602036}
 
 \chapter{Resolución de sistemas de ecuaciones homogéneos. La clase  \texttt{Homogenea}}
-\label{sec:org5621172}
+\label{sec:org4c8c3ea}
 
 El siguiente código devuelve el conjunto de soluciones de un sistema homogéneo \SEL{A}{x}{0}. Descripción de los atributos:
 \begin{itemize}
@@ -4773,7 +4828,7 @@ para resolver el sistema.
 \end{itemize}
 
 \section{Implementación de la clase \texttt{Homogenea}}
-\label{sec:orga0fd66b}
+\label{sec:org1145150}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4819,7 +4874,7 @@ vectores nulos de \texttt{K}:
 
 
 \section{Métodos de representación de la clase \texttt{Homogenea}}
-\label{sec:orgc412f3c}
+\label{sec:org0ce71b5}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4842,12 +4897,12 @@ def latex(self):
 
 
 \chapter{Resolución de sistemas de ecuaciones lineales. La clase  \texttt{SEL}}
-\label{sec:org848b311}
+\label{sec:orgb03ab0f}
 
 \section{Implementación}
-\label{sec:org2c6ac2b}
+\label{sec:orgada3f44}
 \subsection{Texto de ayuda}
-\label{sec:orge34302e}
+\label{sec:org7bcc207}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 """Resuelve un Sistema de Ecuaciones Lineales
@@ -4916,7 +4971,7 @@ if rep:
 \end{minted}
 
 \section{Métodos de representación de la clase \texttt{SEL}}
-\label{sec:org760e48a}
+\label{sec:org73d8534}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -4939,10 +4994,10 @@ def latex(self):
 
 
 \part{La clase \texttt{Determinante}. Cálculo del determinante por eliminación Gaussiana}
-\label{sec:org662349a}
+\label{sec:org5aac41f}
 
 \subsection{Método de inicialización}
-\label{sec:org3445a2c}
+\label{sec:org997ff78}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 class Determinante:
@@ -5010,7 +5065,7 @@ def latex(self):
 
 
 \part{Las clases \texttt{DiagonalizaS}, \texttt{DiagonalizaO} y  \texttt{DiagonalizaC}}
-\label{sec:orgac19e72}
+\label{sec:org5402107}
 Es una forma alternativa de llamar al método \texttt{.diagonalizaS()},
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -5059,8 +5114,24 @@ class DiagonalizaO(Matrix):
 \end{minted}
 
 
+, rep=False, sust=[], variante=0
+Es una forma alternativa de llamar al método \texttt{.diagonalizaC()},
+\begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
+
+class DiagonalizaC(Matrix):
+    def __init__(self, sistema, rep=False, sust=[], variante=0):
+        <<Texto de ayuda para la clase DiagonalizaC>>
+        A = Matrix(sistema)
+        D = A.diagonalizaC(rep, sust, variante)
+            
+        self.__dict__.update(D.__dict__)
+        self.__class__ = type(sistema)
+
+\end{minted}
+
+
 \part{Librería completa}
-\label{sec:org5846e93}
+\label{sec:org6b82dec}
 
 Finalmente creamos la librería \texttt{nacal.py} concatenando los trozos de
 código que se describen en este fichero de documentación.
@@ -5108,6 +5179,7 @@ from os.path import join
 <<Métodos primer_no_nulo y ultimo_no_nulo de un Sistema>>
 <<Otros métodos auxilares>>
 <<Cribado de secuencias de transformaciones>>
+<<Simplificación de expresiones simbólicas>>
 <<Representación de un proceso de eliminación rprElim>>
 <<Representación de un proceso de eliminación rprElimFyC>>
 <<Representación de un proceso de eliminación rprElimCF>>
@@ -5138,10 +5210,10 @@ from os.path import join
 
 
 \chapter{Métodos generales}
-\label{sec:org191c89b}
+\label{sec:org5a5968a}
 
 \section{Números}
-\label{sec:orgeee62cd}
+\label{sec:org357ed9b}
 
 Consideraremos como números los enteros, los números de coma flotante,
 los números complejos, y toda la familia de objetos de tipo \href{https://docs.sympy.org/latest/modules/core.html\#sympy.core.basic.Basic}{\texttt{Basic}}
@@ -5153,7 +5225,7 @@ es_numero   = lambda x: isinstance(x, NumberTypes) and not isinstance(x, bool)
 \end{minted}
 
 \section{Números racionales}
-\label{sec:org5ea9eae}
+\label{sec:orge6457b3}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -5183,7 +5255,7 @@ def denom(a,b):
 \end{minted}
 
 \section{Ristras}
-\label{sec:org7badd30}
+\label{sec:org7d279d6}
 
 Según el diccionario de la Real Academia Española una \href{https://dle.rae.es/ristra}{\emph{ristra}} es un
 \emph{conjunto de ciertas cosas colocadas unas tras otras}; por ello,
@@ -5199,7 +5271,7 @@ def es_ristra_de_numeros(arg):
 
 \end{minted}
 \section{Métodos de representación para el entorno Jupyter}
-\label{sec:orgb0e4579}
+\label{sec:org6d01ab5}
 
 El método \texttt{html}, escribe el inicio y el final de un párrafo en html y
 en medio del párrafo escribirá la cadena \texttt{TeX}; que contendrá el
@@ -5269,7 +5341,7 @@ print( Vector([sympy.sqrt(2), 0, fracc(3, 4) ]) )
 Vector([sqrt(2), 0, 3/4])
 
 \section{Métodos \texttt{CreaLista} y \texttt{CreaSistema}}
-\label{sec:org5d3e3e0}
+\label{sec:org74bedb8}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -5288,7 +5360,7 @@ def CreaSistema(t):
 \end{minted}
 
 \section{Métodos \texttt{primer\_no\_nulo} y \texttt{ultimo\_no\_nulo} de un Sistema}
-\label{sec:org2a4bcd6}
+\label{sec:org7027801}
 
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
@@ -5323,7 +5395,7 @@ def elementoAntiPivote(s):
 \end{minted}
 
 \section{Otros métodos auxilares}
-\label{sec:org60096a7}
+\label{sec:org29d4154}
 \begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
 
 def particion(s,n):
@@ -5339,7 +5411,7 @@ def particion(s,n):
 \end{minted}
 
 \section{Cribado de secuencias de transformaciones}
-\label{sec:orga547207}
+\label{sec:orgfd99856}
 
 En el proceso de eliminación, muchas trasformaciones elementales
 realmente son identidades (sumar 0 veces otro vector y multiplicar un
@@ -5366,6 +5438,52 @@ def filtradopasos(pasos):
     abv = [ t for t in p if t.abreviaturas] # quitamos abreviaturas vacías de la lista
     
     return T(abv) if isinstance(pasos,T) else abv
+
+\end{minted}
+
+\section{Simplificación de expresiones simbólicas}
+\label{sec:org0d3c143}
+
+\begin{minted}[frame=lines,fontsize=\scriptsize,linenos]{python}
+
+def simplify(self):
+    """Devuelve las expresiones simplificadas"""
+    if isinstance(self, (list, tuple)):
+        return type(self)([ simplify(e) for e in self ])
+    elif isinstance(self, Sistema):
+        self.lista=[ simplify(e) for e in self ]
+        return self
+    elif isinstance(self, T):
+        self.abreviaturas=[ simplify(op) for op in self.abreviaturas ]
+        return self
+    else:
+        return (sympy.sympify(self)).simplify()
+    
+def factor(self):
+    """Devuelve las expresiones factorizadas"""
+    if isinstance(self, (list, tuple)):
+        return type(self)([ factor(e) for e in self ])
+    elif isinstance(self, Sistema):
+        self.lista=[ factor(e) for e in self ]
+        return self
+    elif isinstance(self, T):
+        self.abreviaturas=[ factor(op) for op in self.abreviaturas ]
+        return self
+    else:
+        return sympy.factor(self)
+
+def expand(self):
+    """Devuelve las expresiones factorizadas"""
+    if isinstance(self, (list, tuple)):
+        return type(self)([ expand(e) for e in self ])
+    elif isinstance(self, Sistema):
+        self.lista=[ expand(e) for e in self ]
+        return self
+    elif isinstance(self, T):
+        self.abreviaturas=[ expand(op) for op in self.abreviaturas ]
+        return self
+    else:
+        return sympy.expand(self)
 
 \end{minted}
 \end{document}

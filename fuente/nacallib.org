@@ -52,34 +52,17 @@ a,b,c,x,y,z = sympy.symbols('a b c x y z')
 
 - [X] Homogeneizar estructura de cada Capítulo (ver índice)
 
-- [X] Instanciar BlockM y Matrix con listas de listas (fila a fila)
-- [X] Apilar sistemas
-- [X] Producto Sistema por Vector 
-- [X] Producto Sistema por Matriz
 - [ ] Pensar otras variantes de productos y su significado o utilidad
-- [X] Comprobación de que todos los elementos de un Sistema son del mismo tipo
-- [X] Comprobación de que un Sistema es nulo
-- [X] Primer no nulo
-- [X] Último no nulo
-- [X] Junta una lista de Sistemas en un único Sistema
 
-- [ ] Ordenar los métodos adecuadamente en cada clase
+- [X] Ordenar los métodos adecuadamente en cada clase
 
-- [X] Texto de ayuda de la subclase BlockV
+- [ ] Textos de ayuda
 - [X] Repasar textos de ayuda de las subclases 
 - [X] Repasar textos de ayuda del operador selector en BlockM  y en Sistema (y subclases)
 
-- [X] Implementar Matriz Identidad (necesario para el siguiente punto)
-- [X] Creación de una Matrix diagonal a partir de un Vector
-- [X] Normalización de un Vector (requiere producto punto vector por vector)
+- [ ] Implementar Matriz dummy
 
 - [ ] Producto Hadamard para Vectores y Matrices
-
-- [X] Texto de ayuda de la subclase BlockM
-
-- [ ] Métodos útiles para la clase Matrix
-- [ ] Comprobación de que una Matrix es singular
-
 
 *** Ajustes para la compilación de la documentación       :noexport:
   :PROPERTIES:
@@ -304,7 +287,7 @@ La clase se inicia con el método: =def__init__(self,...)=.
 
 - El atributo ~.n~ contiene el número de elementos del =Sistema=.
 
-- El atributo ~.posicionDivisiones~ tiene que ver con una modificación
+- El atributo ~.corteSistema~ tiene que ver con una modificación
   de la [[Representación de la clase ~Sistema~][Representación de la clase ~Sistema~]] para /visualmente/ cortar
   el Sistema en sublistas con unas líneas verticales en las posiciones
   indicadas en este atributo (Véase la Sección [[Representación de la
@@ -316,12 +299,12 @@ La clase se inicia con el método: =def__init__(self,...)=.
 def __init__(self, arg):
     """Inicializa un Sistema con una lista, tupla o Sistema"""                        
     if es_ristra(arg):
-        self.lista = list(arg)                        
+        self.lista = list(arg)
     else:
         raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
 
-    self.n  = len(self)
-    self.posicionDivisiones = {0}
+    self.n            = len(self)
+    self.corteSistema = set()
 
 #+END_SRC
 
@@ -410,7 +393,7 @@ los elementos de ~A~ en el orden inverso a como aparecen en =A=.
 
 def reverse(self):
     """Da la vuelta al orden de la lista del sistema"""
-    self.posicionDivisiones =  {len(self)-i for i in self.posicionDivisiones}
+    self.corteSistema =  {len(self)-i for i in self.corteSistema}
     self.lista.reverse()
     
 def __reversed__(self):
@@ -433,7 +416,7 @@ un mensaje de error.
 
 Cuando el =Sistema= no es vacío el procedimiento arranca con una copia
 completa de dicho sistema (es decir, una copia que también incluye
-valor del atributo ~.posicionDivisiones~). Pero si el =Sistema= es
+valor del atributo ~.corteSistema~). Pero si el =Sistema= es
 vacío obtenemos una copia completa del segundo sistema (y con dicha
 copia el método termina).
 
@@ -460,9 +443,9 @@ el tipo de objeto resultante será un =Sistema= genérico.
 def concatena(self, other, marcasVisuales = False):
     """Concatena dos Sistemas"""    
     def nuevoConjuntoMarcas(Sistema_A, Sistema_B):
-        return Sistema_A.posicionDivisiones.union(
+        return Sistema_A.corteSistema.union(
             {len(Sistema_A)},
-            {len(Sistema_A)+indice for indice in Sistema_B.posicionDivisiones} )
+            {len(Sistema_A)+indice for indice in Sistema_B.corteSistema} )
     
     if not isinstance(other, Sistema):
         raise ValueError('Un Sistema solo se puede concatenar a otro Sistema')
@@ -476,7 +459,7 @@ def concatena(self, other, marcasVisuales = False):
     sistemaAmpliado.n     = len(self)  + len(other)
         
     if marcasVisuales: 
-        sistemaAmpliado.posicionDivisiones = nuevoConjuntoMarcas(self, other)
+        sistemaAmpliado.corteSistema = nuevoConjuntoMarcas(self, other)
 
     return sistemaAmpliado if self.es_arreglo_rectangular() else Sistema(sistemaAmpliado)
 
@@ -549,16 +532,20 @@ argumento el correspondiente par. Por ejemplo: ~A.subs( (a,0) )~.
 
 Simplificación de las expresiones simbólicas contenidas en la ~lista~ de un ~Sistema~
 
-#+name: Simplificación de expresiones simbólicas
+#+name: Simplificación de expresiones simbólicas en la lista de un Sistema
 #+BEGIN_SRC python :noweb yes
 
 def simplify(self):
     """ Simplificación de expresiones simbólicas """
-    self.lista = [ sympy.S(elemento).simplify() for elemento in self.lista ]
+    self.lista = [ simplify(elemento) for elemento in self.lista ]
                                                                
 def factor(self):
     """ Factorización de expresiones simbólicas """
-    self.lista = [ sympy.S(elemento).factor() for elemento in self.lista ]
+    self.lista = [ factor(elemento) for elemento in self.lista ]
+
+def expand(self):
+    """ Factorización de expresiones simbólicas """
+    self.lista = [ expand(elemento) for elemento in self.lista ]
 
 #+END_SRC
 
@@ -802,7 +789,7 @@ def sel(self, v, sust=[]):
     if (K|0).no_es_nulo():
         return Sistema([])
     else:
-        solP = (I(self.n).amplia(V0(self.n)) & T(pasos))|0
+        solP = factor(I(self.n).amplia(V0(self.n)) & T(pasos))|0
         if self.espacio_nulo().sgen.es_nulo():
             return Sistema([solP])
         else:
@@ -1023,8 +1010,8 @@ def __add__(self, other):
         raise ValueError ('Solo se suman Sistemas del mismo tipo y misma longitud')
     suma = self.fullcopy()
     suma.lista = [ (self|i) + (other|i) for i in range(1,len(self)+1) ]
-    suma.posicionDivisiones.update(other.posicionDivisiones)
-    return suma
+    suma.corteSistema.update(other.corteSistema)
+    return factor(suma)
             
 def __sub__(self, other):
     <<Texto de ayuda para el operador diferencia en la clase Sistema>>
@@ -1032,8 +1019,8 @@ def __sub__(self, other):
         raise ValueError ('Solo se restan Sistemas del mismo tipo y misma longitud')
     diferencia = self.fullcopy()
     diferencia.lista = [ (self|i) - (other|i) for i in range(1,len(self)+1) ]
-    diferencia.posicionDivisiones.update(other.posicionDivisiones)
-    return diferencia
+    diferencia.corteSistema.update(other.corteSistema)
+    return factor(diferencia)
             
 #+END_SRC
 
@@ -1105,7 +1092,7 @@ def __rmul__(self, x):
     if es_numero(x):
         multiplo = self.fullcopy()
         multiplo.lista = [ x*(self|i) for i in range(1,len(self)+1) ]
-        return multiplo
+        return factor(multiplo)
 
 #+END_SRC
 
@@ -1264,17 +1251,17 @@ def __mul__(self,x):
         elif not self.es_de_composicion_y_longitud_uniforme():
             raise ValueError('El sistema de la derecha debe tener elementos de composicion y longitud uniforme')
             
-        return sum([(self|j)*(x|j) for j in range(1,len(self)+1)], 0*self|1)
+        return factor(sum([(self|j)*(x|j) for j in range(1,len(self)+1)], 0*self|1))
     
     elif isinstance(x, Matrix):
         if len(self) != x.m:
             raise ValueError('Sistema y Matrix incompatibles')
         if isinstance(self, BlockV):
-            return BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' )
+            return factor(BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' ))
         elif isinstance(self, BlockM):
-            return BlockM ( [ self*(x|j) for j in range(1,(x.n)+1)] )
+            return factor(BlockM ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
         else:
-            return type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] )
+            return factor(type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
 
 #+END_SRC
 
@@ -1330,13 +1317,14 @@ def __and__(self,operaciones):
                                                     for k in range(1,len(self)+1)].copy()
 
         elif isinstance(abrv,tuple) and (len(abrv) == 3):
-            self.lista = [ (abrv[0])*(self|abrv[1]) + (self|k) if k==abrv[2] else (self|k)
+            colPivote = abrv[1]-1
+            self.lista = [ (abrv[0])*(self.lista[colPivote]) + (self|k) if k==abrv[2] else (self|k)
                                                     for k in range(1,len(self)+1)].copy()
 
     for abrv in operaciones.abreviaturas:
         transformacionDelSistema(abrv)
 
-    return self
+    return factor(self)
         
 #+END_SRC
 
@@ -1464,7 +1452,7 @@ def transformacionYPasos(sistema, operacion, pasosPrevios):
     else:
         pasosAcumulados = pasosPrevios  + [pasoDado] if pasoDado else pasosPrevios
     sistema & T(pasoDado)
-    return sistema.subs(sust), pasosAcumulados
+    return factor(sistema.subs(sust)), pasosAcumulados
 
 
 def sistemaFinalYPasosDchaIzda(sistema,transformaciones):
@@ -1482,7 +1470,7 @@ def sistemaFinalYPasosDchaIzda(sistema,transformaciones):
     SistemaFinal.tex, SistemaFinal.pasos = texYpasos(self, pasos, rep, sust, repsust)
     SistemaFinal.TrF = T(SistemaFinal.pasos[0])
     SistemaFinal.TrC = T(SistemaFinal.pasos[1])
-    return SistemaFinal
+    return factor(SistemaFinal)
 
 #+END_SRC
 
@@ -1609,15 +1597,15 @@ def rprElim(data, pasos, TexPasosPrev=[], sust=[]):
     for  _,pasoDeEliminacion in enumerate(pasos[0][::-1]):
         if data.es_arreglo_rectangular(): # entonces transforman las filas
             tex += '\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}' 
-            tex += latex( ( pasoDeEliminacion & A).subs(sust) )
+            tex += latex( factor((pasoDeEliminacion & A).subs(sust)) )
         else:  # hacen lo mismo que por la derecha
             tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-            tex += latex( (A & pasoDeEliminacion ).subs(sust) )
+            tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
         
     # transformaciones por la derecha
     for  _,pasoDeEliminacion in enumerate(pasos[1]):
         tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-        tex += latex( (A & pasoDeEliminacion ).subs(sust) )
+        tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
                 
     return tex
 
@@ -1638,9 +1626,9 @@ def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
 
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
         tex += '\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}'
-        tex += latex( (A & pasos[1][i]).subs(sust) )
+        tex += latex( factor((A & pasos[1][i]).subs(sust)) )
         tex += '\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}' 
-        tex += latex( (pasoDeEliminacionFilas & A).subs(sust) )
+        tex += latex( factor((pasoDeEliminacionFilas & A).subs(sust)) )
                                                                
     return tex
 
@@ -1663,7 +1651,7 @@ def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[]):
         tex += '\\xrightarrow' \
                 + '[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']' \
                 + '{' + latex( (pasos[1][i]).subs(sust)            ) + '}'
-        tex += latex( ( pasoDeEliminacionFilas & A & pasos[1][i] ).subs(sust) )
+        tex += latex( factor(( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust) )
                                                                
     return tex
 
@@ -1708,7 +1696,7 @@ Definimos varios tipos de representación.
   comandos. Entre corchetes muestra todos los elementos de
   =self.lista= separados por ``puntos y comas'' (=;=):
   
-  Si, por ejemplo, el atributo =.posicionDivisiones= (/``corta Sistema''/) indica que
+  Si, por ejemplo, el atributo =.corteSistema= (/``corta Sistema''/) indica que
   se separen las dos primeras componentes del sistema respecto de la
   última, esta representación pinta una barra vertical detrás de la
   segunda componente (véase la Sección [[Ejemplo de representación de un
@@ -1723,10 +1711,10 @@ Definimos varios tipos de representación.
 def __str__(self):
     """ Muestra un Sistema en su representación python """
     pc = ';' if len(self.lista) else ''
-    ln = [len(n) for n in particion(self.posicionDivisiones,self.n)]
+    ln = [len(n) for n in particion(self.corteSistema,self.n)]
     return '[' + \
              ';|'.join(['; '.join([str(c) for c in s]) \
-                       for s in [ self|i for i in particion(self.posicionDivisiones, self.n)] ]) + pc + ']'
+                       for s in [ self|i for i in particion(self.corteSistema, self.n)] ]) + pc + ']'
 
 #+END_SRC
 
@@ -1750,7 +1738,7 @@ def __repr__(self):
  - La representación =latex= (\LaTeX{}) es similar a la primera
    representación (=str=), pues también muestra barras
    verticales que separan la lista de elementos en sub-listas si el
-   atributo =.posicionDivisiones= así lo indica. La única diferencia es que los
+   atributo =.corteSistema= así lo indica. La única diferencia es que los
    elementos aparecen con su representación =latex= (cuando la
    tienen).
 
@@ -1768,7 +1756,7 @@ def __repr__(self):
 def latex(self):
     """ Construye el comando LaTeX para representar un Sistema """
     pc = ';' if len(self) else r'\ '
-    ln = [len(i) for i in particion(self.posicionDivisiones, len(self))]                                                           
+    ln = [len(i) for i in particion(self.corteSistema, len(self))]                                                           
     return \
         r'\left[ \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
         r';& '.join([latex(e) for e in self]) + pc + \
@@ -1823,11 +1811,11 @@ matriz).
 #+BEGIN_SRC python
 
 def ccol(self, conjuntoIndices={}):
-    """Modifica el atributo posicionDivisiones para insertar lineas entre
+    """Modifica el atributo corteSistema para insertar lineas entre
     determinados elementos del sistema
 
     """
-    self.posicionDivisiones = set(conjuntoIndices) if conjuntoIndices else {0}
+    self.corteSistema = set(conjuntoIndices) if conjuntoIndices else {0}
     return self
 
 #+END_SRC
@@ -1954,7 +1942,7 @@ class Sistema:
     <<Método que junta una lista de Sistemas en un único Sistema>>
     <<Método que amplía la lista de un Sistema con nuevos elementos>>
     <<Sustitución de variables simbólicas>>
-    <<Simplificación de expresiones simbólicas>>
+    <<Simplificación de expresiones simbólicas en la lista de un Sistema>>
     <<Sustitución de un símbolo por otro símbolo o valor en un Sistema>>
     <<Otros métodos de la clase Sistema>>
     <<Métodos que devuelven SubEspacios>>
@@ -2028,7 +2016,7 @@ Atributos de la subclase:
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Ejemplos:
@@ -2062,7 +2050,7 @@ __init__(self, arg, rpr='columna')~.
 
 - Con =super().__init__(arg)= la subclase =BlockV= hereda los métodos
   y atributos de la clase =Sistema=. En consecuencia =BlockV= tendrá
-  los atributos =lista=, =n= y =posicionDivisiones= así como todos los
+  los atributos =lista=, =n= y =corteSistema= así como todos los
   métodos definidos para la clase =Sistema=.
 
 - El atributo =rpr= tomará el valor indicado al instanciar la clase
@@ -2110,27 +2098,37 @@ def __repr__(self):
 def __str__(self):
     """ Muestra el BlockV en su representación Python """
     pc = ',' if len(self.lista) else ''
-    ln = [len(n) for n in particion(self.posicionDivisiones,self.n)]
+    ln = [len(n) for n in particion(self.corteSistema,self.n)]
     return '(' + \
         ',|'.join([', '.join([str(c) for c in s]) \
-                   for s in [ self|i for i in particion(self.posicionDivisiones, self.n)]]) + \
+                   for s in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
         pc + ')'
 
 def latex(self):
     """ Construye el comando LaTeX para representar un BlockV """
-    pc = ',' if len(self) else r'\ '
-    ln = [len(n) for n in particion(self.posicionDivisiones,self.n)]
-    if self.rpr == 'fila' or self.n==1:    
-        return \
-            r'\left( \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
-            r',& '.join([latex(e) for e in self]) + pc + \
-            r'\\ \end{array} \right)'
+    if bool(self.corteSistema):
+        pc = ',' if len(self) else r'\ '
+        ln = [len(n) for n in particion(self.corteSistema,self.n)]
+        if self.rpr == 'fila' or self.n==1:    
+            return \
+                r'\left( \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
+                r',& '.join([latex(e) for e in self]) + pc + \
+                r'\\ \end{array} \right)'
+        else:
+            return \
+                r'\left( \begin{array}{c}' + \
+                r'\\ \hline '.join([r'\\'.join([latex(c) for c in e]) \
+                    for e in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
+                r'\\ \end{array} \right)'
     else:
-        return \
-            r'\left( \begin{array}{c}' + \
-            r'\\ \hline '.join([r'\\'.join([latex(c) for c in e]) \
-                                for e in [ self|i for i in particion(self.posicionDivisiones, self.n)]]) + \
-            r'\\ \end{array} \right)'
+        if self.rpr == 'fila' or self.n==1:
+            return r'\begin{pmatrix}' + \
+                ',& '.join([latex(e) for e in self]) + \
+                r',\end{pmatrix}'
+        else:
+            return r'\begin{pmatrix}' + \
+                r'\\ '.join([latex(e) for e in self]) + \
+                r'\end{pmatrix}'
 
 #+END_SRC
 
@@ -2288,7 +2286,7 @@ Atributos heredados de la subclase BlockV::
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Ejemplos:
@@ -2343,8 +2341,8 @@ def __init__(self, arg, rpr='columna'):
     """Inicializa Vector con una lista, tupla o Sistema de números"""                       
     if not es_ristra_de_numeros(arg):
         raise ValueError('no todos los elementos son números o parámetros!')
-    
-    super().__init__(arg)
+
+    super().__init__(arg, rpr)
 
 #+END_SRC
 
@@ -2503,7 +2501,7 @@ Atributos:
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Ejemplos:
@@ -2562,7 +2560,7 @@ def __init__(self, arg):
     except:
         self.m  = 0
             
-    self.corteElementos = {0}
+    self.corteElementos = set()
    
     for v in self.lista:
         v.rpr='columna'
@@ -2587,7 +2585,7 @@ def __invert__(self):
     Matrix([ Vector([1, 2, 3]), Vector([2, 4, 6]) ])
     """
     M = BlockM([ Sistema(columna) for columna in self ])
-    M.corteElementos, M.posicionDivisiones = self.posicionDivisiones, self.corteElementos
+    M.corteElementos, M.corteSistema = self.corteSistema, self.corteElementos
     return M
 
 #+END_SRC
@@ -2787,12 +2785,12 @@ def __repr__(self):
 
 def __str__(self):
     """ Muestra un BlockM en su representación Python str """
-    ln  = [len(n) for n in particion(self.posicionDivisiones,self.n)]
+    ln  = [len(n) for n in particion(self.corteSistema,self.n)]
     car = max([len(str(e)) for c in self for e in c])
 
     def escribeFila(f,d=0):
         parte = lambda f,d=0: str(' '.join([str(e).rjust(d) for e in f])) 
-        s = '|'+'|'.join([parte([e for e in c],d) for c in [p|f for p in particion(self.posicionDivisiones, self.n)] ])+'|'
+        s = '|'+'|'.join([parte([e for e in c],d) for c in [p|f for p in particion(self.corteSistema, self.n)] ])+'|'
         return s
     
     num_guiones = len(escribeFila(1|self, car))
@@ -2802,7 +2800,7 @@ def __str__(self):
 
 def latex(self):
     """ Construye el comando LaTeX para representar una BlockM """
-    ln = [len(n) for n in particion(self.posicionDivisiones, self.n)]                                                           
+    ln = [len(n) for n in particion(self.corteSistema, self.n)]                                                           
     return \
         '\\left[ \\begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
         '\\\\ \\hline '.join(['\\\\'.join(['&'.join([latex(e) for e in f.lista]) \
@@ -2882,7 +2880,7 @@ Parámetros:
 Atributos heredados de la clase Sistema:
     lista              (list): list con los elementos.
     n                  (int) : número de elementos de la lista.
-    posicionDivisiones (set) : Conjunto de índices donde pintar
+    corteSistema (set) : Conjunto de índices donde pintar
                                 separaciones visuales
 
 Atributos heredados de la subclase BlockM:
@@ -3156,7 +3154,7 @@ def determinante(self, rep = False, sust = []):
 #+BEGIN_SRC python :noweb no-export
 def diagonalizaS(self, espectro, rep=False, sust=[]):
     <<Texto de ayuda para la clase DiagonalizaS>>
-    D            = Matrix(self.subs(sust))
+    D            = Matrix(self).copy().subs(sust)
     <<Comprobaciones previas a la diagonalización>>
     espectro     = [sympy.S(l).subs(sust) for l in espectro]    
     S            = I(D.n)
@@ -3281,9 +3279,10 @@ if T(TrCol):
 """Diagonaliza por congruencia una Matrix simétrica (evitando dividir)
 
 Encuentra una matriz diagonal por conruencia empleando una matriz B
-invertible (y entera si es posible) por la derecha y su transpuesta
-por la izquierda. No emplea los autovalores. En general los elementos
-en la diagonal principal no son autovalores, pero hay tantos elementos
+invertible (evitando fracciones por defecto, si variante=1 entonces no
+evita las fracciones) por la derecha y su transpuesta por la
+izquierda. No emplea los autovalores. En general los elementos en la
+diagonal principal no son autovalores, pero hay tantos elementos
 positivos en la diagonal como autovalores positivos, tantos negativos
 como autovalores negativos, y tantos ceros como auntovalores nulos.
 
@@ -3293,11 +3292,13 @@ como autovalores negativos, y tantos ceros como auntovalores nulos.
 
 #+name: Diagonalizando por Congruencia una matriz simétrica
 #+BEGIN_SRC python :noweb no-export
-def diagonalizaC(self, rep=False, sust=[]):
+def diagonalizaC(self, rep=False, sust=[], variante=0):
     <<Texto de ayuda para la clase DiagonalizaC>>
     <<Definición del método auxiliar BuscaPrimerNoNuloEnLaDiagonal>>
+    if not variante in {0,1}:
+        raise ValueError('La variante debe ser 0 ó 1')
     
-    D            = Matrix(self.subs(sust))
+    D            = Matrix(self).copy().subs(sust)
     
     if not D.es_simetrica():
         raise ValueError('La matriz no es simétrica')
@@ -3318,11 +3319,11 @@ def diagonalizaC(self, rep=False, sust=[]):
                 p = i
                 <<Aplicación de las transformaciones a las columnas y a las filas>>
         if p:
-            Tr = T(((i,)|D).elim(1).pasos[1]) 
+            Tr = T(((i,)|D).elim(variante).pasos[1]) 
             <<Aplicación de las transformaciones a las columnas y a las filas>>
            
     D.pasos     = pasosPrevios
-    D.tex       = rprElimCF(Matrix(self.subs(sust)), D.pasos, [], sust) 
+    D.tex       = rprElimCF(Matrix(self).subs(sust), D.pasos, [], sust) 
     D.TrF       = filtradopasos(T(D.pasos[0]))
     D.TrC       = filtradopasos(T(D.pasos[1]))
     D.B         = I(self.n) & D.TrC
@@ -3360,7 +3361,6 @@ D = (T(pasos[0]) & D & T(pasos[1])).subs(sust)
 
 #+END_SRC
 
-
 **** Diagonalización ortogonal de una matriz simétrica
 
 #+name: Diagonalizando Ortogonalmente una matriz simétrica
@@ -3368,7 +3368,7 @@ D = (T(pasos[0]) & D & T(pasos[1])).subs(sust)
 
 def diagonalizaO(self, espectro, sust=[]):
     <<Texto de ayuda para la clase DiagonalizaO>>
-    D            = Matrix(self.subs(sust))
+    D            = Matrix(self).copy().subs(sust)
     
     if not D.es_simetrica():
         raise ValueError('La matriz no es simétrica')
@@ -3958,10 +3958,11 @@ T( [(-8, 2), (2, 1, 2), (-8, 3), (3, 1, 3)] )
 def __init__(self, *args, rpr='v'):
     """Inicializa una transformación elemental"""
     <<Verificación de que las .abreviaturas corresponden a transformaciones elementales o intercambios>>
-    
+    <<Simplificacion de expresiones simbólicas en las abreviaturas>>
     def CreaListaAbreviaturas(arg):
         if isinstance(arg, (tuple, set)):
             verificacion(arg)
+            arg = simplificacionSimbolica(arg)
             return [arg]
         if isinstance(arg, list):
             return [abrv for item in arg for abrv in CreaListaAbreviaturas(item)]
@@ -3992,6 +3993,21 @@ def verificacion(abrv):
     if isinstance(abrv,set) and len(abrv)>2:
         raise ValueError ('El conjunto debe tener uno o dos índices para ser un intercambio')
     
+#+END_SRC
+
+***** Simplificacion de expresiones simbólicas en las abreviaturas
+
+#+name: Simplificacion de expresiones simbólicas en las abreviaturas
+#+BEGIN_SRC python
+
+def simplificacionSimbolica(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (sympy.factor(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (sympy.factor(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
+
 #+END_SRC
 
 *** Composición de Transformaciones o transformación de un ~Sistema~ por la izquierda
@@ -4218,6 +4234,30 @@ def subs(self, regla_de_sustitucion=[]):
         
     self = T([sustitucion(operacion, regla_de_sustitucion) for operacion in self.abreviaturas])
     return self
+
+def simplify(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (simplify(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (simplify(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
+
+def factor(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (factor(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (factor(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
+
+def expand(arg):
+    if isinstance(arg,tuple) and (len(arg) == 2):
+        return (expand(arg[0]), arg[1],)
+    elif isinstance(arg,tuple) and (len(arg) == 3):
+        return (expand(arg[0]), arg[1], arg[2],)
+    else:
+        return arg
 
 #+END_SRC
 
@@ -4582,7 +4622,6 @@ def vector_nulo(self):
 
 #+END_SRC
 
-
 *** Métodos de la clase ~SubEspacio~
        :PROPERTIES:
        :header-args+: :noweb-ref Métodos de la clase ~SubEspacio~
@@ -4687,7 +4726,7 @@ def __and__(self, other):
         A  = self.base
         B  = other.base
         AB = A.concatena(B)
-        X  = slice(1,self.dim)|Matrix(AB.espacio_nulo().base)
+        X  = slice(1,self.dim)|Matrix(AB.espacio_nulo().sgen)
         return SubEspacio(A*X)
     
     elif  isinstance(other, EAfin):
@@ -4763,7 +4802,6 @@ def latex(self):
     return EAfin(self.sgen, self.vector_nulo()).latex()       
 
 #+END_SRC
-
 
 *** La clase ~SubEspacio~ completa
 
@@ -5322,7 +5360,23 @@ class DiagonalizaO(Matrix):
 
 #+END_SRC
 
+
+, rep=False, sust=[], variante=0
+Es una forma alternativa de llamar al método ~.diagonalizaC()~,
+#+BEGIN_SRC python :noweb no-export
+
+class DiagonalizaC(Matrix):
+    def __init__(self, sistema, rep=False, sust=[], variante=0):
+        <<Texto de ayuda para la clase DiagonalizaC>>
+        A = Matrix(sistema)
+        D = A.diagonalizaC(rep, sust, variante)
+            
+        self.__dict__.update(D.__dict__)
+        self.__class__ = type(sistema)
+
+#+END_SRC
   
+
 * Librería completa
 
 Finalmente creamos la librería =nacal.py= concatenando los trozos de
@@ -5373,6 +5427,7 @@ from os.path import join
 <<Métodos primer_no_nulo y ultimo_no_nulo de un Sistema>>
 <<Otros métodos auxilares>>
 <<Cribado de secuencias de transformaciones>>
+<<Simplificación de expresiones simbólicas>>
 <<Representación de un proceso de eliminación rprElim>>
 <<Representación de un proceso de eliminación rprElimFyC>>
 <<Representación de un proceso de eliminación rprElimCF>>
@@ -5656,10 +5711,57 @@ def filtradopasos(pasos):
 
 #+END_SRC
 
-
-*** COMMENT Simplificación de expresiones simbólicas               :noexport:
+*** Simplificación de expresiones simbólicas
 
 #+name: Simplificación de expresiones simbólicas
+#+BEGIN_SRC python
+
+def simplify(self):
+    """Devuelve las expresiones simplificadas"""
+    if isinstance(self, (list, tuple)):
+        return type(self)([ simplify(e) for e in self ])
+    elif isinstance(self, Sistema):
+        self.lista=[ simplify(e) for e in self ]
+        return self
+    elif isinstance(self, T):
+        self.abreviaturas=[ simplify(op) for op in self.abreviaturas ]
+        return self
+    else:
+        return (sympy.sympify(self)).simplify()
+    
+def factor(self):
+    """Devuelve las expresiones factorizadas"""
+    if isinstance(self, (list, tuple)):
+        return type(self)([ factor(e) for e in self ])
+    elif isinstance(self, Sistema):
+        self.lista=[ factor(e) for e in self ]
+        return self
+    elif isinstance(self, T):
+        self.abreviaturas=[ factor(op) for op in self.abreviaturas ]
+        return self
+    else:
+        return sympy.factor(self)
+
+def expand(self):
+    """Devuelve las expresiones factorizadas"""
+    if isinstance(self, (list, tuple)):
+        return type(self)([ expand(e) for e in self ])
+    elif isinstance(self, Sistema):
+        self.lista=[ expand(e) for e in self ]
+        return self
+    elif isinstance(self, T):
+        self.abreviaturas=[ expand(op) for op in self.abreviaturas ]
+        return self
+    else:
+        return sympy.expand(self)
+
+#+END_SRC
+
+
+
+
+* COMMENT Otros trozos de código antiguo descartados             :noexport:
+
 #+BEGIN_SRC python
 
 def simplifica(self):
@@ -5672,7 +5774,7 @@ def simplifica(self):
     else:
         return (sympy.sympify(self)).simplify()
     
-def simplify(self):
+def simplify(self):  
     """Devuelve las expresiones simplificadas"""
     if isinstance(self, (list, tuple)):
         return type(self)([ simplify(e) for e in self ])
@@ -5693,8 +5795,6 @@ def factor(self):
         return sympy.factor(self)
 
 #+END_SRC
-
-*** COMMENT Otros trozos de código antiguo descartados             :noexport:
 
 #+BEGIN_SRC python
 def latex(self):
@@ -5730,7 +5830,7 @@ def __invert__(self):
         Matrix([ Vector([1, 2, 3]) ])
         """
         M = BlockM([ BlockV([ columna|i for columna in self ]) for i in range(1,self.m+1) ])
-        M.corteElementos, M.posicionDivisiones = self.posicionDivisiones, self.corteElementos
+        M.corteElementos, M.corteSistema = self.corteSistema, self.corteElementos
         return M
 
 #+END_SRC
@@ -5756,171 +5856,6 @@ if rep:
 #+END_SRC
 
 
-
-****** COMMENT para borrar
-#+BEGIN_SRC python
-class Eliminacion(Sistema):
-    def __init__(self, sistema, TrC=[T([])], TrF=[T([])], rpr='columna'):
-        super().__init__(sistema)
-        self = sistema.fullcopy()
-        self.TrC = TrC
-        self.TrF = TrF
-        #self.pasos = [self.TrF, self.TrC]
-        self.rpr   = rpr
-        #super(self.__class__ ,self).__init__(sistema)
-        #self.__class__ = type(sistema)
-
-        #super(self.__class__ ,self).__init__(sistema)
-        #return type(sistema)(self.sis())
-    
-    # def __repr__(self):
-    #     """ Muestra los pasos de eliminación en su representación Python """
-    #     return repr(Sistema([T(self.TrF),T(self.TrC)]))
-    # 
-    # def _repr_html_(self):
-    #     """ Construye la representación para el entorno Jupyter Notebook """
-    #     return html(self.latex())
-    # 
-    # def latex(self):
-    #     """ Muestra pasos de eliminación en su representación Python """
-    #     return latex(Sistema([T(self.TrF, rpr=self.rpr), T(self.TrC, rpr=self.rpr)]))
-        #return latex(T(self.pasos, rpr=self.rpr))
-        
-#+END_SRC
-
-#+BEGIN_SRC python :noweb no-export
-class ElimHaciaAdelante(Eliminacion):
-    def __init__(self, sistema, rep=False, sust=[], repsust=False, rpr='v', tipo=0): 
-        """Versión pre-escalonada de un sistema por eliminacion Derecha-Izquierda"""
-        if not sistema.es_de_composicion_y_longitud_uniforme():
-            raise ValueError('Los elementos del sistema deben ser del mismo tipo y longitud')        
-        <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
-        <<Dos tipos de operaciones en la reducción. Solo Tipo I o evitando fracciones con tipos I y II>>                
-        if tipo in {2,3,6,7,12,13,16,17}:
-            componentesAEliminar = lambda x: x != indice
-        else:
-            componentesAEliminar = lambda x: x > indice
-
-        if tipo in {4,5,6,7,14,15,16,16} and sistema.es_arreglo_rectangular():
-            A = ~sistema.fullcopy().subs(sust);
-        else:
-            A = sistema.fullcopy().subs(sust);
-        
-        transformaciones = [];
-        rango  = 0;
-        for indice, elemento in enumerate(A,1):
-            coordenadas = primer_no_nulo(elemento);
-            pivote      = A.extractor([indice]+coordenadas) if coordenadas else []
-            if pivote:
-                rango += 1
-                op = []
-                for posicion in filter(componentesAEliminar, range(1,len(A)+1)):
-                    valorAeliminar = A.extractor([posicion]+coordenadas)
-                    op = op + operaciones(pivote, indice, valorAeliminar, posicion)
-                Tr = T(op)    
-                transformaciones += [Tr]  if Tr.abreviaturas else []
-                A & Tr
-                A = A.subs(sust);
-
-        print(transformaciones)
-        if tipo in {4,5,6,7,14,15,16,16}:
-            #TrI = filtradopasos(transformaciones)
-            TrI = filtradopasos(list(reversed([ ~t for t in transformaciones])))
-            TrD = [] #[T([])]
-            if sistema.es_arreglo_rectangular():
-                A = ~A
-        else:
-            TrD = filtradopasos(transformaciones)
-            TrI = [] # [T([])]
-            
-        self.rpr = rpr
-
-        #self.TrC = transformaciones
-        #self.TrF = [T([])]
-        #pasos = [[T([])], transformaciones]
-
-        pasos = [TrI,TrD]
-        
-        #A.tex, A.pasos, A.TrC, A.TrI = rprPasosElim(sistema, TrD, TrI, rep, sust, repsust)
-        A.tex, A.pasos, A.TrF, A.TrC = texYpasos(sistema, rep, sust, repsust)
-        #data = sistema.fullcopy()
-        #pasos = [[], transformaciones]
-        #pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        #K = A.fullcopy()
-        #K.tex, K.pasos, K.TrF, K.TrC = texYpasos(data, rep, sust, repsust)
-        #K.rango = rango
-        return A
-    
-    def rangoSistema(self):
-        return rango
-    
-def rprPasosElim(sistema, TrD=[T([])], TrI=[T([])], rep=False, sust=[], repsust=False):
-    pasos = [TrI,TrD]
-    pasosPrevios = sistema.pasos if hasattr(sistema, 'pasos') and sistema.pasos else [[],[]]
-    TexPasosPrev = sistema.tex   if hasattr(sistema, 'tex')   and sistema.tex   else []
-    if repsust:
-        tex = rprElim(sistema, pasos, TexPasosPrev, sust)
-    else:
-        tex = rprElim(sistema, pasos, TexPasosPrev)
-    pasos[0] = TrI + pasosPrevios[0] 
-    pasos[1] = pasosPrevios[1] + TrD
-    
-    TrD = T(pasos[1])
-    TrI = T(pasos[0])
-    
-    if rep:
-        display(Math(tex))
-    
-    return [tex, pasos, TrD, TrI]
-#+END_SRC
-   
-#+BEGIN_SRC python :noweb no-export
-class ElimHaciaDetras(Eliminacion):
-    def __init__(self, sistema, rep=False, sust=[], repsust=False, rpr='v'): 
-        """Versión pre-escalonada de un sistema por eliminacion Derecha-Izquierda"""
-        if not sistema.es_de_composicion_y_longitud_uniforme():
-            raise ValueError('Los elementos del sistema deben ser del mismo tipo y longitud')
-        
-        <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
-        celim = lambda x: x < indice
-        A = sistema.fullcopy().subs(sust);       
-        
-        transformaciones = [];
-        rango  = 0;
-
-        #for indice, elemento in reversed(list(enumerate(A,1))):
-        #    coordenadas = ultimo_no_nulo(elemento);
-        #    pivote      = A.extractor([indice]+coordenadas)
-        #    if pivote:
-        #        rango += 1
-        #        op = []
-        #        for j in filter(celim, range(1,len(A)+1)):
-        #            aEliminar = A.extractor([j]+coordenadas)
-        #            op = op + [( denom(aEliminar, pivote),         j), \
-        #                       (-numer(aEliminar, pivote), indice, j)  ]
-        #        Tr = T(op)    
-        #        transformaciones += [Tr]  if Tr.abreviaturas else []
-        #        A & Tr
-        #        A = A.subs(sust);
-
-        #self.pasos = transformaciones
-
-        self.pasos = A.EliminacionDerechaIzquierda(rep,sust,repsust).pasos
-
-        self.rpr = rpr
-        
-        data = sistema.fullcopy()
-        #pasos = [[], transformaciones]
-        #pasos = [ filtradopasos(pasos[i]) for i in (0,1) ]
-        #K = A.fullcopy()
-        #K.tex, K.pasos, K.TrF, K.TrC = texYpasos(data, rep, sust, repsust)
-        #K.rango = rango
-        #return K
-    def rangoSistema(self):
-        return rango
-
-    
-#+END_SRC
 
 *** COMMENT  Literate programming con noweb                       :noexport:
   :PROPERTIES:  
@@ -5986,55 +5921,6 @@ El código completo del ejemplo usado para explicar cómo funciona el
 #+end_export
 
 
-#+BEGIN_SRC python
-
-posicionXPivote = lambda componente: primer_no_nulo(componente)
-recorrido        = lambda    sistema: enumerate(CreaSistema(sistema),1)
-mitad            = lambda   M, rango: M|slice(None,rango)
-otraMitad        = lambda   M, rango: M|slice(rango+1,None)
-pegaMitades      = lambda  una, otra: una.concatena(otra)
-destino          = lambda   M, r, rg: r+rg
-destinoLocal     = lambda   M, r    : r
-origen           = lambda      cp,rg: cp[0]+rg
-origenLocal      = lambda      cp   : cp[0]
-
-
-#posicionXPivote = lambda componente: ultimo_no_nulo(componente)
-#recorrido        = lambda    sistema: reversed(list(enumerate(CreaSistema(sistema),1)))
-#mitad            = lambda   M, rango: M|slice((M.n)-rango+1,None)
-#otraMitad        = lambda   M, rango: M|slice(None,(M.n)-rango)
-#pegaMitades      = lambda  una, otra: otra.concatena(una)
-#destino          = lambda   M, r, rg: (M.n)-r-rg+1
-#destinoLocal     = lambda   M, r    : (M.n)-r+1
-#origen           = lambda      cp,rg: cp[0]+rg
-#origenLocal      = lambda      cp   : cp[0]
-
-
-def escalona(M, pasos = [], rg=0):
-    def columna_a_mover(fila):
-        Ind_columna = posicionXPivote(fila)
-        return Ind_columna if Ind_columna and i<= posicionXPivote(M|Ind_columna[0])[0] else []
-    
-    #def columna_a_mover(fila):
-    #    Ind_columna = posicionXPivote(fila)
-    #    return Ind_columna if Ind_columna and i>= posicionXPivote(M|Ind_columna[0])[0] else []
-        
-    r = 0
-    for i,_ in recorrido(M|1):
-        cp = columna_a_mover(i|M)
-        if cp:
-            r += 1
-            pasos.append(filtradopasos(T({destino(M,r,rg),origen(cp,rg)})))
-            M & T({destinoLocal(M,r),origenLocal(cp)})
-            
-        elif CreaSistema(i|otraMitad(M,r)).no_es_nulo():
-            rg += 1
-            otraMitadEscalonada, pasos = escalona(otraMitad(M,r), pasos, rg)
-            M = pegaMitades(mitad(M,r), otraMitadEscalonada)
-            
-    return M, filtradopasos(pasos)
-
-#+END_SRC
 
 
 
