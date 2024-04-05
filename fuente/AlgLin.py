@@ -152,29 +152,31 @@ def expand(self):
         return sympy.expand(self)
 
 
-def rprElim(data, pasos, TexPasosPrev=[], sust=[]):
+def rprElim(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos sistemas"""
     A     = data.fullcopy().subs(sust)
     tex   = latex(A) if not TexPasosPrev else TexPasosPrev
+
+    simplifica = lambda metodo,expresion: metodo(expresion) 
     
     # transformaciones por la izquierda
     for  _,pasoDeEliminacion in enumerate(pasos[0][::-1]):
         if data.es_arreglo_rectangular(): # entonces transforman las filas
             tex += '\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}' 
-            tex += latex( factor((pasoDeEliminacion & A).subs(sust)) )
+            tex += latex( simplifica(metodo, ((pasoDeEliminacion & A).subs(sust)) ) )
         else:  # hacen lo mismo que por la derecha
             tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-            tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
+            tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
         
     # transformaciones por la derecha
     for  _,pasoDeEliminacion in enumerate(pasos[1]):
         tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-        tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
+        tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
                 
     return tex
 
 
-def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[]):
+def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos arreglos rectangulares"""
     if not data.es_arreglo_rectangular():
         raise ValueError('El sistema tiene que ser un arreglo rectangular.')
@@ -184,16 +186,18 @@ def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[]):
     A = data.fullcopy().subs(sust)
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
 
+    simplifica = lambda metodo,expresion: metodo(expresion) 
+    
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
         tex += '\\xrightarrow' \
-                + '[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']' \
-                + '{' + latex( (pasos[1][i]).subs(sust)            ) + '}'
-        tex += latex( factor(( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust) )
+                + '[' + latex( (filtradopasos(pasoDeEliminacionFilas)).subs(sust) ) + ']' \
+                + '{' + latex( (pasos[1][i]).subs(sust)                           ) + '}'
+        tex += latex( simplifica(metodo, (( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust)) )
                                                                
     return tex
 
 
-def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
+def rprElimCF(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos arreglos rectangulares"""
     if not data.es_arreglo_rectangular():
         raise ValueError('El sistema tiene que ser un arreglo rectangular')
@@ -203,23 +207,25 @@ def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
     A = data.fullcopy().subs(sust)                                                               
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
 
+    simplifica = lambda metodo,expresion: metodo(expresion)
+    
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
         tex += '\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}'
-        tex += latex( factor((A & pasos[1][i]).subs(sust)) )
+        tex += latex( simplifica(metodo, ((A & pasos[1][i]).subs(sust))) )
         tex += '\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}' 
-        tex += latex( factor((pasoDeEliminacionFilas & A).subs(sust)) )
+        tex += latex( simplifica(metodo, ((pasoDeEliminacionFilas & A).subs(sust))) )
                                                                
     return tex
 
 
-def dispElim(self, pasos, TexPasosPrev=[]):
-    display(Math(rprElim(self, pasos, TexPasosPrev)))
+def dispElim(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
+    display(Math(rprElim(self, pasos, TexPasosPrev, sust, metodo)))
 
-def dispElimFyC(self, pasos, TexPasosPrev=[]):
-    display(Math(rprElimFyC(self, pasos, TexPasosPrev)))
+def dispElimFyC(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
+    display(Math(rprElimFyC(self, pasos, TexPasosPrev, sust, metodo)))
 
-def dispElimCF(self, pasos, TexPasosPrev=[]):
-    display(Math(rprElimCF(self, pasos, TexPasosPrev)))
+def dispElimCF(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
+    display(Math(rprElimCF(self, pasos, TexPasosPrev, sust, metodo)))
 
 
 class Sistema:
@@ -336,9 +342,10 @@ class Sistema:
     
     def subs(self, reglasDeSustitucion=[]):
         """ Sustitución de variables simbólicas """
-        reglas = CreaLista(reglasDeSustitucion)
-        self.lista = [ sympy.S(elemento).subs(CreaLista(reglas)) for elemento in self.lista ]
-        return self
+        reglas       = CreaLista(reglasDeSustitucion)
+        NuevoSistema = self.fullcopy()
+        NuevoSistema.lista = [ sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
+        return NuevoSistema
     
     
     def simplify(self):
@@ -658,7 +665,7 @@ class Sistema:
             if len(self) != x.m:
                 raise ValueError('Sistema y Matrix incompatibles')
             if isinstance(self, BlockV):
-                return factor(BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' ))
+                return factor(BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='h' ))
             elif isinstance(self, BlockM):
                 return factor(BlockM ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
             else:
@@ -902,12 +909,15 @@ class Sistema:
     
     def latex(self):
         """ Construye el comando LaTeX para representar un Sistema """
-        pc = ';' if len(self) else r'\ '
-        ln = [len(i) for i in particion(self.corteSistema, len(self))]                                                           
-        return \
-            r'\left[ \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
-            r';& '.join([latex(e) for e in self]) + pc + \
-            r'\end{array} \right]'
+        if not self:
+            return r'\left[\ \right]'
+        else:
+            pc = ';' if len(self) else r'\ '
+            ln = [len(i) for i in particion(self.corteSistema, len(self))]
+            return \
+                r'\left[ \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
+                r';& '.join([latex(e) for e in self]) + pc + \
+                r'\end{array} \right]'
     
     def _repr_html_(self):
         """ Construye la representación para el entorno jupyter notebook """
@@ -929,7 +939,7 @@ class Sistema:
             return '$'+self.latex()+'$'
                                                                    
     
-    def ccol(self, conjuntoIndices={}):
+    def csis(self, conjuntoIndices={}):
         """Modifica el atributo corteSistema para insertar lineas entre
         determinados elementos del sistema
     
@@ -957,7 +967,7 @@ class BlockV(Sistema):
     Parámetros:
         sis   (list, tuple, Sistema): Lista, tupla o Sistema de objetos.
         rpr   (str): Para su representación latex (en vertical por defecto).
-                      Si rpr='fila' se representa en forma horizontal. 
+                      Si rpr='h' se representa en forma horizontal. 
     
     Atributos de la subclase:
         rpr   (str): modo de representación en Jupyter.
@@ -1009,7 +1019,7 @@ class BlockV(Sistema):
         if bool(self.corteSistema):
             pc = ',' if len(self) else r'\ '
             ln = [len(n) for n in particion(self.corteSistema,self.n)]
-            if self.rpr == 'fila' or self.n==1:    
+            if self.rpr == 'h' or self.n==1:    
                 return \
                     r'\left( \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
                     r',& '.join([latex(e) for e in self]) + pc + \
@@ -1021,7 +1031,7 @@ class BlockV(Sistema):
                         for e in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
                     r'\\ \end{array} \right)'
         else:
-            if self.rpr == 'fila' or self.n==1:
+            if self.rpr == 'h' or self.n==1:
                 return r'\begin{pmatrix}' + \
                     ',& '.join([latex(e) for e in self]) + \
                     r',\end{pmatrix}'
@@ -1038,13 +1048,13 @@ class Vector(BlockV):
     copia del mismo.
     
     El atributo 'rpr' indica si, en la representación latex, el vector
-    debe ser escrito como columna (por defecto) o como fila.
+    debe ser escrito en vertical (por defecto) o en horizontal.
     
     Parámetros:
         sis (list, tuple, Sistema): Lista, tupla o Sistema de objetos
             de tipo int, float o sympy.Basic.
-        rpr (str): Para su representación latex (en 'columna' por defecto).
-            Si rpr='fila' el vector se representa en forma de fila. 
+        rpr (str): Para su representación latex (en vertical por defecto).
+            Si rpr='h' el vector se representa en horizontal. 
     
     Atributos heredados de la subclase BlockV::
         rpr   (str)    : modo de representación en Jupyter.
@@ -1102,7 +1112,7 @@ class V0(Vector):
 
         1) un entero que indica el  número de componentes nulas
     
-        2) la cadena de texto rpr. Si rpr = 'fila' la representación
+        2) la cadena de texto rpr. Si rpr = 'h' la representación
         es horizontal (en otro caso es vertical)
 
         """
@@ -1118,7 +1128,7 @@ class V1(Vector):
 
         1) un entero que indica el  número de componentes nulas
     
-        2) la cadena de texto rpr. Si rpr = 'fila' la representación
+        2) la cadena de texto rpr. Si rpr = 'h' la representación
         es horizontal (en otro caso es vertical)
 
         """
@@ -1174,38 +1184,35 @@ class BlockM(Sistema):
         
         3) con otra BlockM.
     
-        """
-        super().__init__(arg)
-        
-        lista = Sistema(arg).lista
-        
-        if all([(isinstance(elemento, BlockV) and len(elemento)==len(lista[0])) for elemento in lista]):
-            self.lista   = lista.copy()
+        """    
+        listaInicial = Sistema(arg).lista.copy()
     
-        elif all([(es_ristra(elemento) and len(elemento)==len(lista[0])) for elemento in lista]):
+        if isinstance(arg, BlockM):
+            lista = arg.lista.copy()
+            
+        elif all([(isinstance(elemento, BlockV) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
+            lista = listaInicial.copy()
     
-            self.lista = BlockM([ BlockV([ elemento[i] for elemento in lista ]) for i in range(len(lista[0])) ]).lista
-    
-        elif isinstance(arg, BlockM):
-            self.lista   = arg.lista.copy()
+        elif all([(es_ristra(elemento) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
+            lista = BlockM([ BlockV([ elemento[i] for elemento in listaInicial ]) for i in range(len(listaInicial[0])) ]).lista
     
         else: 
-            raise ValueError("""El argumento debe ser una lista de BlockVs
-            o una lista, tupla o Sistema de listas, tuplas o sistemas con
-            el mismo número de elementos!""")
-        
-        self.n  = len(self)
+            raise ValueError("""El argumento debe ser una lista de
+            BlockVs o una lista, tupla o Sistema de listas, tuplas o
+            sistemas con el mismo número de elementos!""")
+    
+        listaFinal = [BlockV( elemento, rpr = 'columna' )  for elemento in lista]
+    
+        super().__init__(listaFinal)
+    
         try: 
             self.m  = (self|1).n
         except:
             self.m  = 0
                 
         self.corteElementos = set()
-       
-        for v in self.lista:
-            v.rpr='columna'
-            
-        if all( [isinstance(e,Vector) for e in self] ): self.__class__ = Matrix
+               
+        if all( [isinstance(e, Vector) for e in self] ): self.__class__ = Matrix
         
     
     def __invert__(self):
@@ -1274,7 +1281,7 @@ class BlockM(Sistema):
         
         """
         if isinstance(i,int):
-            return  BlockV( (~self)|i , rpr='fila' )
+            return  BlockV( (~self)|i , rpr='h' )
     
         elif isinstance(i, (list,tuple,slice)):        
             return ~BlockM( (~self)|i ) 
@@ -1310,7 +1317,7 @@ class BlockM(Sistema):
         return self 
     
     
-    def cfil(self, conjuntoIndices={}):
+    def cele(self, conjuntoIndices={}):
         """Modifica el atributo .corteElementos para insertar lineas
         horizontales entre las filas del BlockM
     
@@ -1518,7 +1525,7 @@ class Matrix(BlockM):
         return A
     
     
-    def rg(self):
+    def rango(self):
         """Rango de una Matrix"""
         return [v.no_es_nulo() for v in self.K()].count(True)
     
@@ -1526,12 +1533,12 @@ class Matrix(BlockM):
     def es_singular(self):
         if not self.es_cuadrada():
             raise ValueError('La matriz no es cuadrada')
-        return self.rg()<self.n
+        return self.rango()<self.n
       
     def es_invertible(self):
         if not self.es_cuadrada():
             raise ValueError('La matriz no es cuadrada')
-        return self.rg()==self.n
+        return self.rango()==self.n
       
     
     def inversa(self, rep=0):                                                               
@@ -2178,6 +2185,18 @@ class ElimGJ(Sistema):
         self.__class__ = type(sistema)
 
 
+class ElimF(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la forma escalonada por filas (si es posible)
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """        
+        self.__dict__.update(sistema.elim(4, rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+
 class ElimGF(Sistema):
     def __init__(self, sistema, rep=0, sust=[], repsust=0):
         """Devuelve la forma escalonada por filas (si es posible)
@@ -2353,7 +2372,7 @@ class SubEspacio:
                 A = Matrix(data).subs(sust)
             except:
                 A = BlockM([data]).subs(sust)
-            self.base = Sistema([data.K()|j for j,v in enumerate(A.elim(0), 1) if v.no_es_nulo()])
+            self.base = Sistema([data|j for j,v in enumerate(A.elim(0), 1) if v.no_es_nulo()])
             self.dim  = len(self.base)
             self.sgen = self.base if self.base else Sistema([ self.vector_nulo() ])
             
@@ -2660,9 +2679,9 @@ class SEL:
         
         """
         try:
-            A = Matrix(sistema.amplia(-b)).subs(sust).ccol({sistema.n})
+            A = Matrix(sistema.amplia(-b)).subs(sust).csis({sistema.n})
         except:
-            A = BlockM([sistema.amplia(-b)]).subs(sust).ccol({sistema.n})
+            A = BlockM([sistema.amplia(-b)]).subs(sust).csis({sistema.n})
             
         MA = A.apila(I(A.n),1)
         MA.corteElementos.update({sistema.n+A.m})

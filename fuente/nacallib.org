@@ -502,9 +502,10 @@ def amplia(self, args, marcas = False):
 
 def subs(self, reglasDeSustitucion=[]):
     """ Sustitución de variables simbólicas """
-    reglas = CreaLista(reglasDeSustitucion)
-    self.lista = [ sympy.S(elemento).subs(CreaLista(reglas)) for elemento in self.lista ]
-    return self
+    reglas       = CreaLista(reglasDeSustitucion)
+    NuevoSistema = self.fullcopy()
+    NuevoSistema.lista = [ sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
+    return NuevoSistema
 
 #+END_SRC
 
@@ -1230,9 +1231,9 @@ Para implementar =Sistema= por =Matrix= se usa la operación =Sistema=
 por =Vector= para generar cada uno de los elementos del sistema
 resultante. Cuando el =Sistema= es un =Vector=, la operación =Sistema=
 por =Matrix= calcula el producto de un =Vector= por una =Matrix=. Para
-recordar que el vector resultante es una combinación lineal de las
+recordar que el sistema resultante es una combinación lineal de las
 filas de la matriz, la representación del resultado sera en forma
-horizontal (~rpr='fila'~) si se emplea la representación =latex=.
+horizontal (~rpr='h'~) si se emplea la representación =latex=.
 
 #+name: Producto de un Sistema por un escalar un Vector o una Matrix a su derecha
 #+BEGIN_SRC python :noweb no-export
@@ -1257,7 +1258,7 @@ def __mul__(self,x):
         if len(self) != x.m:
             raise ValueError('Sistema y Matrix incompatibles')
         if isinstance(self, BlockV):
-            return factor(BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='fila' ))
+            return factor(BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='h' ))
         elif isinstance(self, BlockM):
             return factor(BlockM ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
         else:
@@ -1588,24 +1589,26 @@ las filas (~l==0~) o sobre las columnas (~l==1~).
 #+name: Representación de un proceso de eliminación rprElim
 #+BEGIN_SRC python
 
-def rprElim(data, pasos, TexPasosPrev=[], sust=[]):
+def rprElim(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos sistemas"""
     A     = data.fullcopy().subs(sust)
     tex   = latex(A) if not TexPasosPrev else TexPasosPrev
+
+    simplifica = lambda metodo,expresion: metodo(expresion) 
     
     # transformaciones por la izquierda
     for  _,pasoDeEliminacion in enumerate(pasos[0][::-1]):
         if data.es_arreglo_rectangular(): # entonces transforman las filas
             tex += '\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}' 
-            tex += latex( factor((pasoDeEliminacion & A).subs(sust)) )
+            tex += latex( simplifica(metodo, ((pasoDeEliminacion & A).subs(sust)) ) )
         else:  # hacen lo mismo que por la derecha
             tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-            tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
+            tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
         
     # transformaciones por la derecha
     for  _,pasoDeEliminacion in enumerate(pasos[1]):
         tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-        tex += latex( factor((A & pasoDeEliminacion ).subs(sust)) )
+        tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
                 
     return tex
 
@@ -1614,7 +1617,7 @@ def rprElim(data, pasos, TexPasosPrev=[], sust=[]):
 #+name: Representación de un proceso de eliminación rprElimCF
 #+BEGIN_SRC python
 
-def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
+def rprElimCF(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos arreglos rectangulares"""
     if not data.es_arreglo_rectangular():
         raise ValueError('El sistema tiene que ser un arreglo rectangular')
@@ -1624,11 +1627,13 @@ def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
     A = data.fullcopy().subs(sust)                                                               
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
 
+    simplifica = lambda metodo,expresion: metodo(expresion)
+    
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
         tex += '\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}'
-        tex += latex( factor((A & pasos[1][i]).subs(sust)) )
+        tex += latex( simplifica(metodo, ((A & pasos[1][i]).subs(sust))) )
         tex += '\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}' 
-        tex += latex( factor((pasoDeEliminacionFilas & A).subs(sust)) )
+        tex += latex( simplifica(metodo, ((pasoDeEliminacionFilas & A).subs(sust))) )
                                                                
     return tex
 
@@ -1637,7 +1642,7 @@ def rprElimCF(data, pasos, TexPasosPrev=[], sust=[]):
 #+name: Representación de un proceso de eliminación rprElimFyC
 #+BEGIN_SRC python
 
-def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[]):
+def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos arreglos rectangulares"""
     if not data.es_arreglo_rectangular():
         raise ValueError('El sistema tiene que ser un arreglo rectangular.')
@@ -1647,11 +1652,13 @@ def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[]):
     A = data.fullcopy().subs(sust)
     tex = latex(data) if not TexPasosPrev else TexPasosPrev
 
+    simplifica = lambda metodo,expresion: metodo(expresion) 
+    
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
         tex += '\\xrightarrow' \
-                + '[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']' \
-                + '{' + latex( (pasos[1][i]).subs(sust)            ) + '}'
-        tex += latex( factor(( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust) )
+                + '[' + latex( (filtradopasos(pasoDeEliminacionFilas)).subs(sust) ) + ']' \
+                + '{' + latex( (pasos[1][i]).subs(sust)                           ) + '}'
+        tex += latex( simplifica(metodo, (( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust)) )
                                                                
     return tex
 
@@ -1662,14 +1669,14 @@ Estos procedimientos son para ``mostrar'' en los Jupyter notebooks los pasos de 
 #+name: Representación de un proceso de eliminación dispElim, dispElimFyC y dispElimCF
 #+BEGIN_SRC python
 
-def dispElim(self, pasos, TexPasosPrev=[]):
-    display(Math(rprElim(self, pasos, TexPasosPrev)))
+def dispElim(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
+    display(Math(rprElim(self, pasos, TexPasosPrev, sust, metodo)))
 
-def dispElimFyC(self, pasos, TexPasosPrev=[]):
-    display(Math(rprElimFyC(self, pasos, TexPasosPrev)))
+def dispElimFyC(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
+    display(Math(rprElimFyC(self, pasos, TexPasosPrev, sust, metodo)))
 
-def dispElimCF(self, pasos, TexPasosPrev=[]):
-    display(Math(rprElimCF(self, pasos, TexPasosPrev)))
+def dispElimCF(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
+    display(Math(rprElimCF(self, pasos, TexPasosPrev, sust, metodo)))
 
 #+END_SRC
 
@@ -1755,12 +1762,15 @@ def __repr__(self):
 
 def latex(self):
     """ Construye el comando LaTeX para representar un Sistema """
-    pc = ';' if len(self) else r'\ '
-    ln = [len(i) for i in particion(self.corteSistema, len(self))]                                                           
-    return \
-        r'\left[ \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
-        r';& '.join([latex(e) for e in self]) + pc + \
-        r'\end{array} \right]'
+    if not self:
+        return r'\left[\ \right]'
+    else:
+        pc = ';' if len(self) else r'\ '
+        ln = [len(i) for i in particion(self.corteSistema, len(self))]
+        return \
+            r'\left[ \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
+            r';& '.join([latex(e) for e in self]) + pc + \
+            r'\end{array} \right]'
 
 #+END_SRC
 
@@ -1806,11 +1816,11 @@ def _repr_png_(self):
 Para separar visualmente distintas partes de un sistema es necesario
 indicar los índices de los componentes tras lo que se mostrará una
 barra vertical. Para especificar dichos índices se llama al método
-=ccol()= (que usaremos para visualmente /cortar por columnas/ una
-matriz).
+=csis()= (que usaremos para visualmente /cortar un sistema/, por
+ejemplo para separar visualmente las columnas de una matriz).
 #+BEGIN_SRC python
 
-def ccol(self, conjuntoIndices={}):
+def csis(self, conjuntoIndices={}):
     """Modifica el atributo corteSistema para insertar lineas entre
     determinados elementos del sistema
 
@@ -1841,7 +1851,7 @@ dprint( A )
 Si incluimos una separación visual detrás de la segunda componente de
 =A= su representación =str= es:
 #+BEGIN_SRC jupyter-python :exports code :results silent
-A.ccol({2})
+A.csis({2})
 print( A )
 #+END_SRC
 
@@ -1893,14 +1903,14 @@ dentro de otros sistemas). Por otra parte, aunque la representación
 ver qué contiene cada uno de los objetos. La representación =latex=
 es, con diferencia, la más fácil de interpretar de un simple vistazo.
 
-En el siguiente ejemplo, con =.ccol({1})= indicamos que el primer
+En el siguiente ejemplo, con =.csis({1})= indicamos que el primer
 elemento del sistema debe estar visualmente separado del resto.
 
 #+BEGIN_SRC jupyter-python :exports code :results silent
 a,b,c = sympy.symbols('a b c')
 vv = Vector([1,2,3])
-Z = Sistema( [ Vector([6,8,10],rpr='fila').ccol({2}), vv , 1492] ) 
-ZZ = Sistema([ Z, 'Hola', Matrix([Vector([0,sympy.pi,fracc(a,2)]),Vector([0,0,0])])  ]).ccol({1})
+Z = Sistema( [ Vector([6,8,10],rpr='h').csis({2}), vv , 1492] ) 
+ZZ = Sistema([ Z, 'Hola', Matrix([Vector([0,sympy.pi,fracc(a,2)]),Vector([0,0,0])])  ]).csis({1})
 print(ZZ)
 repr(ZZ)
 ZZ
@@ -2008,7 +2018,7 @@ sistema en disposición vertical (por defecto) u horizontal.
 Parámetros:
     sis   (list, tuple, Sistema): Lista, tupla o Sistema de objetos.
     rpr   (str): Para su representación latex (en vertical por defecto).
-                  Si rpr='fila' se representa en forma horizontal. 
+                  Si rpr='h' se representa en forma horizontal. 
 
 Atributos de la subclase:
     rpr   (str): modo de representación en Jupyter.
@@ -2046,7 +2056,7 @@ __init__(self, arg, rpr='columna')~.
   2. =rpr= es opcional e indica si queremos que la representación
      =latex= sea en forma horizontal o en vertical. Por defecto la
      representación es vertical. Para una disposición horizontal ~rpr~
-     de ser la cadena de caracteres =fila=, es decir, ~rpr='fila'~.
+     de ser la cadena de caracteres =h=, es decir, ~rpr='h'~.
 
 - Con =super().__init__(arg)= la subclase =BlockV= hereda los métodos
   y atributos de la clase =Sistema=. En consecuencia =BlockV= tendrá
@@ -2109,7 +2119,7 @@ def latex(self):
     if bool(self.corteSistema):
         pc = ',' if len(self) else r'\ '
         ln = [len(n) for n in particion(self.corteSistema,self.n)]
-        if self.rpr == 'fila' or self.n==1:    
+        if self.rpr == 'h' or self.n==1:    
             return \
                 r'\left( \begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
                 r',& '.join([latex(e) for e in self]) + pc + \
@@ -2121,7 +2131,7 @@ def latex(self):
                     for e in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
                 r'\\ \end{array} \right)'
     else:
-        if self.rpr == 'fila' or self.n==1:
+        if self.rpr == 'h' or self.n==1:
             return r'\begin{pmatrix}' + \
                 ',& '.join([latex(e) for e in self]) + \
                 r',\end{pmatrix}'
@@ -2176,7 +2186,7 @@ $\displaystyle \left( \begin{array}{c}\left[ \begin{array}{ccc}1&2&3\\4&5&6\\ \e
 
 y también la podemos usar en horizontal:
 #+BEGIN_SRC jupyter-python :exports results :results raw :results output replace
-BV.rpr='fila'
+BV.rpr='h'
 pinta( BV )
 #+END_SRC
 
@@ -2190,8 +2200,8 @@ disponer los elementos en vertical en la representación =latex=, es
 ligeramente más fácil entender la estructura del sistema.
 #+BEGIN_SRC jupyter-python :exports code :results silent
 vv = Vector([1,2,3])
-Z = Sistema( [ Vector([6,8,10],rpr='fila').ccol({2}), vv , 1492] )  
-ZZ = BlockV([ Z, 'Hola', Matrix([Vector([0,sympy.pi,fracc(a,2)]),Vector([0,0,0])])  ]).ccol({1})
+Z = Sistema( [ Vector([6,8,10],rpr='h').csis({2}), vv , 1492] )  
+ZZ = BlockV([ Z, 'Hola', Matrix([Vector([0,sympy.pi,fracc(a,2)]),Vector([0,0,0])])  ]).csis({1})
 print(ZZ)
 repr(ZZ)
 ZZ
@@ -2255,7 +2265,7 @@ subclase =Vector= hereda el resto de métodos y atributos de la clase
 # v1, v2, v3 = sympy.symbols('v_1 v_2 v_3')
 # v = Vector( [v1, v2, v3,] )
 # \end{pycode}
-# \[\Vect{v}=\py{latex(Vector(v,'fila'))},\]
+# \[\Vect{v}=\py{latex(Vector(v,'h'))},\]
 # o bien en forma de columna:
 # \[\Vect{v}=\py{latex(v)}.\]
 
@@ -2272,13 +2282,13 @@ int, float o sympy.Basic. Si se instancia con un Vector se crea una
 copia del mismo.
 
 El atributo 'rpr' indica si, en la representación latex, el vector
-debe ser escrito como columna (por defecto) o como fila.
+debe ser escrito en vertical (por defecto) o en horizontal.
 
 Parámetros:
     sis (list, tuple, Sistema): Lista, tupla o Sistema de objetos
         de tipo int, float o sympy.Basic.
-    rpr (str): Para su representación latex (en 'columna' por defecto).
-        Si rpr='fila' el vector se representa en forma de fila. 
+    rpr (str): Para su representación latex (en vertical por defecto).
+        Si rpr='h' el vector se representa en horizontal. 
 
 Atributos heredados de la subclase BlockV::
     rpr   (str)    : modo de representación en Jupyter.
@@ -2388,11 +2398,11 @@ Necesitamos indicar a Python cómo representar los objetos de tipo
 ~Vector~.
 
 Los vectores, son secuencias finitas de números que escribimos entre
-paréntesis en forma de fila
+paréntesis en horizontal
 \begin{displaymath}
   \Vect{v}=(v_1,\ldots,v_n)
 \end{displaymath}
-o en forma de columna
+o en vertical
 \begin{displaymath}
   \Vect{v}=\begin{pmatrix}v_1\\ \vdots \\ v_n\end{pmatrix}.
 \end{displaymath}
@@ -2429,7 +2439,7 @@ La clase ~V0~ corresponde a vectores nulos. La clase ~V1~ corresponde
 a vectores constantes cuyas componentes son todas iguales a 1. En
 ambos casos se instancian con un parámetro que indica el número de
 componentes y, opcionalmente, el parámetro =rpr= para indicar si la
-representación =latex= es en forma de fila o de columna.
+representación =latex= es en forma horizontal (='h'=) o vertical.
 
 #+name: Definición de las subclases V0 y V1
 #+BEGIN_SRC python
@@ -2443,7 +2453,7 @@ class V0(Vector):
 
         1) un entero que indica el  número de componentes nulas
     
-        2) la cadena de texto rpr. Si rpr = 'fila' la representación
+        2) la cadena de texto rpr. Si rpr = 'h' la representación
         es horizontal (en otro caso es vertical)
 
         """
@@ -2459,7 +2469,7 @@ class V1(Vector):
 
         1) un entero que indica el  número de componentes nulas
     
-        2) la cadena de texto rpr. Si rpr = 'fila' la representación
+        2) la cadena de texto rpr. Si rpr = 'h' la representación
         es horizontal (en otro caso es vertical)
 
         """
@@ -2534,38 +2544,35 @@ def __init__(self, arg):
     
     3) con otra BlockM.
 
-    """
-    super().__init__(arg)
-    
-    lista = Sistema(arg).lista
-    
-    if all([(isinstance(elemento, BlockV) and len(elemento)==len(lista[0])) for elemento in lista]):
-        self.lista   = lista.copy()
+    """    
+    listaInicial = Sistema(arg).lista.copy()
 
-    elif all([(es_ristra(elemento) and len(elemento)==len(lista[0])) for elemento in lista]):
+    if isinstance(arg, BlockM):
+        lista = arg.lista.copy()
+        
+    elif all([(isinstance(elemento, BlockV) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
+        lista = listaInicial.copy()
 
-        self.lista = BlockM([ BlockV([ elemento[i] for elemento in lista ]) for i in range(len(lista[0])) ]).lista
-
-    elif isinstance(arg, BlockM):
-        self.lista   = arg.lista.copy()
+    elif all([(es_ristra(elemento) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
+        lista = BlockM([ BlockV([ elemento[i] for elemento in listaInicial ]) for i in range(len(listaInicial[0])) ]).lista
 
     else: 
-        raise ValueError("""El argumento debe ser una lista de BlockVs
-        o una lista, tupla o Sistema de listas, tuplas o sistemas con
-        el mismo número de elementos!""")
-    
-    self.n  = len(self)
+        raise ValueError("""El argumento debe ser una lista de
+        BlockVs o una lista, tupla o Sistema de listas, tuplas o
+        sistemas con el mismo número de elementos!""")
+
+    listaFinal = [BlockV( elemento, rpr = 'columna' )  for elemento in lista]
+
+    super().__init__(listaFinal)
+
     try: 
         self.m  = (self|1).n
     except:
         self.m  = 0
             
     self.corteElementos = set()
-   
-    for v in self.lista:
-        v.rpr='columna'
-        
-    if all( [isinstance(e,Vector) for e in self] ): self.__class__ = Matrix
+           
+    if all( [isinstance(e, Vector) for e in self] ): self.__class__ = Matrix
     
 #+END_SRC
 
@@ -2671,7 +2678,7 @@ BlockM([BlockV(['Hola', 1]), Vector([2, 2]), Vector([3, 7])])
 def __ror__(self,i):
     <<Texto de ayuda para el operador selector por la izquierda para la clase BlockM>>
     if isinstance(i,int):
-        return  BlockV( (~self)|i , rpr='fila' )
+        return  BlockV( (~self)|i , rpr='h' )
 
     elif isinstance(i, (list,tuple,slice)):        
         return ~BlockM( (~self)|i ) 
@@ -2812,17 +2819,18 @@ def latex(self):
 
 ***** Método para definir por puntos de corte en los elementos un BlockM (sus ``filas'')
 
-Para separar visualmente distintas partes de los ~BlockV~ (las
-columnas) de un ~BlockM~ es necesario indicar los índices de los
-puntos de corte de sus elementos (tras los que se mostrará una línea
-horizontal). Para especificar dichos índices se llama al método
-=cfil()= (pues lo usaremos para visualmente /cortar por filas/ una
-matriz).
+Para separar visualmente los elementos de los componentes (de los
+~BlockV~ o columnas) de un ~BlockM~ es necesario indicar los índices
+de los puntos de corte de sus elementos (tras los que se mostrará una
+línea horizontal). Para especificar dichos índices se llama al método
+=cele()= (pues lo usaremos para visualmente separar algunos elementos
+en todos los componentes (es decir, en todos los ~BlockV~ o columnas)
+del ~BlockM~ (por ejemplo para /cortar por filas/ una matriz).
 
 #+name: Método para definir por puntos de corte en los elementos un BlockM
 #+BEGIN_SRC python
 
-def cfil(self, conjuntoIndices={}):
+def cele(self, conjuntoIndices={}):
     """Modifica el atributo .corteElementos para insertar lineas
     horizontales entre las filas del BlockM
 
@@ -3079,7 +3087,7 @@ def GS(self):
 #+name: Rango de una Matrix
 #+BEGIN_SRC python
 
-def rg(self):
+def rango(self):
     """Rango de una Matrix"""
     return [v.no_es_nulo() for v in self.K()].count(True)
 
@@ -3093,12 +3101,12 @@ def rg(self):
 def es_singular(self):
     if not self.es_cuadrada():
         raise ValueError('La matriz no es cuadrada')
-    return self.rg()<self.n
+    return self.rango()<self.n
   
 def es_invertible(self):
     if not self.es_cuadrada():
         raise ValueError('La matriz no es cuadrada')
-    return self.rg()==self.n
+    return self.rango()==self.n
   
 #+END_SRC
 
@@ -3564,6 +3572,21 @@ class ElimGJ(Sistema):
 
         """
         self.__dict__.update(sistema.R(rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+#+END_SRC
+
+#+BEGIN_SRC python
+
+class ElimF(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la forma escalonada por filas (si es posible)
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """        
+        self.__dict__.update(sistema.elim(4, rep, sust, repsust).__dict__)
         self.__class__ = type(sistema)
 
 #+END_SRC
@@ -4588,7 +4611,7 @@ def __init__(self, data, sust=[], Rn=[]):
             A = Matrix(data).subs(sust)
         except:
             A = BlockM([data]).subs(sust)
-        self.base = Sistema([data.K()|j for j,v in enumerate(A.elim(0), 1) if v.no_es_nulo()])
+        self.base = Sistema([data|j for j,v in enumerate(A.elim(0), 1) if v.no_es_nulo()])
         self.dim  = len(self.base)
         self.sgen = self.base if self.base else Sistema([ self.vector_nulo() ])
         
@@ -5160,9 +5183,9 @@ class SEL:
     def __init__(self, sistema, b, rep=0, sust=[], repsust=0):
         <<Texto de ayuda de la clase ~SEL~>>
         try:
-            A = Matrix(sistema.amplia(-b)).subs(sust).ccol({sistema.n})
+            A = Matrix(sistema.amplia(-b)).subs(sust).csis({sistema.n})
         except:
-            A = BlockM([sistema.amplia(-b)]).subs(sust).ccol({sistema.n})
+            A = BlockM([sistema.amplia(-b)]).subs(sust).csis({sistema.n})
             
         MA = A.apila(I(A.n),1)
         MA.corteElementos.update({sistema.n+A.m})
@@ -5799,7 +5822,7 @@ def factor(self):
 #+BEGIN_SRC python
 def latex(self):
     """ Construye el comando LaTeX para representar un Vector"""
-    if self.rpr == 'fila' or self.n==1:    
+    if self.rpr == 'h' or self.n==1:    
         return r'\begin{pmatrix}' + \
                ',& '.join([latex(e) for e in self]) + \
                r',\end{pmatrix}' 
