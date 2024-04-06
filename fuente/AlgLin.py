@@ -238,8 +238,10 @@ class Sistema:
         arg (list, tuple, Sistema): lista, tupla o Sistema de objetos.
     
     Atributos:
-        lista (list): lista de objetos.
-    
+        lista       (list): lista de objetos.
+        n            (int): número de elementos del sistema.
+        corteSistema (set): índices de los elementos tras los que mostrar
+                            una separación en la representación LaTeX
     Ejemplos:
     >>> # Crea un nuevo Sistema a partir de una lista, tupla o Sistema
     >>> Sistema( [ 10, 'hola', T({1,2}) ]  )           # con lista
@@ -251,23 +253,23 @@ class Sistema:
     """
     
     def __init__(self, arg):
-        """Inicializa un Sistema con una lista, tupla o Sistema"""                        
+        """Inicializa un Sistema con una lista, tupla o Sistema"""
         if es_ristra(arg):
             self.lista = list(arg)
         else:
             raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
-    
-        self.n            = len(self)
+        
+        self.n = len(self)
         self.corteSistema = set()
     
     
     def __getitem__(self, i):
-        """ Devuelve el i-ésimo coeficiente del Sistema """
+        """Devuelve el i-ésimo coeficiente del Sistema"""
         return self.lista[i]
     
-    def __setitem__(self, i, valor):
-        """ Modifica el i-ésimo coeficiente del Sistema """
-        self.lista[i] = valor
+    def __setitem__(self, i, nuevo_valor):
+        """Modifica el i-ésimo coeficiente del Sistema"""
+        self.lista[i] = nuevo_valor
             
     
     def __len__(self):
@@ -291,22 +293,25 @@ class Sistema:
     
     def reverse(self):
         """Da la vuelta al orden de la lista del sistema"""
-        self.corteSistema =  {len(self)-i for i in self.corteSistema}
+        self.corteSistema = {len(self)-i for i in self.corteSistema}
         self.lista.reverse()
         
     def __reversed__(self):
         """Reversed(S) devuelve una copia de S con la lista en orden inverso"""
         copia = self.fullcopy()
-        copia.reverse()
+        copia.corteSistema = {len(self)-i for i in self.corteSistema}
+        copia.lista = list(reversed(self.lista))
         return copia
         
     
-    def concatena(self, other, marcasVisuales = False):
-        """Concatena dos Sistemas"""    
+    def concatena(self, other, marcasVisuales=False):
+        """Concatena dos Sistemas"""
+        
         def nuevoConjuntoMarcas(Sistema_A, Sistema_B):
             return Sistema_A.corteSistema.union(
                 {len(Sistema_A)},
-                {len(Sistema_A)+indice for indice in Sistema_B.corteSistema} )
+                {len(Sistema_A)+indice for indice in Sistema_B.corteSistema}
+            )
         
         if not isinstance(other, Sistema):
             raise ValueError('Un Sistema solo se puede concatenar a otro Sistema')
@@ -317,7 +322,7 @@ class Sistema:
             return other.fullcopy()
             
         sistemaAmpliado.lista = self.lista + other.lista
-        sistemaAmpliado.n     = len(self)  + len(other)
+        sistemaAmpliado.n = len(self) + len(other)
             
         if marcasVisuales: 
             sistemaAmpliado.corteSistema = nuevoConjuntoMarcas(self, other)
@@ -325,7 +330,7 @@ class Sistema:
         return sistemaAmpliado if self.es_arreglo_rectangular() else Sistema(sistemaAmpliado)
     
     
-    def junta(self, lista, marcas = False):
+    def junta(self, lista, marcas=False):
         """Junta una lista o tupla de Sistemas en uno solo concatenando las
         correspondientes listas de los distintos Sistemas
     
@@ -334,7 +339,7 @@ class Sistema:
         return reune([self] + [sistema for sistema in lista], marcas)
         
     
-    def amplia(self, args, marcas = False):
+    def amplia(self, args, marcas=False):
         """Añade más elementos al final de la lista de un Sistema"""
         A = self.fullcopy()
         return A.concatena(Sistema(CreaLista(args)), marcas)
@@ -342,23 +347,23 @@ class Sistema:
     
     def subs(self, reglasDeSustitucion=[]):
         """ Sustitución de variables simbólicas """
-        reglas       = CreaLista(reglasDeSustitucion)
+        reglas = CreaLista(reglasDeSustitucion)
         NuevoSistema = self.fullcopy()
-        NuevoSistema.lista = [ sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
+        NuevoSistema.lista = [sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
         return NuevoSistema
     
     
     def simplify(self):
         """ Simplificación de expresiones simbólicas """
-        self.lista = [ simplify(elemento) for elemento in self.lista ]
+        self.lista = [simplify(elemento) for elemento in self.lista]
                                                                    
     def factor(self):
         """ Factorización de expresiones simbólicas """
-        self.lista = [ factor(elemento) for elemento in self.lista ]
+        self.lista = [factor(elemento) for elemento in self.lista]
     
     def expand(self):
         """ Factorización de expresiones simbólicas """
-        self.lista = [ expand(elemento) for elemento in self.lista ]
+        self.lista = [expand(elemento) for elemento in self.lista]
     
     
     
@@ -417,7 +422,7 @@ class Sistema:
     
        """
        if self.es_de_composicion_uniforme() and es_numero(self|1):
-          return True
+          return True   
        elif self.es_de_composicion_uniforme() and not es_numero(self|1):
           return all(len(elemento)==len(self|1) for elemento in self)
        else:
@@ -440,12 +445,12 @@ class Sistema:
         sistema = reversed(self.copy()).subs(reglasDeSustitucion)
         return next( ([len(self)-indice] for indice,elemento in enumerate(sistema) if CreaSistema(elemento).no_es_nulo()), [])
     
-    elementoPivote     = lambda self:  self.extractor(self.primer_no_nulo()) if self.primer_no_nulo() else False
+    elementoPivote     = lambda self: self.extractor(self.primer_no_nulo()) if self.primer_no_nulo() else False
     
-    elementoAntiPivote = lambda self:  self.extractor(self.ultimo_no_nulo()) if self.ultimo_no_nulo() else False
+    elementoAntiPivote = lambda self: self.extractor(self.ultimo_no_nulo()) if self.ultimo_no_nulo() else False
     
     
-    def extractor(self, listaDeIndices = []):
+    def extractor(self, listaDeIndices=[]):
         """Selección consecutiva por la derecha del sistema A empleando la
         lista de enteros de c. Ej.: si c = [5,1,2] devuelve A|5|1|2
     
@@ -461,9 +466,9 @@ class Sistema:
         if not orden or isinstance(orden, int):
             return self
         elif orden[0]*orden[1] == self.n:
-            return ~BlockM(list(zip(*(iter(self.lista),) * orden[0])))
+            return ~BlockM(list(zip(*(iter(self.lista),)*orden[0])))
         else:
-            raise ValueError('El orden indicado es incompatible con el número de elementos del Sistema')
+            raise ValueError('Orden incompatible con el número de elementos')
             return None
     
     
@@ -473,8 +478,8 @@ class Sistema:
     
     def espacio_nulo(self, sust=[], Rn=[]):
         if self: Rn = self.n
-        K     = self.elim(0, False, sust)
-        E     = I(self.n) & T(K.pasos[1])
+        K = self.elim(0, False, sust)
+        E = I(self.n) & T(K.pasos[1])
         lista = [v for j,v in enumerate(E,1) if (K|j).es_nulo()]
         return SubEspacio(Sistema(lista)) if lista else SubEspacio(Sistema([]), Rn=Rn)
     
@@ -948,12 +953,6 @@ class Sistema:
         return self
     
     
-RistraTypes = (tuple, list, Sistema)
-es_ristra  = lambda x: isinstance(x, RistraTypes) 
-
-def es_ristra_de_numeros(arg):
-    return all( [es_numero(elemento) for elemento in arg] ) if es_ristra(arg) else None
-
 class BlockV(Sistema):
     """BlockV es un Sistema que se puede representar verticalmente.
     
@@ -1031,6 +1030,9 @@ class BlockV(Sistema):
                         for e in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
                     r'\\ \end{array} \right)'
         else:
+            if not self:
+                return r'\left(\ \right)'
+    
             if self.rpr == 'h' or self.n==1:
                 return r'\begin{pmatrix}' + \
                     ',& '.join([latex(e) for e in self]) + \
@@ -1192,6 +1194,9 @@ class BlockM(Sistema):
             
         elif all([(isinstance(elemento, BlockV) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
             lista = listaInicial.copy()
+    
+        elif listaInicial and not listaInicial[0]:
+            lista = [BlockV([])]
     
         elif all([(es_ristra(elemento) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
             lista = BlockM([ BlockV([ elemento[i] for elemento in listaInicial ]) for i in range(len(listaInicial[0])) ]).lista
@@ -1358,6 +1363,9 @@ class BlockM(Sistema):
     
     def latex(self):
         """ Construye el comando LaTeX para representar una BlockM """
+        if not self.m:
+                return self.sis().latex()
+    
         ln = [len(n) for n in particion(self.corteSistema, self.n)]                                                           
         return \
             '\\left[ \\begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
@@ -1429,6 +1437,9 @@ class Matrix(BlockM):
         if all([(isinstance(elemento, Vector) and len(elemento)==len(lista[0])) for elemento in lista]):
             self.lista   = lista.copy()
     
+        elif lista and not lista[0]:
+            lista = [Vector([])]
+            
         elif Sistema(lista).es_de_composicion_y_longitud_uniforme() and es_ristra(lista[0]) and es_numero(lista[0][0]):
             self.lista = Matrix([ Vector([elemento[i] for elemento in lista]) for i in range(len(lista[0])) ]).lista
     
@@ -1865,6 +1876,13 @@ class I(Matrix):
         self.__class__ = Matrix
 
 
+RistraTypes = (tuple, list, Sistema)
+es_ristra  = lambda x: isinstance(x, RistraTypes) 
+
+def es_ristra_de_numeros(arg):
+    return all( [es_numero(elemento) for elemento in arg] ) if es_ristra(arg) else None
+
+
 
 class T:
     """Clase para las transformaciones elementales
@@ -2144,192 +2162,6 @@ class T:
                    '}{\\pmb{\\tau}}\\underset{'.join([simbolo(i) for i in self.abreviaturas]) + \
                    '}{\\pmb{\\tau}}'
                   
-
-
-class Elim(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve una forma pre-escalonada de un sistema
-
-           operando con sus elementos (y evitando operar con
-           fracciones).  Si rep es no nulo, se muestran en Jupyter los
-           pasos dados
-
-        """
-        self.__dict__.update(sistema.K(rep, sust, repsust).__dict__)
-        self.__class__ = type(sistema)
-
-
-class ElimG(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve una forma escalonada de un sistema
-
-           operando con sus elementos (y evitando operar con
-           fracciones).  Si rep es no nulo, se muestran en Jupyter los
-           pasos dados
-
-        """
-        self.__dict__.update(sistema.L(rep, sust, repsust).__dict__)
-        self.__class__ = type(sistema)
-
-
-class ElimGJ(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve la forma escalonada reducida de un sistema
-
-           operando con sus elementos (y evitando operar con
-           fracciones).  Si rep es no nulo, se muestran en Jupyter los
-           pasos dados
-
-        """
-        self.__dict__.update(sistema.R(rep, sust, repsust).__dict__)
-        self.__class__ = type(sistema)
-
-
-class ElimF(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve la forma escalonada por filas (si es posible)
-
-           y evitando operar con fracciones.  Si rep es no nulo, se
-           muestran en Jupyter los pasos dados
-
-        """        
-        self.__dict__.update(sistema.elim(4, rep, sust, repsust).__dict__)
-        self.__class__ = type(sistema)
-
-
-class ElimGF(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve la forma escalonada por filas (si es posible)
-
-           y evitando operar con fracciones.  Si rep es no nulo, se
-           muestran en Jupyter los pasos dados
-
-        """        
-        self.__dict__.update(sistema.U(rep, sust, repsust).__dict__)
-        self.__class__ = type(sistema)
-
-
-class ElimGJF(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve la forma escalonada reducida por filas (si es posible)
-
-           y evitando operar con fracciones.  Si rep es no nulo, se
-           muestran en Jupyter los pasos dados
-
-        """        
-        self.__dict__.update(sistema.UR(rep, sust, repsust).__dict__)
-        self.__class__ = type(sistema)
-
-
-class InvMat(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve la matriz inversa y los pasos dados sobre las columnas
-
-           y evitando operar con fracciones.  Si rep es no nulo, se
-           muestran en Jupyter los pasos dados
-
-        """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
-        A = sistema.subs(sust).inversa()
-        A.tex, A.pasos = texYpasos(sistema.apila(I(sistema.n),1), A.pasos, rep, sust, repsust)
-        A.TrF = A.pasos[0]
-        A.TrC = A.pasos[1]
-        self.__dict__.update(A.__dict__)
-        self.__class__ = type(sistema)
-
-
-class InvMatF(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve la matriz inversa y los pasos dados sobre las filas
-
-           y evitando operar con fracciones.  Si rep es no nulo, se
-           muestran en Jupyter los pasos dados
-
-        """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
-
-        if not sistema.es_cuadrada():
-            raise ValueError('Matrix no cuadrada')
-    
-        pasos = sistema.elim(26).elim(26).elim(14).pasos
-        A = T(pasos[0]) & I(sistema.n)
-        A.tex, A.pasos = texYpasos(sistema.concatena(I(sistema.n),1), pasos, rep, sust, repsust)
-        A.TrF = A.pasos[0]
-        A.TrC = A.pasos[1]
-        self.__dict__.update(A.__dict__)
-        self.__class__ = type(sistema)
-
-
-class InvMatFC(Sistema):
-    def __init__(self, sistema, rep=0, sust=[], repsust=0):
-        """Devuelve la matriz inversa y los pasos dados sobre las filas y columnas
-
-           y evitando operar con fracciones.  Si rep es no nulo, se
-           muestran en Jupyter los pasos dados
-
-        """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
-
-        if not sistema.es_cuadrada():
-            raise ValueError('Matrix no cuadrada')
-    
-        pasos = sistema.elim(24).elim(10).pasos
-        A = sistema.copy()
-        nan = sympy.symbols('\ ')
-        dummyMatrix = M1(A.n)*nan
-        A.tex, A.pasos = texYpasos(A.concatena(I(A.n),1).apila(I(A.n).concatena(dummyMatrix,1),1), pasos, rep, sust, repsust)
-        A.TrF = A.pasos[0]
-        A.TrC = A.pasos[1]
-        A.F   = T(A.TrF) & I(A.n)
-        A.C   = I(A.n) & T(A.TrC)
-        A.lista = (A.C*A.F).lista
-        self.__dict__.update(A.__dict__)
-        self.__class__ = type(sistema)
 
 
 
@@ -2790,6 +2622,193 @@ class Determinante:
       return latex(self.valor)
    
          
+
+
+class Elim(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve una forma pre-escalonada de un sistema
+
+           operando con sus elementos (y evitando operar con
+           fracciones).  Si rep es no nulo, se muestran en Jupyter los
+           pasos dados
+
+        """
+        self.__dict__.update(sistema.K(rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+
+class ElimG(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve una forma escalonada de un sistema
+
+           operando con sus elementos (y evitando operar con
+           fracciones).  Si rep es no nulo, se muestran en Jupyter los
+           pasos dados
+
+        """
+        self.__dict__.update(sistema.L(rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+
+class ElimGJ(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la forma escalonada reducida de un sistema
+
+           operando con sus elementos (y evitando operar con
+           fracciones).  Si rep es no nulo, se muestran en Jupyter los
+           pasos dados
+
+        """
+        self.__dict__.update(sistema.R(rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+
+class ElimF(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la forma escalonada por filas (si es posible)
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """        
+        self.__dict__.update(sistema.elim(4, rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+
+class ElimGF(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la forma escalonada por filas (si es posible)
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """        
+        self.__dict__.update(sistema.U(rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+
+class ElimGJF(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la forma escalonada reducida por filas (si es posible)
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """        
+        self.__dict__.update(sistema.UR(rep, sust, repsust).__dict__)
+        self.__class__ = type(sistema)
+
+
+class InvMat(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la matriz inversa y los pasos dados sobre las columnas
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """
+        
+        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data, pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            if rep:
+                display(Math(tex))
+            
+            return tex, pasos
+        
+        A = sistema.subs(sust).inversa()
+        A.tex, A.pasos = texYpasos(sistema.apila(I(sistema.n),1), A.pasos, rep, sust, repsust)
+        A.TrF = A.pasos[0]
+        A.TrC = A.pasos[1]
+        self.__dict__.update(A.__dict__)
+        self.__class__ = type(sistema)
+
+
+class InvMatF(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la matriz inversa y los pasos dados sobre las filas
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """
+        
+        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data, pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            if rep:
+                display(Math(tex))
+            
+            return tex, pasos
+        
+
+        if not sistema.es_cuadrada():
+            raise ValueError('Matrix no cuadrada')
+    
+        pasos = sistema.elim(26).elim(26).elim(14).pasos
+        A = T(pasos[0]) & I(sistema.n)
+        A.tex, A.pasos = texYpasos(sistema.concatena(I(sistema.n),1), pasos, rep, sust, repsust)
+        A.TrF = A.pasos[0]
+        A.TrC = A.pasos[1]
+        self.__dict__.update(A.__dict__)
+        self.__class__ = type(sistema)
+
+
+class InvMatFC(Sistema):
+    def __init__(self, sistema, rep=0, sust=[], repsust=0):
+        """Devuelve la matriz inversa y los pasos dados sobre las filas y columnas
+
+           y evitando operar con fracciones.  Si rep es no nulo, se
+           muestran en Jupyter los pasos dados
+
+        """
+        
+        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
+            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+            if repsust:
+                tex = rprElim(data, pasos, TexPasosPrev, sust)
+            else:
+                tex = rprElim(data, pasos, TexPasosPrev)
+            pasos[0] = pasos[0] + pasosPrevios[0] 
+            pasos[1] = pasosPrevios[1] + pasos[1]
+            
+            if rep:
+                display(Math(tex))
+            
+            return tex, pasos
+        
+
+        if not sistema.es_cuadrada():
+            raise ValueError('Matrix no cuadrada')
+    
+        pasos = sistema.elim(24).elim(10).pasos
+        A = sistema.copy()
+        nan = sympy.symbols('\ ')
+        dummyMatrix = M1(A.n)*nan
+        A.tex, A.pasos = texYpasos(A.concatena(I(A.n),1).apila(I(A.n).concatena(dummyMatrix,1),1), pasos, rep, sust, repsust)
+        A.TrF = A.pasos[0]
+        A.TrC = A.pasos[1]
+        A.F   = T(A.TrF) & I(A.n)
+        A.C   = I(A.n) & T(A.TrC)
+        A.lista = (A.C*A.F).lista
+        self.__dict__.update(A.__dict__)
+        self.__class__ = type(sistema)
+
 
 class DiagonalizaS(Matrix):
     def __init__(self, sistema, espectro, rep=0, repType=0):
