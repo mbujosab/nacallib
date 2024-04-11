@@ -98,6 +98,25 @@ def particion(s,n):
     p = sorted(list(s | set([0,n])))
     return [ list(range(p[k]+1,p[k+1]+1)) for k in range(len(p)-1) ]
     
+def estructura(S):
+    if isinstance(S, Sistema):
+        c = [type(S)]
+        for item in S:
+            if not isinstance(item, Sistema):
+                if es_numero(item):
+                    c = c + [('num',)]
+                else:
+                    c = c + [(type(item),)]
+            else:
+                c = c + [item.estructura()]
+    else:
+        if es_numero(S):
+            c = [('num',)]
+        else:
+            c = [(type(S),)]
+
+    return c
+
 
 def filtradopasos(pasos):
     abv = pasos.abreviaturas if isinstance(pasos,T) else pasos
@@ -326,6 +345,7 @@ class Sistema:
             
         if marcasVisuales: 
             sistemaAmpliado.corteSistema = nuevoConjuntoMarcas(self, other)
+            
     
         return sistemaAmpliado if self.es_arreglo_rectangular() else Sistema(sistemaAmpliado)
     
@@ -344,6 +364,18 @@ class Sistema:
         A = self.fullcopy()
         return A.concatena(Sistema(CreaLista(args)), marcas)
     
+    def vec(self):
+        
+        def vectoriza(sist):
+            lista = []
+            for item in sist:
+                if isinstance(item, Sistema):
+                    lista += vectoriza(item)                
+                else:
+                    lista += [item]
+            return lista
+        
+        return BlockV(vectoriza(self))
     
     def subs(self, reglasDeSustitucion=[]):
         """ Sustitución de variables simbólicas """
@@ -472,6 +504,16 @@ class Sistema:
             return None
     
     
+    def estructura(self):
+        """Devuelve la estructura de loscomponentes de un Sistema"""
+        if isinstance(self, Vector):
+            return [(type(self), (self.n,))]
+        elif isinstance(self, Matrix):
+            return [(type(self), (self.n, self.m))]
+        else:
+            return [type(self), [estructura(item) for item in self]]
+    
+    
     def span(self, sust=[], Rn=[]):
         return SubEspacio(self.sis(), sust, Rn)
     
@@ -484,25 +526,32 @@ class Sistema:
         return SubEspacio(Sistema(lista)) if lista else SubEspacio(Sistema([]), Rn=Rn)
     
     
-    def sel(self, v, sust=[]):
-        """Devuelve la lista o EAfin con las soluciones x de sistema*x=v
+    def sel(self, v, rep=False, sust=[]):
+        """Devuelve el conjunto solución con las soluciones x de sistema*x=v
     
         """
-        A           = self.amplia(-v)
-        operaciones = A.elim(1,False,sust).pasos[1]
+        A = self.copy().amplia(-v,1)
+        operaciones = A.elim(0,False,sust).pasos[1]
         testigo     = 0| (I(A.n) & T(operaciones)) |0
         Normaliza   = T([]) if testigo==1 else T([( fracc(1,testigo), A.n )])
         pasos       = operaciones+[Normaliza] if Normaliza else operaciones
         K           = A & T(pasos)
         
+        if rep:
+            try:
+                MA = Matrix(self.copy().amplia(-v)).subs(sust).csis({self.n}).apila(I(self.n+1),1)
+                MA.corteElementos.update({self.n+A.m})
+            except:
+                MA = BlockM([self.copy().amplia(-v)]).subs(sust).csis({self.n}).apila(I(self.n+1),1)
+                MA.corteElementos.update({self.n+A.m})
+                
+            dispElim(MA, [[],operaciones], [], sust)
+        
         if (K|0).no_es_nulo():
             return Sistema([])
         else:
             solP = factor(I(self.n).amplia(V0(self.n)) & T(pasos))|0
-            if self.espacio_nulo().sgen.es_nulo():
-                return Sistema([solP])
-            else:
-                return EAfin(self.espacio_nulo().sgen, solP, 1)
+            return EAfin(self.espacio_nulo().sgen, solP, 1)
     
     
     def __or__(self,j):
@@ -997,8 +1046,16 @@ class BlockV(Sistema):
         self.rpr  =  rpr
         self.n  = len(self)
         
-        if all( [es_numero(e) for e in arg] ): self.__class__ = Vector
-    
+        if all([es_numero(e) for e in arg]):
+            self.__class__ = Vector
+        #if all([isinstance(e, Vector) for e in arg]) and self.es_arreglo_rectangular():
+        #    self.__class__ = Matrix
+        #    try:
+        #        self.m = (self|1).n
+        #    except:
+        #        self.m = 0
+        #    self.corteElementos = set()
+            
     
     def __repr__(self):
         """ Muestra el BlockV en su representación Python """
@@ -1190,7 +1247,7 @@ class BlockM(Sistema):
         listaInicial = Sistema(arg).lista.copy()
     
         if isinstance(arg, BlockM):
-            lista = arg.lista.copy()
+            lista = arg.copy().lista
             
         elif all([(isinstance(elemento, BlockV) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
             lista = listaInicial.copy()
@@ -1199,8 +1256,8 @@ class BlockM(Sistema):
             lista = [BlockV([])]
     
         elif all([(es_ristra(elemento) and len(elemento)==len(listaInicial[0])) for elemento in listaInicial]):
-            lista = BlockM([ BlockV([ elemento[i] for elemento in listaInicial ]) for i in range(len(listaInicial[0])) ]).lista
-    
+            lista = (~BlockM([BlockV(i) for i in arg])).lista
+            
         else: 
             raise ValueError("""El argumento debe ser una lista de
             BlockVs o una lista, tupla o Sistema de listas, tuplas o
@@ -1229,7 +1286,7 @@ class BlockM(Sistema):
         
         Matrix([ Vector([1, 2, 3]), Vector([2, 4, 6]) ])
         """
-        M = BlockM([ Sistema(columna) for columna in self ])
+        M = BlockM([ BlockV([v|f for v in self]) for f in range(1,self.m+1)])
         M.corteElementos, M.corteSistema = self.corteSistema, self.corteElementos
         return M
     
@@ -1250,7 +1307,8 @@ class BlockM(Sistema):
         """
         apila_dos = lambda x, other, marcasVisuales=False: ~((~x).concatena(~other, marcasVisuales))
         apila = lambda x: x[0] if len(x)==1 else apila_dos( apila(x[0:-1]), x[-1], marcasVisuales)
-        return apila([self] + [s for s in CreaLista(lista)])
+        BlockM_apilado = apila([self] + [s for s in CreaLista(lista)])
+        return BlockM_apilado.cele(BlockM_apilado.corteElementos)
     
     
     def __ror__(self,i):
@@ -1291,11 +1349,6 @@ class BlockM(Sistema):
         elif isinstance(i, (list,tuple,slice)):        
             return ~BlockM( (~self)|i ) 
             
-       
-    def vec(self):
-        "Vectoriza un BlockM apilando sus elementos para formar un BlockV"
-        return BlockV(Sistema([]).junta(self))
-    
     
     def __rand__(self, operaciones):
         """Transforma las filas de un BlockM
@@ -1328,6 +1381,7 @@ class BlockM(Sistema):
     
         """
         self.corteElementos = set(conjuntoIndices) if conjuntoIndices else {0}
+        self.lista = [v.csis(self.corteElementos) for v in self.lista]
         return self
     
        
@@ -2222,10 +2276,11 @@ class SubEspacio:
         """Indica si este SubEspacio está contenido en other"""
         self.verificacion(other)
         if isinstance(other, SubEspacio):
-            if isinstance(self.sgen|1, Vector):
-                return all ([ (other.cart*v).es_nulo() for v in self.sgen ])
-            elif isinstance(self.sgen|1, Matrix):
-                return all ([ (other.cart*v.vec()).es_nulo() for v in self.sgen ])
+            return all ([ (other.cart*v.vec()).es_nulo() for v in self.sgen ])
+            #if isinstance(self.sgen|1, Vector):
+            #    return all ([ (other.cart*v).es_nulo() for v in self.sgen ])
+            #elif isinstance(self.sgen|1, Matrix):
+            #    return all ([ (other.cart*v.vec()).es_nulo() for v in self.sgen ])
             
         elif isinstance(other, EAfin):
             return other.v.es_nulo() and self.contenido_en(other.S)
@@ -2279,21 +2334,15 @@ class SubEspacio:
         
     
     def __contains__(self, other):
-        """Indica si un Vector pertenece a un SubEspacio"""
+        """Indica si un Vector pertenece a un SubEspacio"""    
+        if not isinstance(other, type(self.sgen|1)):
+            raise ValueError('Objeto de tipo distinto a los del SubEspacio')
     
-        if isinstance(self.sgen|1, Vector):
-            if not isinstance(other, Vector) or other.n != self.Rn:
-                raise ValueError\
-                    ('El Vector no tiene el número adecuado de componentes')
-            return self.cart*other == V0(self.cart.m)
-        
-        elif isinstance(self.sgen|1, Matrix):
-            if not isinstance(other, Matrix) or (other.n,other.m) != self.Rn:
-                raise ValueError\
-                    ('El Vector no tiene el número adecuado de componentes')        
-            return self.cart*other.vec() == V0(self.cart.m)
-        
+        if not estructura(other)==estructura(self.sgen|1):
+            raise ValueError('Objeto tiene estructura o longitud distinta a la de los vectores del SubEspacio')
     
+        return self.cart*other.vec() == V0(self.cart.m)
+            
     
     def _repr_html_(self):
         """Construye la representación para el entorno Jupyter Notebook"""
@@ -2447,7 +2496,10 @@ class EAfin:
         
     def latex(self):
         """ Construye el comando LaTeX para un EAfin de Rn"""
-        return self.EcParametricas() + '\\; = \\;' + self.EcCartesianas()
+        if self.S.sgen.es_nulo():
+            return r'\left\{\ ' + latex(self.v) + r'\ \right\}'
+        else:
+            return self.EcParametricas() + '\\; = \\;' + self.EcCartesianas()
             
     
 
@@ -2550,7 +2602,13 @@ class SEL:
         if rep:
             display(Math(self.tex))           
         
+
+    def __eq__(self, other):
+        """Indica si un subespacio de Rn es igual a otro"""
+        if not isinstance(other, SEL):
+            raise ValueError('El argumento debe ser SEL (Sist de Ecuaciones Lineales).')
         
+        return self.eafin == other.eafin
     
     def __repr__(self):
         """Muestra el Espacio Nulo de una matriz en su representación Python"""
@@ -2901,3 +2959,116 @@ class DiagonalizaC(Matrix):
             
         self.__dict__.update(D.__dict__)
         self.__class__ = type(sistema)
+
+
+
+class FuncionAfin:
+    def __init__(self, elementos_del_Dominio, elementos_de_la_Imagen):
+        """Inicializa un Sistema con dos listas, tuplas o Sistemas de la misma longitud"""
+        
+        if (not es_ristra(elementos_del_Dominio)) or (not es_ristra(elementos_de_la_Imagen)):
+            raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
+                
+        if not len(elementos_del_Dominio) == len(elementos_de_la_Imagen):
+            raise ValueError('Los dos sistemas o lista deben ser igual de largas')
+        
+        
+        def kernel(self):
+            dominio = self.pares|1 
+            imagen  = self.pares|2 
+            s_generador = [punto for j,punto in enumerate(dominio, 1) if (imagen|j).es_nulo()]
+            return Sistema(s_generador).span(Rn=(dominio).span().Rn)
+        
+        
+        def conversion_de_R_a_R1(sis):
+            return Sistema([Vector([e]) for e in sis])
+        
+        if isinstance(BlockV(elementos_del_Dominio), Vector):
+            elementos_del_Dominio  = conversion_de_R_a_R1(elementos_del_Dominio)
+        if isinstance(BlockV(elementos_de_la_Imagen), Vector):
+            elementos_de_la_Imagen = conversion_de_R_a_R1(elementos_de_la_Imagen)
+            
+        self.pares   = BlockM([BlockV(elementos_del_Dominio), BlockV(elementos_de_la_Imagen)]).elim(16)
+        self.dominio = (self.pares|1).span()
+        self.imagen  = (self.pares|2).span()
+        self.nucleo  = kernel(self)
+        
+    
+    def es_invertible(self):
+        return self.nucleo.dim==0
+    
+    def es_lineal(self):
+        dominio = self.pares|1 
+        imagen  = self.pares|2
+        if [pto for j,pto in enumerate(imagen,1) if (dominio|j).es_nulo() and (imagen|j).no_es_nulo()]:
+            return False
+        else:
+            return True
+    
+    
+    def imagen_de(self, punto, rep=False):
+        
+        if isinstance(BlockV([punto]), Vector):
+            punto =  Vector([punto])
+    
+        try:
+            punto in self.dominio
+        except:
+            raise ValueError('El elemento indicado no pertenece al dominio de la función')
+    
+        cero  = self.imagen.vector_nulo()
+        X     = BlockV([punto, cero])
+    
+        lista_pares_ampliada = (~(BlockM(self.pares).apila(~BlockM([-X]),1)))
+        nuevos_pares = lista_pares_ampliada.elim(1,rep).cele({1})
+    
+        return 2|nuevos_pares|0
+    
+        pinta(nuevos_pares)
+        print(nuevos_pares.pasos)
+        
+        #K = (1|lista_pares_ampliada).elim(0)
+        #pares_tras_eliminacion = lista_pares_ampliada.copy() & T(K.pasos[1])
+        #evaluacion   = pares_tras_eliminacion.csis({K.n-1}).cele({1})
+    
+        # pasos_de_simplificacion = Sistema([par for par in (pares_tras_eliminacion)|slice(1,0) if (1|par).es_nulo()]).elim(12,1).pasos[1]
+        # 
+        # testigo = 0| ((I(lista_pares_ampliada.n) & T(K.pasos[1]))) |0
+        # normaliza = T([]) if testigo==1 else T([( fracc(1,testigo), lista_pares_ampliada.n )])
+        # pasos = [[], K.pasos[1]+[normaliza]] if normaliza else K.pasos
+    
+        
+        imagen = 2|nuevos_pares|0    
+        
+        if rep:
+            dispElim(lista_pares_ampliada, pasos)
+    
+        return imagen
+        
+    
+    def preimagen_de(self, punto, rep=False):
+        
+        if isinstance(BlockV([punto]), Vector):
+            punto =  Vector([punto])
+            
+        try:
+            punto in self.imagen
+        except:
+            raise ValueError('El elemento indicado no pertenece a la imagen de la función')
+    
+        representante = FuncionAfin(self.pares|2, self.pares|1).imagen_de(punto, rep)
+            
+        return EAfin(self.nucleo.sgen, representante,1) 
+       
+    
+    def __repr__(self):
+        """Muestra el Espacio Nulo de una matriz en su representación Python"""
+        return 'Sistema inicial de pares (Dominio, Imagen): ' + repr(self.pares)
+    
+    def latex(self):
+        """ Construye el comando LaTeX para la clase FuncionAfin"""
+        return latex(self.pares)
+    
+    def _repr_html_(self):
+        """ Construye la representación para el entorno jupyter notebook """
+        return html(self.latex())
