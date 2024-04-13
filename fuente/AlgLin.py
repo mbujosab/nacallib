@@ -2962,24 +2962,9 @@ class DiagonalizaC(Matrix):
 
 
 
-class FuncionAfin:
+class FuncionLineal:
     def __init__(self, elementos_del_Dominio, elementos_de_la_Imagen):
         """Inicializa un Sistema con dos listas, tuplas o Sistemas de la misma longitud"""
-        
-        if (not es_ristra(elementos_del_Dominio)) or (not es_ristra(elementos_de_la_Imagen)):
-            raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
-                
-        if not len(elementos_del_Dominio) == len(elementos_de_la_Imagen):
-            raise ValueError('Los dos sistemas o lista deben ser igual de largas')
-        
-        
-        def kernel(self):
-            dominio = self.pares|1 
-            imagen  = self.pares|2 
-            s_generador = [punto for j,punto in enumerate(dominio, 1) if (imagen|j).es_nulo()]
-            return Sistema(s_generador).span(Rn=(dominio).span().Rn)
-        
-        
         def conversion_de_R_a_R1(sis):
             return Sistema([Vector([e]) for e in sis])
         
@@ -2987,7 +2972,28 @@ class FuncionAfin:
             elementos_del_Dominio  = conversion_de_R_a_R1(elementos_del_Dominio)
         if isinstance(BlockV(elementos_de_la_Imagen), Vector):
             elementos_de_la_Imagen = conversion_de_R_a_R1(elementos_de_la_Imagen)
+    
+        
+        if (not es_ristra(elementos_del_Dominio)) or (not es_ristra(elementos_de_la_Imagen)):
+            raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
+                
+        if not len(elementos_del_Dominio) == len(elementos_de_la_Imagen):
+            raise ValueError('Los dos sistemas o lista deben ser igual de largas')
+        
+        nuevos_pares = BlockM([elementos_del_Dominio, elementos_de_la_Imagen]).elim(1)
+        if [e for j,e in enumerate(2|nuevos_pares,1) if e.no_es_nulo() and (1|nuevos_pares|j).es_nulo()]:
+            dispElim(BlockM([elementos_del_Dominio, elementos_de_la_Imagen]).cele({1}), nuevos_pares.pasos)
+            raise ValueError('La lista de pares no corresponde a una función lineal')
             
+        
+        def kernel(self):
+            dominio = self.pares|1 
+            imagen  = self.pares|2 
+            s_generador = [punto for j,punto in enumerate(dominio, 1) if (imagen|j).es_nulo()]
+            return Sistema(s_generador).span(Rn=(dominio).span().Rn)
+        
+                
+        pares        = BlockM([BlockV(elementos_del_Dominio), BlockV(elementos_de_la_Imagen)]).elim(16)
         self.pares   = BlockM([BlockV(elementos_del_Dominio), BlockV(elementos_de_la_Imagen)]).elim(16)
         self.dominio = (self.pares|1).span()
         self.imagen  = (self.pares|2).span()
@@ -2995,15 +3001,29 @@ class FuncionAfin:
         
     
     def es_invertible(self):
-        return self.nucleo.dim==0
+        return self.nucleo.dim==0 and self.es_lineal(reversed(self.pares))
     
-    def es_lineal(self):
-        dominio = self.pares|1 
-        imagen  = self.pares|2
+    def es_lineal(pares):
+        dominio = pares|1 
+        imagen  = pares|2
         if [pto for j,pto in enumerate(imagen,1) if (dominio|j).es_nulo() and (imagen|j).no_es_nulo()]:
             return False
         else:
             return True
+    
+    def es_lineal(self,pares):
+        nuevos_pares = BlockM([(pares|1).sis(), (pares|2).sis()]).elim(1)
+        if [e for j,e in enumerate(2|nuevos_pares,1) if e.no_es_nulo() and (1|nuevos_pares|j).es_nulo()]:
+            return False
+        else:
+            return True
+        
+    def inversa(self):
+        """Devuelve la inversa de la FuncionLineal si existe"""
+        if not self.es_invertible():
+            raise ValueError('Esta FuncionLineal no es invertible')
+    
+        return FuncionLineal((self.pares|2).sis(), (self.pares|1).sis())
     
     
     def imagen_de(self, punto, rep=False):
@@ -3019,31 +3039,10 @@ class FuncionAfin:
         cero  = self.imagen.vector_nulo()
         X     = BlockV([punto, cero])
     
-        lista_pares_ampliada = (~(BlockM(self.pares).apila(~BlockM([-X]),1)))
-        nuevos_pares = lista_pares_ampliada.elim(1,rep).cele({1})
+        lista_pares_ampliada = (~(BlockM(self.pares).apila(~BlockM([-X]),1))).cele({1})
+        nuevos_pares = lista_pares_ampliada.elim(1,rep)
     
         return 2|nuevos_pares|0
-    
-        pinta(nuevos_pares)
-        print(nuevos_pares.pasos)
-        
-        #K = (1|lista_pares_ampliada).elim(0)
-        #pares_tras_eliminacion = lista_pares_ampliada.copy() & T(K.pasos[1])
-        #evaluacion   = pares_tras_eliminacion.csis({K.n-1}).cele({1})
-    
-        # pasos_de_simplificacion = Sistema([par for par in (pares_tras_eliminacion)|slice(1,0) if (1|par).es_nulo()]).elim(12,1).pasos[1]
-        # 
-        # testigo = 0| ((I(lista_pares_ampliada.n) & T(K.pasos[1]))) |0
-        # normaliza = T([]) if testigo==1 else T([( fracc(1,testigo), lista_pares_ampliada.n )])
-        # pasos = [[], K.pasos[1]+[normaliza]] if normaliza else K.pasos
-    
-        
-        imagen = 2|nuevos_pares|0    
-        
-        if rep:
-            dispElim(lista_pares_ampliada, pasos)
-    
-        return imagen
         
     
     def preimagen_de(self, punto, rep=False):
@@ -3056,9 +3055,17 @@ class FuncionAfin:
         except:
             raise ValueError('El elemento indicado no pertenece a la imagen de la función')
     
-        representante = FuncionAfin(self.pares|2, self.pares|1).imagen_de(punto, rep)
-            
-        return EAfin(self.nucleo.sgen, representante,1) 
+        cero  = self.dominio.vector_nulo()
+        X     = BlockV([punto, cero])
+    
+        pasos_evaluacion = (1|(~reversed(self.pares)).amplia(-X,1)).elim(1).pasos
+    
+        representante = 2|((~reversed(self.pares)).amplia(-X,1) & T(pasos_evaluacion[1]))|0
+    
+        if rep:
+            dispElim((~reversed(self.pares)).amplia(-X,1).cele({1}), pasos_evaluacion)
+                
+        return EAfin(self.nucleo.sgen, representante, 1) 
        
     
     def __repr__(self):
@@ -3066,8 +3073,8 @@ class FuncionAfin:
         return 'Sistema inicial de pares (Dominio, Imagen): ' + repr(self.pares)
     
     def latex(self):
-        """ Construye el comando LaTeX para la clase FuncionAfin"""
-        return latex(self.pares)
+        """ Construye el comando LaTeX para la clase FuncionLineal"""
+        return latex((~self.pares).sis())
     
     def _repr_html_(self):
         """ Construye la representación para el entorno jupyter notebook """

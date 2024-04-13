@@ -534,7 +534,6 @@ def vec(self):
     return BlockV(vectoriza(self))
 #+END_SRC
 
-
 **** Sustitución y simplificación de expresiones simbólicas en un ~Sistema~
 
 ***** Sustitución de variables simbólicas. 
@@ -798,7 +797,6 @@ def estructura(self):
         return [type(self), [estructura(item) for item in self]]
 
 #+END_SRC
-
 
 **** Métodos que devuelven ~SubEspacios~
        :PROPERTIES:
@@ -5245,6 +5243,7 @@ class EAfin:
 
 * Las clases ~Homogenea~ y  ~SEL~
 
+
 ** Resolución de sistemas de ecuaciones homogéneos. La clase  ~Homogenea~ 
 
 El siguiente código devuelve el conjunto de soluciones de un sistema homogéneo \SEL{A}{x}{0}. Descripción de los atributos:
@@ -5304,7 +5303,6 @@ vectores nulos de ~K~:
 # E     = I(A.n) & T(K.pasos[1])
 # base  = [ v.subs(sust) for j, v in enumerate(E, 1) if (K|j).es_nulo(sust) ]
 # #+END_SRC
-
 
 *** Métodos de representación de la clase ~Homogenea~
 
@@ -5414,7 +5412,6 @@ def __eq__(self, other):
     return self.eafin == other.eafin
 #+END_SRC
 
-
 *** Métodos de representación de la clase ~SEL~
 
 #+name: Métodos de representación de la clase ~SEL~
@@ -5438,7 +5435,7 @@ def latex(self):
 #+END_SRC
 
 
-* La clase ~Determinante~. Cálculo del determinante por eliminación Gaussiana
+* La clase ~Determinante~. Cálculo del determinante por eliminación
 
 **** Método de inicialización
 
@@ -5509,19 +5506,17 @@ def latex(self):
 
 #+END_SRC
 
-* La clase ~FuncionAfin~
 
-*** Implementación de las funciones afines en la clase ~FuncionAfin~
+* La clase ~FuncionLineal~
+
+*** Implementación de las funciones afines en la clase ~FuncionLineal~
 
 **** Método de inicialización
 
-#+name: Inicialización de la clase FuncionAfin
+#+name: Inicialización de la clase FuncionLineal
 #+BEGIN_SRC python  :noweb no-export
 def __init__(self, elementos_del_Dominio, elementos_de_la_Imagen):
     """Inicializa un Sistema con dos listas, tuplas o Sistemas de la misma longitud"""
-    <<Verificación de que son Ok los argumentos para clase FuncionAfin>>
-    <<Metodo auxiliar para el cálculo del nucleo de la función>>
-    
     def conversion_de_R_a_R1(sis):
         return Sistema([Vector([e]) for e in sis])
     
@@ -5529,7 +5524,11 @@ def __init__(self, elementos_del_Dominio, elementos_de_la_Imagen):
         elementos_del_Dominio  = conversion_de_R_a_R1(elementos_del_Dominio)
     if isinstance(BlockV(elementos_de_la_Imagen), Vector):
         elementos_de_la_Imagen = conversion_de_R_a_R1(elementos_de_la_Imagen)
-        
+
+    <<Verificación de que son Ok los argumentos para clase FuncionLineal>>
+    <<Metodo auxiliar para el cálculo del nucleo de la función>>
+            
+    pares        = BlockM([BlockV(elementos_del_Dominio), BlockV(elementos_de_la_Imagen)]).elim(16)
     self.pares   = BlockM([BlockV(elementos_del_Dominio), BlockV(elementos_de_la_Imagen)]).elim(16)
     self.dominio = (self.pares|1).span()
     self.imagen  = (self.pares|2).span()
@@ -5539,7 +5538,7 @@ def __init__(self, elementos_del_Dominio, elementos_de_la_Imagen):
 
 # para recuperar pares originales: T(F.pares.pasos[0])**-1 & F.pares
 
-#+name: Verificación de que son Ok los argumentos para clase FuncionAfin
+#+name: Verificación de que son Ok los argumentos para clase FuncionLineal
 #+BEGIN_SRC python
 
 if (not es_ristra(elementos_del_Dominio)) or (not es_ristra(elementos_de_la_Imagen)):
@@ -5548,6 +5547,11 @@ if (not es_ristra(elementos_del_Dominio)) or (not es_ristra(elementos_de_la_Imag
 if not len(elementos_del_Dominio) == len(elementos_de_la_Imagen):
     raise ValueError('Los dos sistemas o lista deben ser igual de largas')
 
+nuevos_pares = BlockM([elementos_del_Dominio, elementos_de_la_Imagen]).elim(1)
+if [e for j,e in enumerate(2|nuevos_pares,1) if e.no_es_nulo() and (1|nuevos_pares|j).es_nulo()]:
+    dispElim(BlockM([elementos_del_Dominio, elementos_de_la_Imagen]).cele({1}), nuevos_pares.pasos)
+    raise ValueError('La lista de pares no corresponde a una función lineal')
+    
 #+END_SRC
 
 #+name: Metodo auxiliar para el cálculo del nucleo de la función
@@ -5566,23 +5570,37 @@ def kernel(self):
 # sistema_generador = Sistema([v for j,v in enumerate(E,1) if (K|j).es_nulo()])
 
 
-*** Métodos la clase ~FuncionAfin~
+*** Métodos la clase ~FuncionLineal~
 :PROPERTIES:
-:header-args+: :noweb-ref Métodos la clase ~FuncionAfin~
+:header-args+: :noweb-ref Métodos la clase ~FuncionLineal~
 :END:
 
 #+BEGIN_SRC python
 
 def es_invertible(self):
-    return self.nucleo.dim==0
+    return self.nucleo.dim==0 and self.es_lineal(reversed(self.pares))
 
-def es_lineal(self):
-    dominio = self.pares|1 
-    imagen  = self.pares|2
+def es_lineal(pares):
+    dominio = pares|1 
+    imagen  = pares|2
     if [pto for j,pto in enumerate(imagen,1) if (dominio|j).es_nulo() and (imagen|j).no_es_nulo()]:
         return False
     else:
         return True
+
+def es_lineal(self,pares):
+    nuevos_pares = BlockM([(pares|1).sis(), (pares|2).sis()]).elim(1)
+    if [e for j,e in enumerate(2|nuevos_pares,1) if e.no_es_nulo() and (1|nuevos_pares|j).es_nulo()]:
+        return False
+    else:
+        return True
+    
+def inversa(self):
+    """Devuelve la inversa de la FuncionLineal si existe"""
+    if not self.es_invertible():
+        raise ValueError('Esta FuncionLineal no es invertible')
+
+    return FuncionLineal((self.pares|2).sis(), (self.pares|1).sis())
 
 #+END_SRC
 
@@ -5602,8 +5620,8 @@ def imagen_de(self, punto, rep=False):
     cero  = self.imagen.vector_nulo()
     X     = BlockV([punto, cero])
 
-    lista_pares_ampliada = (~(BlockM(self.pares).apila(~BlockM([-X]),1)))
-    nuevos_pares = lista_pares_ampliada.elim(1,rep).cele({1})
+    lista_pares_ampliada = (~(BlockM(self.pares).apila(~BlockM([-X]),1))).cele({1})
+    nuevos_pares = lista_pares_ampliada.elim(1,rep)
 
     return 2|nuevos_pares|0
     
@@ -5622,16 +5640,24 @@ def preimagen_de(self, punto, rep=False):
     except:
         raise ValueError('El elemento indicado no pertenece a la imagen de la función')
 
-    representante = FuncionAfin(self.pares|2, self.pares|1).imagen_de(punto, rep)
-        
-    return EAfin(self.nucleo.sgen, representante,1) 
+    cero  = self.dominio.vector_nulo()
+    X     = BlockV([punto, cero])
+
+    pasos_evaluacion = (1|(~reversed(self.pares)).amplia(-X,1)).elim(1).pasos
+
+    representante = 2|((~reversed(self.pares)).amplia(-X,1) & T(pasos_evaluacion[1]))|0
+
+    if rep:
+        dispElim((~reversed(self.pares)).amplia(-X,1).cele({1}), pasos_evaluacion)
+            
+    return EAfin(self.nucleo.sgen, representante, 1) 
    
 #+END_SRC
 
 
-*** Métodos de representación de la clase ~FuncionAfin~
+*** Métodos de representación de la clase ~FuncionLineal~
 
-#+name: Métodos de representación de la clase ~FuncionAfin~
+#+name: Métodos de representación de la clase ~FuncionLineal~
 #+BEGIN_SRC python
 
 def __repr__(self):
@@ -5639,8 +5665,8 @@ def __repr__(self):
     return 'Sistema inicial de pares (Dominio, Imagen): ' + repr(self.pares)
 
 def latex(self):
-    """ Construye el comando LaTeX para la clase FuncionAfin"""
-    return latex(self.pares)
+    """ Construye el comando LaTeX para la clase FuncionLineal"""
+    return latex((~self.pares).sis())
 
 def _repr_html_(self):
     """ Construye la representación para el entorno jupyter notebook """
@@ -5648,13 +5674,13 @@ def _repr_html_(self):
 
 #+END_SRC
 
-#+name: Definición de la clase ~FuncionAfin~
+#+name: Definición de la clase ~FuncionLineal~
 #+BEGIN_SRC python :noweb no-export
 
-class FuncionAfin:
-    <<Inicialización de la clase FuncionAfin>>
-    <<Métodos la clase ~FuncionAfin~>>
-    <<Métodos de representación de la clase ~FuncionAfin~>>
+class FuncionLineal:
+    <<Inicialización de la clase FuncionLineal>>
+    <<Métodos la clase ~FuncionLineal~>>
+    <<Métodos de representación de la clase ~FuncionLineal~>>
     
 #+END_SRC
 
@@ -5742,7 +5768,7 @@ from os.path import join
 <<Definición de las subclases InvMatX>>
 <<Definición de las subclases DiagonalizaX>>
 
-<<Definición de la clase ~FuncionAfin~>>
+<<Definición de la clase ~FuncionLineal~>>
 #+END_SRC
 
 
