@@ -78,13 +78,6 @@ upload: nacal
 
 #+END_SRC
 
-# cd $(HOME)/$(name)/; python3 -m twine upload --repository testpypi dist/*
-
-# ficheros:
-# cd $(DIRECTORIO_NACAL); make todo
-# cd $(DIRECTORIO_NACAL); make init
-
-# cp  README.md $(HOME)/$(name)/
 
 #+name: make
 #+BEGIN_SRC bash :results silent :exports none
@@ -98,18 +91,6 @@ make upload
 
 
 \newpage
-
-
-** TODO Cositas por mirar                                          :noexport:
-
-- [X] mirar como convertir md a org
-
-- [X] mirar como exportar bloque a md
-
-- [ ] eliminar target =ficheros=
-  + [ ] mirar como hacer tangle desde fuera del fichero org
-  + [ ] mirar como hacer exportar a pdf desde fuera del fichero org
-
 
 * setup
 
@@ -166,34 +147,5 @@ setuptools.setup(
     keywords="nacal"
 )
 
-#+END_SRC
-
-* Otros                                                            :noexport:
-
-
-Convertir =README.org= a Github Flavored Markdown 
-#+name: CrearMarkdown
-#+BEGIN_SRC sh :results none
-pandoc --from=org --to=gfm README.org > README.md
-#+END_SRC
-
-
-** COMMENT Otras formas de generar README from org
-
-- https://jeffkreeftmeijer.com/org-readme/
-
-#+BEGIN_SRC sh  :results none
-emacs --batch README.org --funcall org-md-export-to-markdown
-#+END_SRC
-
-Convertir =README.org= a markdown (standard)
-#+BEGIN_SRC sh :results none
-pandoc -f markdown -t org -o README.org README.md
-#+END_SRC
-
-** Hacer tangle desde bash
-
-#+BEGIN_SRC sh :results silent
-emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "empaquetadoPIP_nacal.org")'
 #+END_SRC
 
