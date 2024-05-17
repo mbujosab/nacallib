@@ -1,0 +1,199 @@
+#+TITLE: Empaquetado del módulo NAcAL para el repositorio ~pypi~ 
+#+AUTHOR: Marcos Bujosa
+#+EMAIL: mbujosab@ucm.es
+#+LANGUAGE: es-es
+
+#+STARTUP: show5levels
+
+#+OPTIONS: H:5
+# C-u tab
+
+# +OPTIONS: toc:5
+# +OPTIONS: email:t tags:nil toc:nil
+
+#+OPTIONS: toc:nil
+
+
+
+#+LATEX_CLASS: article
+#+LaTeX_HEADER: \usepackage{nacal}
+#+LATEX_HEADER: \usepackage[spanish]{babel}
+#+LaTeX_HEADER: \usepackage{pdfpages}
+#+LaTeX_HEADER: \usepackage{parskip}
+
+\maketitle
+
+Aquí especifico lo necesario para empaquetar el módulo ~NAcAL~ para
+ser instalado con =pip=. Más documentación en:
+- [[https://packaging.python.org/en/latest/tutorials/packaging-projects/]]
+- [[https://kynan.github.io/blog/2020/05/23/how-to-upload-your-package-to-the-python-package-index-pypi-test-server]]
+
+Antes de empaquetar, desde el fichero fuente [[file:../nacal_src.org::Fichero =__init__.py=][~nacal_src.org~]] debemos
+hacer lo siguiente:
+
+1 Actualizar el número de version en dos lugares de la sección [[file:../nacal_src.org::Fichero =__init__.py=][~Fichero =__init__.py=~]]
+  + en el =macro= que aparece en la primera línea de esta sección.
+  + en el bloque ~__init__.py~ inmediatamente debajo del =macro=.
+
+2 Generar el pdf con el código fuente
+  + haciendo ~C-x C-e l p~
+
+3 El /"tangle"/ para obtener los ficheros =nacal/nacal.py= y
+  =nacal/__init__.py=
+  + haciendo  ~C-c C-v t~
+
+*** COMMENT Ultimos pasos                                          :noexport:
+# Por último creamos el Markdown, un directorio auxiliar con el paquete
+#+CALL: make()
+
+# o definitiavamente el Markdown, un directorio auxiliar con el paquete y lo subimos a pypi
+#+CALL: makeUpload()
+
+* makefile
+
+# +BEGIN_SRC  makefile :noweb no-export :results silent :exports none :tangle makefile
+
+#+BEGIN_SRC  makefile :results silent :tangle makefile
+
+############################ -*- Mode: Makefile -*- ###########################
+DIRECTORIO_NACAL = $(HOME)/CloudStation/ReposGH/Docencia/nacallib
+
+name = nacal
+
+nacal:
+	rm -r -f $(HOME)/$(name)
+	mkdir -p $(HOME)/$(name)
+	mkdir -p $(HOME)/$(name)/$(name)/
+	cp $(DIRECTORIO_NACAL)/nacal/nacal.py $(HOME)/$(name)/$(name)/nacal.py
+	cp $(DIRECTORIO_NACAL)/nacal/__init__.py $(HOME)/$(name)/$(name)/__init__.py
+	cp $(DIRECTORIO_NACAL)/LICENSE $(HOME)/$(name)/
+	pandoc --from=org --to=gfm $(DIRECTORIO_NACAL)/README.org > $(HOME)/$(name)/README.md
+	cp setup.py $(HOME)/$(name)/
+	cd $(HOME)/$(name)/; python3 setup.py check
+	cd $(HOME)/$(name)/; python3 setup.py sdist bdist_wheel
+	cd $(HOME)/$(name)/; twine check dist/*
+
+upload: nacal
+	cd $(HOME)/$(name)/; twine upload --repository nacal dist/*
+
+#+END_SRC
+
+# cd $(HOME)/$(name)/; python3 -m twine upload --repository testpypi dist/*
+
+# ficheros:
+# cd $(DIRECTORIO_NACAL); make todo
+# cd $(DIRECTORIO_NACAL); make init
+
+# cp  README.md $(HOME)/$(name)/
+
+#+name: make
+#+BEGIN_SRC bash :results silent :exports none
+make nacal
+#+END_SRC
+
+#+name: makeUpload
+#+BEGIN_SRC bash :results silent :exports none
+make upload
+#+END_SRC
+
+
+\newpage
+
+
+** TODO Cositas por mirar                                          :noexport:
+
+- [X] mirar como convertir md a org
+
+- [X] mirar como exportar bloque a md
+
+- [ ] eliminar target =ficheros=
+  + [ ] mirar como hacer tangle desde fuera del fichero org
+  + [ ] mirar como hacer exportar a pdf desde fuera del fichero org
+
+
+* setup
+
+#+BEGIN_SRC python :tangle setup.py
+
+import setuptools
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+import codecs
+import os.path
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
+nombre = "nacal"
+
+setuptools.setup(
+    name = nombre,
+    version=get_version(nombre + "/__init__.py"),
+    author="Marcos Bujosa",
+    license="GPLv3",
+    author_email="mbujosab@ucm.es",
+    description="Notacion Asociativa para un curso de Algebra Lineal (NAcAL)",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/mbujosab/nacallib",
+    packages=setuptools.find_packages(),
+    #pakages=["nacal"],
+    install_requires=["sympy>=1.1.0"],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Education",
+        "Framework :: Jupyter",
+        "Environment :: Console",
+        "Natural Language :: Spanish",
+        "Topic :: Scientific/Engineering :: Mathematics",
+        "Development Status :: 3 - Alpha",
+    ],
+    python_requires='>=3.6',
+    keywords="nacal"
+)
+
+#+END_SRC
+
+* Otros                                                            :noexport:
+
+
+Convertir =README.org= a Github Flavored Markdown 
+#+name: CrearMarkdown
+#+BEGIN_SRC sh :results none
+pandoc --from=org --to=gfm README.org > README.md
+#+END_SRC
+
+
+** COMMENT Otras formas de generar README from org
+
+- https://jeffkreeftmeijer.com/org-readme/
+
+#+BEGIN_SRC sh  :results none
+emacs --batch README.org --funcall org-md-export-to-markdown
+#+END_SRC
+
+Convertir =README.org= a markdown (standard)
+#+BEGIN_SRC sh :results none
+pandoc -f markdown -t org -o README.org README.md
+#+END_SRC
+
+** Hacer tangle desde bash
+
+#+BEGIN_SRC sh :results silent
+emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "empaquetadoPIP_nacal.org")'
+#+END_SRC
+

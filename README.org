@@ -1,0 +1,83 @@
+[[https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FNotebook.ipynb][https://mybinder.org/badge_logo.svg]] [[https://mybinder.org/v2/gh/mbujosab/nacal-Jupyter-Notebooks/master][https://mybinder.org/badge_logo.svg]]
+
+* Módulo "NAcAL" (Notación Asociativa para un Curso de Álgebra Lineal)
+  :PROPERTIES:
+  :CUSTOM_ID: módulo-nacal-notación-asociativa-para-un-curso-de-álgebra-lineal
+  :END:
+
+Este módulo implementa la notación, los objetos y los procedimientos descritos en el [[https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf][libro]] del [[https://github.com/mbujosab/CursoDeAlgebraLineal][Curso de ÁLgebra Lineal]]
+correspondiente a la asignatura [[https://www.ucm.es/fundamentos-analisis-economico2/algebra-2][Matemáticas II.]]
+
+Aunque es posible su uso desde un terminal, este módulo está pensado para ser empleado en [[https://jupyter.org/][Notebooks de Jupyter]] (y
+también desde documentos de \LaTeX{}).
+
+Este módulo muestra cómo llegar a la mayoría de los resultados del curso de Álgebra Lineal empleando el método de
+eliminación. NAcAL no solo resuelve sistemas de ecuaciones, invierte matrices, calcula determinantes, diagonaliza
+matrices tanto por semejanza como por congruencia, etc. sino que muestra los pasos empleados para llegar al resultado
+como si se hiciera con lápiz y papel (ofreciendo el código \LaTeX{} para expresar todo el proceso). También permite
+trabajar con subespacios vectoriales y espacios afines (bases, sistemas generadores, ecuaciones cartesianas y
+paramétricas, complementos ortogonales, interseción, pertenecia, etc.). También puede trabajar de manera simbólica, pues
+emplea los objetos básicos del módulo [[https://www.sympy.org/en/index.html][Sympy]].
+
+La documentación explica la programación del código y sirve como material adicional al [[https://github.com/mbujosab/CursoDeAlgebraLineal][libro del curso]] (este módulo es
+una implementación literal de lo mostrado en dicho libro).
+
+Puede ver el uso del módulo sin necesidad de instalar nada, tan solo accediendo a los Notebooks de Jupyter alojados en
+[[https://mybinder.org/v2/gh/mbujosab/nacal-Jupyter-Notebooks/master][https://mybinder.org/badge_logo.svg]] con su navegador de páginas web (tenga en cuenta que MyBinder puede tardar unos
+minutos en cargar el módulo y el Notebook de demostración).
+
+** Instalación
+   :PROPERTIES:
+   :CUSTOM_ID: instalación
+   :END:
+
+[[https://pypi.org/project/nacal/][nacal]] funciona con Python >=3.6.  Puede instalar el paquete desde PyPI via pip:
+
+#+BEGIN_SRC sh
+  pip3 install nacal
+#+END_SRC
+
+[[https://pypi.org/project/nacal/][nacal]] emplea [[https://www.sympy.org/en/index.html][Sympy]]. Para instalar Sympy:
+
+#+BEGIN_SRC sh
+  pip3 install sympy
+#+END_SRC
+
+** Uso
+   :PROPERTIES:
+   :CUSTOM_ID: uso
+   :END:
+
+Para emplear este módulo en una consola de Python, una vez instalada:
+
+#+BEGIN_SRC sh
+  pyhton3
+  >>> from nacal import *
+#+END_SRC
+
+Para emplearlo en un Notebook de Jupyter, ejecute en un "Cell" de código
+
+#+BEGIN_EXAMPLE
+  from nacal import *
+#+END_EXAMPLE
+
+** Desinstalación
+   :PROPERTIES:
+   :CUSTOM_ID: desinstalación
+   :END:
+
+Para desinstalar [[https://pypi.org/project/nacal/][nacal]]:
+
+#+BEGIN_SRC sh
+  pip3 uninstall nacal
+#+END_SRC
+
+
+* seción auxiliar                                                  :noexport:
+
+#+BEGIN_SRC sh
+  pandoc --from=org --to=gfm README.org > ../README.md
+#+END_SRC
+
+#+RESULTS:
+
