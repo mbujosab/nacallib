@@ -379,11 +379,18 @@ class Sistema:
     
     def subs(self, reglasDeSustitucion=[]):
         """ Sustitución de variables simbólicas """
+        
+        def sustitucion(elemento, regla_de_sustitucion):
+            if es_numero(elemento):
+                return sympy.S(elemento).subs(CreaLista(regla_de_sustitucion))
+            else:
+                return elemento.subs(CreaLista(regla_de_sustitucion))
+            
         reglas = CreaLista(reglasDeSustitucion)
         NuevoSistema = self.fullcopy()
-        NuevoSistema.lista = [sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
+        NuevoSistema.lista = [sustitucion(elemento, reglasDeSustitucion) for elemento in NuevoSistema]
         return NuevoSistema
-    
+        
     
     def simplify(self):
         """ Simplificación de expresiones simbólicas """
@@ -1941,6 +1948,98 @@ class I(Matrix):
         super().__init__([[(i==j)*1 for i in range(n)] for j in range(n)])
         self.__class__ = Matrix
 
+class SistemaSimbol(BlockV):
+    def __init__(self, arg, char=' ', rpr='columna'):
+        """Inicializa un Sistema Simbólico con una lista, tupla o Sistema"""
+        self.sistema = arg if isinstance(arg, Sistema) else Sistema(CreaLista(arg))
+        letra, simbolo = self.simbolos(char)        
+        self.lista   = [self.sistema, simbolo, letra]
+        
+        self.n = len(self.sistema)
+        self.corteSistema = set()
+        self.rpr = rpr
+                            
+    def simbolos(self, char):
+        letra = sympy.Symbol('0', zero=True) if self.es_nulo() else sympy.Symbol(char.upper())
+        simbolo_latex = sympy.Symbol(r'\mathsf{0}', zero=True) if self.es_nulo() else  sympy.Symbol(r'\mathsf{'+str(letra)+'}')
+        return letra, simbolo_latex
+    
+    def es_nulo(self):
+        return self.sistema.es_nulo()
+    
+    def copy(self):
+        """ Genera una copia de un SistemaSimbol """
+        return type(self)(self.lista[0], str(self.lista[2]))
+
+    def __str__(self):
+        """ Muestra un SistemaSimbol en su representación python """
+        return str(self.lista[2])
+    
+    def __repr__(self):
+        """ Muestra un SistemaSimbol en su representación python """
+        return 'SistemaSimbol(' + repr(self.lista[0]) + ', "' + repr(self.lista[2]) + '")'
+    
+    def latex(self):
+        """ Construye el comando LaTeX para representar un SistemaSimbol """
+        return latex(self.lista[1])
+        
+    def _repr_latex_(self):
+        """ Representación para el entorno jupyter en Emacs """
+        return '$'+self.latex()+'$'
+    
+    def _repr_html_(self):
+        """ Construye la representación para el entorno jupyter notebook """
+        return html(self.latex())
+
+    def elim(self, variante=0, rep=False, sust=[], repsust=False):
+        return self.sistema.elim(variante, rep, sust, repsust)
+    
+class MatrixSimbol(SistemaSimbol):
+    def __init__(self, arg, char=' ', rpr='columna'):
+        self.sistema = arg if isinstance(arg, Matrix) else BlockM(CreaLista(arg))
+        letra, simbolo = self.simbolos(char)        
+        self.lista   = [self.sistema, simbolo, letra]
+        
+        self.n = len(self.sistema)
+        self.corteSistema = set()
+        self.rpr = rpr
+                            
+    def simbolos(self, char):
+        letra = sympy.Symbol('0', zero=True) if self.es_nulo() else sympy.Symbol(char.upper())
+        simbolo_latex = sympy.Symbol(r'\boldsymbol{\mathsf{0}}', zero=True) if self.es_nulo() else  sympy.Symbol(r'\boldsymbol{\mathsf{'+str(letra)+'}}')
+        return letra, simbolo_latex
+    
+    def __repr__(self):
+        """ Muestra un MatrixSimbol en su representación python """
+        return 'MatrixSimbol(' + repr(self.lista[0]) + ', "' + repr(self.lista[2]) + '")'
+    
+    def latex(self):
+        """ Construye el comando LaTeX para representar un MatrixSimbol """
+        return latex(self.lista[1])
+    
+class VectorSimbol(SistemaSimbol):
+    def __init__(self, arg, char=' ', rpr='columna'):
+        self.sistema = arg if isinstance(arg, Vector) else BlockV(CreaLista(arg))
+        letra, simbolo = self.simbolos(char)
+        self.lista   = [self.sistema, simbolo, letra]
+        
+        self.n = len(self.sistema)
+        self.corteSistema = set()
+        self.rpr = rpr
+                            
+    def simbolos(self, char):
+        letra = sympy.Symbol('0', zero=True) if self.es_nulo() else sympy.Symbol(char.lower())
+        simbolo_latex = sympy.Symbol(r'\boldsymbol{0}', zero=True) if self.es_nulo() else  sympy.Symbol(r'\boldsymbol{'+str(letra)+'}')
+        return letra, simbolo_latex
+
+    def __repr__(self):
+        """ Muestra un VectorSimbol en su representación python """
+        return 'VectorSimbol(' + repr(self.lista[0]) + ', "' + repr(self.lista[2]) + '")'
+    
+    def latex(self):
+        """ Construye el comando LaTeX para representar un VectorSimbol """
+        return latex(self.lista[1])
+    
 
 RistraTypes = (tuple, list, Sistema)
 es_ristra  = lambda x: isinstance(x, RistraTypes) 

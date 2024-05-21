@@ -39,7 +39,9 @@
 
 **** Fichero =__init__.py=                                         :noexport:
 
-#+macro: ver Versión:  0.2.0
+#+CALL: NombreEnChunksDeCodigo()
+
+#+macro: ver Versión:  0.2.1
 
 #+name: __init__.py
 #+BEGIN_SRC python :tangle nacal/__init__.py
@@ -47,7 +49,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -566,12 +568,27 @@ def vec(self):
 
 def subs(self, reglasDeSustitucion=[]):
     """ Sustitución de variables simbólicas """
+    
+    def sustitucion(elemento, regla_de_sustitucion):
+        if es_numero(elemento):
+            return sympy.S(elemento).subs(CreaLista(regla_de_sustitucion))
+        else:
+            return elemento.subs(CreaLista(regla_de_sustitucion))
+        
     reglas = CreaLista(reglasDeSustitucion)
     NuevoSistema = self.fullcopy()
-    NuevoSistema.lista = [sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
+    NuevoSistema.lista = [sustitucion(elemento, reglasDeSustitucion) for elemento in NuevoSistema]
     return NuevoSistema
-
+    
 #+END_SRC
+
+# def subs(self, reglasDeSustitucion=[]):
+#     """ Sustitución de variables simbólicas """
+#     reglas = CreaLista(reglasDeSustitucion)
+#     NuevoSistema = self.fullcopy()
+#     NuevoSistema.lista = [sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
+#     return NuevoSistema
+
 
 El argumento es una lista de [[https://docs.sympy.org/latest/tutorials/intro-tutorial/basic_operations.html][reglas de sustitución]] formadas por pares
 =(símbolo, valor)=; por ejemplo ~[(a,2), (b,0), (c,a)]~.
@@ -2592,7 +2609,6 @@ class V1(Vector):
 
 #+END_SRC
 
-
 ** La subclase ~BlockM~
 
 Un =BlockM= es un sistema de =BlockVs= de la misma longitud, es decir,
@@ -3647,6 +3663,104 @@ class I(Matrix):
 
 #+RESULTS: Definición de las subclases M0, M1 e I
 
+
+** Las subclases de sistemas simbólicos
+
+#+name: Definición de las subclases de sistemas simbólicos
+#+BEGIN_SRC python
+class SistemaSimbol(BlockV):
+    def __init__(self, arg, char=' ', rpr='columna'):
+        """Inicializa un Sistema Simbólico con una lista, tupla o Sistema"""
+        self.sistema = arg if isinstance(arg, Sistema) else Sistema(CreaLista(arg))
+        letra, simbolo = self.simbolos(char)        
+        self.lista   = [self.sistema, simbolo, letra]
+        
+        self.n = len(self.sistema)
+        self.corteSistema = set()
+        self.rpr = rpr
+                            
+    def simbolos(self, char):
+        letra = sympy.Symbol('0', zero=True) if self.es_nulo() else sympy.Symbol(char.upper())
+        simbolo_latex = sympy.Symbol(r'\mathsf{0}', zero=True) if self.es_nulo() else  sympy.Symbol(r'\mathsf{'+str(letra)+'}')
+        return letra, simbolo_latex
+    
+    def es_nulo(self):
+        return self.sistema.es_nulo()
+    
+    def copy(self):
+        """ Genera una copia de un SistemaSimbol """
+        return type(self)(self.lista[0], str(self.lista[2]))
+
+    def __str__(self):
+        """ Muestra un SistemaSimbol en su representación python """
+        return str(self.lista[2])
+    
+    def __repr__(self):
+        """ Muestra un SistemaSimbol en su representación python """
+        return 'SistemaSimbol(' + repr(self.lista[0]) + ', "' + repr(self.lista[2]) + '")'
+    
+    def latex(self):
+        """ Construye el comando LaTeX para representar un SistemaSimbol """
+        return latex(self.lista[1])
+        
+    def _repr_latex_(self):
+        """ Representación para el entorno jupyter en Emacs """
+        return '$'+self.latex()+'$'
+    
+    def _repr_html_(self):
+        """ Construye la representación para el entorno jupyter notebook """
+        return html(self.latex())
+
+    def elim(self, variante=0, rep=False, sust=[], repsust=False):
+        return self.sistema.elim(variante, rep, sust, repsust)
+    
+class MatrixSimbol(SistemaSimbol):
+    def __init__(self, arg, char=' ', rpr='columna'):
+        self.sistema = arg if isinstance(arg, Matrix) else BlockM(CreaLista(arg))
+        letra, simbolo = self.simbolos(char)        
+        self.lista   = [self.sistema, simbolo, letra]
+        
+        self.n = len(self.sistema)
+        self.corteSistema = set()
+        self.rpr = rpr
+                            
+    def simbolos(self, char):
+        letra = sympy.Symbol('0', zero=True) if self.es_nulo() else sympy.Symbol(char.upper())
+        simbolo_latex = sympy.Symbol(r'\boldsymbol{\mathsf{0}}', zero=True) if self.es_nulo() else  sympy.Symbol(r'\boldsymbol{\mathsf{'+str(letra)+'}}')
+        return letra, simbolo_latex
+    
+    def __repr__(self):
+        """ Muestra un MatrixSimbol en su representación python """
+        return 'MatrixSimbol(' + repr(self.lista[0]) + ', "' + repr(self.lista[2]) + '")'
+    
+    def latex(self):
+        """ Construye el comando LaTeX para representar un MatrixSimbol """
+        return latex(self.lista[1])
+    
+class VectorSimbol(SistemaSimbol):
+    def __init__(self, arg, char=' ', rpr='columna'):
+        self.sistema = arg if isinstance(arg, Vector) else BlockV(CreaLista(arg))
+        letra, simbolo = self.simbolos(char)
+        self.lista   = [self.sistema, simbolo, letra]
+        
+        self.n = len(self.sistema)
+        self.corteSistema = set()
+        self.rpr = rpr
+                            
+    def simbolos(self, char):
+        letra = sympy.Symbol('0', zero=True) if self.es_nulo() else sympy.Symbol(char.lower())
+        simbolo_latex = sympy.Symbol(r'\boldsymbol{0}', zero=True) if self.es_nulo() else  sympy.Symbol(r'\boldsymbol{'+str(letra)+'}')
+        return letra, simbolo_latex
+
+    def __repr__(self):
+        """ Muestra un VectorSimbol en su representación python """
+        return 'VectorSimbol(' + repr(self.lista[0]) + ', "' + repr(self.lista[2]) + '")'
+    
+    def latex(self):
+        """ Construye el comando LaTeX para representar un VectorSimbol """
+        return latex(self.lista[1])
+    
+#+END_SRC
 
 ** ~Sistemas~ obtenidos tras algunos procedimientos específicos de eliminación
 
@@ -5803,6 +5917,7 @@ from os.path import join
 <<Definición de la subclase BlockM>>
 <<Definición de la subclase Matrix>>
 <<Definición de las subclases M0, M1 e I>>
+<<Definición de las subclases de sistemas simbólicos>>
 
 <<Consideracion de qué es una secuencia>>
 
@@ -6308,4 +6423,90 @@ El código completo del ejemplo usado para explicar cómo funciona el
 
 
 
+
+
+** COMMENT La subclase ~VectorS~                                   :noexport:
+
+#+BEGIN_SRC python
+
+class VectorS(Sistema):
+    def __init__(self, coordenadas, simbolo='v'):
+        """Inicializa un Vector Simbólico con una lista, tupla o Sistema"""
+        def repre(self, simbolo):
+            letra = sympy.Symbol('0') if self.es_nulo() else sympy.Symbol(simbolo)
+            simbolo_latex = sympy.Symbol(r'\boldsymbol{'+str(self.letra)+'}')
+            return letra, simbolo_latex
+        
+        if es_ristra(coordenadas):
+            self.lista = list(coordenadas)
+        else:
+            raise ValueError('Las coordenadas deben ser una lista, tupla, o Vector.')
+            
+        self.n = len(self)
+        self.corteSistema = set()
+        self.letra = sympy.Symbol(simbolo)
+        if Sistema(self.lista).es_nulo():
+            self.letra = sympy.Symbol('0')
+        self.simbolo = sympy.Symbol(r'\boldsymbol{'+str(self.letra)+'}') 
+
+    def es_nulo(self):
+        return Sistema(self.lista).es_nulo()
+    
+    def copy(self):
+        """ Genera una copia de un VectorS """
+        return VectorS(self.lista, str(self.letra))
+        
+    def __str__(self):
+        """ Muestra un Sistema en su representación python """
+        return str(self.letra)
+    
+    def __repr__(self):
+        """ Muestra un Sistema en su representación python """
+        return 'VectorS("' + str(self.letra) + '",' + repr(self.lista) + ')'
+    
+    def latex(self):
+        """ Construye el comando LaTeX para representar un Sistema """
+        return latex(self.simbolo)
+        
+    def _repr_latex_(self):
+        """ Representación para el entorno jupyter en Emacs """
+        return '$'+self.latex()+'$'
+    
+    def _repr_html_(self):
+        """ Construye la representación para el entorno jupyter notebook """
+        return html(self.latex())
+    
+    def __add__(self, other):        
+        vs = VectorS((Vector(self.lista) + Vector(other.lista)).lista)
+        vs.simbolo = self.simbolo + other.simbolo
+        vs.letra   = self.letra + other.letra
+        return vs
+    
+    def __rmul__(self, x):
+        """Multiplica un VectorS por un número a su izquierda
+        """
+        vs = VectorS( (x*Vector(self.lista)).lista )
+        vs.simbolo = x*self.simbolo
+        vs.letra   = x*self.letra
+        return vs
+        
+    def __mul__(self, x):
+        """Multiplica un VectorS por un número a su derecha
+        """
+        return x*self
+        
+    def __sub__(self, other):
+        vs = VectorS((Vector(self.lista) - Vector(other.lista)).lista)
+        vs.simbolo = self.simbolo - other.simbolo
+        vs.letra   = self.letra - other.letra
+        return vs
+    
+    def subs(self, regla_de_sustitucion=[]):
+        '''Sustitución simbólica en transformaciones elementales'''     
+        vs = VectorS( Vector(self.lista).subs(regla_de_sustitucion) )
+        vs.simbolo = self.simbolo
+        vs.letra   = self.letra
+        return vs
+    
+#+END_SRC
 

@@ -13,7 +13,7 @@
 
 #+OPTIONS: toc:nil
 
-
+# COMPILAR DOCUMENTACIÓN PDF CON SCIMAX
 
 #+LATEX_CLASS: article
 #+LaTeX_HEADER: \usepackage{nacal}
@@ -27,6 +27,7 @@ Aquí especifico lo necesario para empaquetar el módulo ~NAcAL~ para
 ser instalado con =pip=. Más documentación en:
 - [[https://packaging.python.org/en/latest/tutorials/packaging-projects/]]
 - [[https://kynan.github.io/blog/2020/05/23/how-to-upload-your-package-to-the-python-package-index-pypi-test-server]]
+- [[https://jeffkreeftmeijer.com/org-readme/]]
 
 Antes de empaquetar, desde el fichero fuente [[file:../nacal_src.org::Fichero =__init__.py=][~nacal_src.org~]] debemos
 hacer lo siguiente:
@@ -48,6 +49,7 @@ hacer lo siguiente:
 
 # o definitiavamente el Markdown, un directorio auxiliar con el paquete y lo subimos a pypi
 #+CALL: makeUpload()
+
 
 * makefile
 
