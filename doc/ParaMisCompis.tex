@@ -2,7 +2,10 @@
 
 \usepackage[spanish]{babel}   % multi-language support
 
-\usepackage{amsmath} % es necesario para que pinte OK el proceso de eliminación
+\usepackage{nacal}
+
+% \usepackage{amsmath} % es necesario para que pinte OK el proceso de eliminación
+
 
 \usepackage{pythontex} % para usar Python en el documento
 \pythontexcustomc{pyconsole}{from nacal import *}
@@ -81,11 +84,11 @@ representación con los Notebooks de Jupyter. Si no se indica
 explícitamente, Python no usa la representación \LaTeX{}. Por tanto,
 con
 \begin{Verbatim}
-Sea la matriz $\py{ Matrix([[1,1,2,4],[1,0,3,4]]) }$.
+Sea la matriz $\py{ repr(Matrix([[1,1,2,4],[1,0,3,4]])) }$.
 \end{Verbatim}
 obtenemos el texto
 \begin{quote}
-  Sea la matriz $\py{ Matrix([[1,1,2,4],[1,0,3,4]]) }$.
+  Sea la matriz $\py{ repr(Matrix([[1,1,2,4],[1,0,3,4]])) }$.
 \end{quote}
 Que es correcto pero muy feo.
 \medskip
@@ -119,12 +122,12 @@ C = Matrix([[1,1,2,4],[1,0,3,4]])
 \end{Verbatim}
 ya hemos definido la matriz $\mathbf{C}$. Ahora podemos escribir
 \begin{Verbatim}
-  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rg()}$ y
+  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rango()}$ y
   cuya forma escalonada por filas es $\py{ latex(C.U()) }$.
 \end{Verbatim}
 y obtener
 \begin{quote}
-  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rg()}$ y
+  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rango()}$ y
   cuya forma escalonada por filas es $\py{ latex(C.U()) }$.
 \end{quote}
 
@@ -158,28 +161,29 @@ nos muestra lo siguiente
 
 Hay muchos objetos molestos para escribir en \LaTeX{} pero que
 resultan inmediatos con NAcAL. Por ejemplo el conjunto de soluciones
-$\mathbf{C}\boldsymbol{x}=}\boldsymbol{0}$
+$\mathbf{C}\boldsymbol{x}=\boldsymbol{0}$
 \begin{Verbatim}
   \begin{displaymath}
-    \py{ latex( C.enulo() ) }
+    \py{ latex( C.espacio_nulo() ) }
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{latex(C.enulo())}
+  \py{latex(C.espacio_nulo())}
 \end{displaymath}
 Si solo estamos interesados en escribir las ecuaciones paramétricas
 \begin{Verbatim}
   \begin{displaymath}
-    \py{ C.enulo().EcParametricas() }
+    \py{ C.espacio_nulo().EcParametricas() }
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{C.enulo().EcParametricas()}
+  \py{C.espacio_nulo().EcParametricas()}
 \end{displaymath}
+\DefineShortVerb{\|}
 (escribiendo esto me doy cuenta de que no he sido sistemático con los
-nombres\ldost{} \texttt{C.enulo().EcParametricas()} ya es código
+nombres\ldots{} \Verb+C.espacio_nulo().EcParametricas()+ ya es código
 \LaTeX{}, y por el nombre no está claro\dots{} quizá debería darle una
 vuelta a eso).  \medskip
 
@@ -193,30 +197,19 @@ homogéneo
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{ latex( Homogenea(C) )}
+  \py{latex( Homogenea(C) )}
 \end{displaymath}
 Y si queremos ver cómo lo ha calculado\dots
 \begin{Verbatim}
   \begin{displaymath}
-    \py{ Homogenea(C).tex }
+    \py{Homogenea(C).tex }
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{ Homogenea(C).tex }
+  \py{Homogenea(C).tex }
 \end{displaymath}
-La clase \texttt{Homogenea} guarda el espacio nulo como atributo, así que 
-\begin{Verbatim}
-  \begin{displaymath}
-    \py{ latex( Homogenea(C).enulo ) }
-  \end{displaymath}
-\end{Verbatim}
-nos muestra lo siguiente
-\begin{displaymath}
-  \py{ latex( Homogenea(C).enulo ) }
-\end{displaymath}
-\dots{} hay muchas maneras de obtener lo mismo (al igual que pasa en
-un curso de Álgebra Lineal).  \bigskip
+\bigskip
 
 Como podéis ver, escribir con Pythontex + NAcAL es bastante
 productivo, ahorra mucho trabajo y evita muchos
