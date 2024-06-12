@@ -2,7 +2,7 @@
 
 \usepackage[spanish]{babel}   % multi-language support
 
-\usepackage{nacal}
+\usepackage{nacal} % este paquete se puede descargar desde https://github.com/mbujosab/nacal-latex-package
 
 % \usepackage{amsmath} % es necesario para que pinte OK el proceso de eliminación
 
@@ -60,11 +60,11 @@ espacios (o tabuladores) delante de los comandos son importantes. Por
 tanto el código Python debe empezar al comienzo de la línea. Por
 ejemplo: este código es OK
 \begin{Verbatim}
-C = Matrix([[1,1,2,4],[1,0,3,4]])  
+A = Matrix([[1,1,2,4],[1,0,3,4]])  
 \end{Verbatim}
 pero este otro daría error
 \begin{Verbatim}
-  C = Matrix([[1,1,2,4],[1,0,3,4]])  
+  A = Matrix([[1,1,2,4],[1,0,3,4]])  
 \end{Verbatim}
 (nótese que hay dos espacios en blanco al inicio).  \medskip
 
@@ -88,7 +88,7 @@ Sea la matriz $\py{ repr(Matrix([[1,1,2,4],[1,0,3,4]])) }$.
 \end{Verbatim}
 obtenemos el texto
 \begin{quote}
-  Sea la matriz $\py{ repr(Matrix([[1,1,2,4],[1,0,3,4]])) }$.
+  Sea la matriz $\mathtt{\py{ repr(Matrix([[1,1,2,4],[1,0,3,4]])) }}$.
 \end{quote}
 Que es correcto pero muy feo.
 \medskip
@@ -112,37 +112,37 @@ Hay otra forma de trabajar (que es la que uso con más frecuencia). El
 entorno \texttt{pycode} ejecuta código de Python pero no muestra el
 resultado (hay que mirar la documentación de Pythontex).
 \begin{pycode}
-C = Matrix([[1,1,2,4],[1,0,3,4]])
+A = Matrix([[1,1,2,4],[1,0,3,4]])
 \end{pycode}  
 Así, con
 \begin{Verbatim}
 \begin{pycode}
-C = Matrix([[1,1,2,4],[1,0,3,4]])
+A = Matrix([[1,1,2,4],[1,0,3,4]])
 \end{pycode}  
 \end{Verbatim}
-ya hemos definido la matriz $\mathbf{C}$. Ahora podemos escribir
+ya hemos definido la matriz $\Mat{A}$. Ahora podemos escribir
 \begin{Verbatim}
-  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rango()}$ y
-  cuya forma escalonada por filas es $\py{ latex(C.U()) }$.
+  Sea la matriz $\py{latex( A )}$, que tiene rango $\py{A.rango()}$ y
+  cuya forma escalonada por filas es $\py{ latex(A.U()) }$.
 \end{Verbatim}
 y obtener
 \begin{quote}
-  Sea la matriz $\py{latex( C )}$, que tiene rango $\py{C.rango()}$ y
-  cuya forma escalonada por filas es $\py{ latex(C.U()) }$.
+  Sea la matriz $\py{latex( A )}$, que tiene rango $\py{A.rango()}$ y
+  cuya forma escalonada por filas es $\py{ latex(A.U()) }$.
 \end{quote}
 
 \section{Uso de NAcAL}
 Algunos procedimientos del curso (como la eliminación) dan como
 resultado una matriz, pero también muestran como llegar al
 resultado. Por ejemplo, podemos escalonar por columnas la matriz
-$\mathbf{C}$
+$\Mat{A}$
 \begin{Verbatim}
   \begin{displaymath}
-    \py{latex( Elim(C) ) }
+    \py{latex( Elim(A) ) }
   \end{displaymath}
 \end{Verbatim}
 \begin{displaymath}
-  \py{latex( Elim(C) ) }
+  \py{latex( Elim(A) ) }
 \end{displaymath}
 Pero solo nos ha mostrado el resultado final (es decir, la matriz
 escalonada por eliminación). Afortunadamente NAcAL guarda el código
@@ -151,35 +151,35 @@ escalonada por eliminación). Afortunadamente NAcAL guarda el código
 usar el comando \texttt{latex()} dentro de Python.
 \begin{Verbatim}
   \begin{displaymath}
-    \py{Elim(C).tex}
+    \py{Elim(A).tex}
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{Elim(C).tex}
+  \py{Elim(A).tex}
 \end{displaymath}
 
 Hay muchos objetos molestos para escribir en \LaTeX{} pero que
 resultan inmediatos con NAcAL. Por ejemplo el conjunto de soluciones
-$\mathbf{C}\boldsymbol{x}=\boldsymbol{0}$
+$\SEL{A}{x}{0}$
 \begin{Verbatim}
   \begin{displaymath}
-    \py{ latex( C.espacio_nulo() ) }
+    \py{ latex( A.espacio_nulo() ) }
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{latex(C.espacio_nulo())}
+  \py{latex(A.espacio_nulo())}
 \end{displaymath}
 Si solo estamos interesados en escribir las ecuaciones paramétricas
 \begin{Verbatim}
   \begin{displaymath}
-    \py{ C.espacio_nulo().EcParametricas() }
+    \py{ A.espacio_nulo().EcParametricas() }
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{C.espacio_nulo().EcParametricas()}
+  \py{A.espacio_nulo().EcParametricas()}
 \end{displaymath}
 \DefineShortVerb{\|}
 (escribiendo esto me doy cuenta de que no he sido sistemático con los
@@ -192,22 +192,22 @@ ejemplo, la clase \texttt{Homogenea} resuelve el sistema de ecuaciones
 homogéneo
 \begin{Verbatim}
   \begin{displaymath}
-    \py{ latex( Homogenea(C) )}
+    \py{ latex( Homogenea(A) )}
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{latex( Homogenea(C) )}
+  \py{latex( Homogenea(A) )}
 \end{displaymath}
 Y si queremos ver cómo lo ha calculado\dots
 \begin{Verbatim}
   \begin{displaymath}
-    \py{Homogenea(C).tex }
+    \py{Homogenea(A).tex }
   \end{displaymath}
 \end{Verbatim}
 nos muestra lo siguiente
 \begin{displaymath}
-  \py{Homogenea(C).tex }
+  \py{Homogenea(A).tex }
 \end{displaymath}
 \bigskip
 
