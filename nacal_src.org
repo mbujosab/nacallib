@@ -278,7 +278,7 @@ $$\begin{bmatrix}\begin{pmatrix}1\\ 2\\ 3\end{pmatrix};& \left[ \begin{array}{cc
 (es decir, con la misma notación descrita en el curso de Álgebra Lineal).
 
 Aunque los ~Sistemas~ y las =listas= de Python se diferencian en su representación y en algunos de
-sus métodos, otros métodos que comunes. De hecho, en algunos aspectos un =Sistema= se comporta
+sus métodos, otros métodos son comunes. De hecho, en algunos aspectos un =Sistema= se comporta
 exactamente igual que una =list= (por ejemplo, un =Sistema= también es iterable). La mayoría de
 métodos definidos en ~NAcAL~ son específicos de los =Sistemas=, y otros métodos se han modificado
 para reservar los símbolos de algunos [[https://docs.python.org/3/reference/datamodel.html#specialnames][/métodos mágicos/]] de Python para ciertas operaciones
