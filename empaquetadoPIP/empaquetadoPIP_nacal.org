@@ -1,7 +1,7 @@
 #+TITLE: Empaquetado del módulo NAcAL para el repositorio ~pypi~ 
 #+AUTHOR: Marcos Bujosa
 #+EMAIL: mbujosab@ucm.es
-#+LANGUAGE: es-es
+#+LANGUAGE: es
 
 #+STARTUP: show5levels
 
@@ -151,3 +151,28 @@ setuptools.setup(
 
 #+END_SRC
 
+
+* .pypirc
+
+https://packaging.python.org/en/latest/specifications/pypirc/
+
+#+BEGIN_SRC  :results none :tangle .pypirc
+[distutils]
+  index-servers =
+    pypi
+    nacal
+
+[pypi]
+  username = __token__
+  password = <PONER API AQUÍ>
+
+[nacal]
+  repository = https://upload.pypi.org/legacy/
+  username = __token__
+  password = <PONER API AQUÍ>
+
+#+END_SRC
+
+** TODO Probar a quitar en la próxima actualización
+
+Creo que la sección [nacal] del anterior fichero es innecesaria. 

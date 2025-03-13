@@ -2757,7 +2757,7 @@ class Determinante:
           
           operacionesEnColumnas = (A.L(0,sust).pasos[1])
           operacionesEnFilas    = [T((fracc(1,d),A.n+1)) for d in productos_realizados(operacionesEnColumnas)]
-          pasos                 = [operacionesEnFilas, operacionesEnColumnas]
+          pasos                 = [operacionesEnFilas[::-1], operacionesEnColumnas]
           
           matrixExtendida       = T(operacionesEnFilas) & A.extDiag(I(1),1) & T(operacionesEnColumnas)
           

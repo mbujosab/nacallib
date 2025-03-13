@@ -41,7 +41,7 @@
 
 #+CALL: NombreEnChunksDeCodigo()
 
-#+macro: ver Versión:  0.2.1
+#+macro: ver Versión:  0.2.2
 
 #+name: __init__.py
 #+BEGIN_SRC python :tangle nacal/__init__.py
@@ -49,7 +49,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -5643,7 +5643,7 @@ def calculoDet(A, sust=[]):
     
     operacionesEnColumnas = (A.L(0,sust).pasos[1])
     operacionesEnFilas    = [T((fracc(1,d),A.n+1)) for d in productos_realizados(operacionesEnColumnas)]
-    pasos                 = [operacionesEnFilas, operacionesEnColumnas]
+    pasos                 = [operacionesEnFilas[::-1], operacionesEnColumnas]
     
     matrixExtendida       = T(operacionesEnFilas) & A.extDiag(I(1),1) & T(operacionesEnColumnas)
     

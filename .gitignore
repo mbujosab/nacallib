@@ -1,0 +1,8 @@
+*~
+doc/Notebooks/.ipynb_checkpoints/
+fuente/
+nacal_src.html
+nacal_src.tex
+empaquetadoPIP/makefile
+empaquetadoPIP/setup.py
+empaquetadoPIP/.pypirc
