@@ -129,6 +129,52 @@ a,b,c,x,y,z = sympy.symbols('a b c x y z')
 
 - [ ] Producto Hadamard para Vectores y Matrices
 
+- [ ] Posibilidad de "despejar variables" al dar la solucion del SEL
+
+- [ ] Representación de la expansión de Laplace pintando los menores
+
+Pendiente tras la revisión de noviembre de 2026:
+
+- [X] Decidir qué hacer con los =float=: se convierten en racionales exactos (función =racional=)
+
+- [X] Presentación del conjunto de soluciones de =SEL= cuando el sistema no es de vectores (por
+  ejemplo, un sistema de matrices)
+
+- [ ] =Matrix.__init__= llama dos veces a =super().__init__= y el código intermedio no tiene efecto
+  (salvo la comprobación del argumento). Simplificar
+
+- [ ] Los métodos =T.simplify=, =T.factor= y =T.expand= no hacen nada si se llaman como métodos
+  (solo funcionan las funciones generales =simplify=, =factor= y =expand=). Arreglar o quitar
+
+- [ ] =A & T(...)=, =factor(A)=, =simplify(A)= y =expand(A)= modifican =A=; en cambio los métodos
+  =A.factor()=, =A.simplify()= y =A.expand()= devuelven =None=. Documentarlo o unificarlo
+
+- [ ] Las subclases =Elim=, =InvMat=, =DiagonalizaS=, etc. cambian su propia clase al
+  inicializarse (=isinstance(x, Elim)= siempre es falso). Valorar sustituirlas por funciones
+
+- [ ] Definir =__all__=: =from nacal import *= exporta también =sympy=, =display=, =Math=,
+  =tempfile=, =join=..., y la matriz identidad =I= oculta la unidad imaginaria =sympy.I=. (Ojo: los
+  notebooks usan =sympy.symbols= tras =from nacal import *=, así que =sympy= debe seguir exportado)
+
+- [ ] Argumentos por defecto mutables (=sust=[]=, =TexPasosPrev=[]=). Hoy no causan fallos porque
+  no se modifican, pero es frágil
+
+- [X] Empaquetado: migrar de =setup.py sdist bdist_wheel= (obsoleto) a =pyproject.toml= y
+  =python3 -m build=
+
+- [ ] Empaquetado: el número de versión se escribe a mano en dos sitios de este fichero. Y cuando
+  haya un =twine= >= 6.1, quitar el límite de versión de =setuptools= en =pyproject.toml= (véase
+  =empaquetadoPIP/empaquetadoPIP_nacal.org=)
+
+- [ ] Revisar los ejemplos con decimales del material del curso (=Lecc01-Secc1.1= y preguntas de
+  examen), que ahora se muestran como fracciones
+
+- [ ] Ejecutar automáticamente los ejemplos de los textos de ayuda (=doctest=); muchos muestran
+  una salida aproximada que no coincide literalmente con la real
+
+- [ ] En =elim=, revisar los comentarios "hacia delante" / "hacia atrás" de la variante 100
+  (parecen intercambiados)
+
 
 #  ############################
 #   Inicio de la documentación 
