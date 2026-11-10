@@ -2732,6 +2732,39 @@ class SEL:
         mediante eliminación con el sistema ampliado y muestra los pasos
         dados
         
+        Parámetros:
+            sistema (Sistema): Matrix de coeficientes; o, en general, Sistema 
+                de objetos del mismo tipo y tamaño (por ejemplo de matrices)
+            b (Vector, Matrix,...): lado derecho de la ecuación. Del mismo tipo
+                y tamaño que los elementos del sistema
+            rep (bool): si es cierto se muestran en Jupyter los pasos dados
+            sust (list): reglas de sustitución de variables simbólicas
+        
+        Atributos:
+            solP  (Vector): una solución particular (set() si no hay solución)
+            sgen (Sistema): sistema generador de las soluciones del sistema
+                            homogéneo asociado
+            eafin  (EAfin): conjunto de soluciones (set() si no hay solución)
+            sistema, b    : el sistema y el lado derecho de la ecuación
+            determinado (bool): indica si hay una única solución
+            tex      (str): código LaTeX con los pasos dados
+            pasos   (list): transformaciones elementales aplicadas
+        
+        Ejemplos:
+        >>> # Combinaciones lineales de las columnas de A (vectores) iguales a b
+        >>> A = Matrix([[1,2],[2,4]]);  b = Vector([1,2])
+        >>> SEL(A, b)
+        
+        Vector([1, 0]) + Combinaciones lineales de (Sistema([Vector([-2, 1]);]))
+        
+        >>> # Combinaciones lineales de las matrices de S iguales a la matriz B
+        >>> S = Sistema([ Matrix([[1,0],[0,0]]), Matrix([[0,1],[1,0]]), 
+        ...               Matrix([[1,1],[1,0]]), Matrix([[0,0],[0,1]]) ])
+        >>> B = Matrix([[2,3],[3,5]])
+        >>> SEL(S, B)
+        
+        Vector([2, 3, 0, 5]) + Combinaciones lineales de (Sistema([Vector([-1, -1, 1, 0]);]))
+        
         """
         try:
             A = Matrix(sistema.amplia(-b)).subs(sust).csis({sistema.n})
@@ -2751,6 +2784,8 @@ class SEL:
         
         K         = A & T(operaciones)
         
+        self.sistema     = sistema.subs(sust)
+        self.b           = b.subs(sust)
         self.base        = Sistema([ v for j, v in enumerate(E,1) if (K|j).es_nulo(sust) ])
         self.sgen        = self.base if self.base else Sistema([ V0(sistema.n) ])
         self.determinado = (len(self.base) == 0)
@@ -2789,12 +2824,28 @@ class SEL:
         """Construye la representación para el entorno Jupyter Notebook"""
         return html(self.latex())
     
+    def EcCombinacion(self):
+        """Conjunto de soluciones descrito mediante la ecuación que se resuelve"""
+        return r'\left\{ \boldsymbol{v}\in\mathbb{R}^' + latex(self.sistema.n) \
+            + r'\ \left|\ ' + latex(self.sistema) + r'\boldsymbol{v}=' + latex(self.b) \
+            + r'\right.\right\}'
+    
     def latex(self):
-        """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
-        if self.determinado and self.solP:
-            return '\\left\\{\ ' + latex(self.solP) + '\ \\right\\}'
+        """ Construye el comando LaTeX para la solución de un Sistema de Ecuaciones"""
+        if not self.solP:
+            return '\\emptyset'
+        
+        if self.determinado:
+            solucion = '\\left\\{\\ ' + latex(self.solP) + '\\ \\right\\}'
         else:
-            return self.eafin.EcParametricas() if self.solP else '\\emptyset' #latex(set())
+            solucion = self.eafin.EcParametricas()
+    
+        # si los elementos del sistema no son vectores de Rn (p.e. son matrices)
+        # se recuerda la ecuación de la que los vectores v son solución
+        if any(isinstance(e, Sistema) and not isinstance(e, Vector) for e in self.sistema):
+            return self.EcCombinacion() + '\\; = \\;' + solucion
+        else:
+            return solucion
     
     
 

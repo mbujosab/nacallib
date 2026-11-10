@@ -5528,6 +5528,39 @@ def latex(self):
 mediante eliminación con el sistema ampliado y muestra los pasos
 dados
 
+Parámetros:
+    sistema (Sistema): Matrix de coeficientes; o, en general, Sistema 
+        de objetos del mismo tipo y tamaño (por ejemplo de matrices)
+    b (Vector, Matrix,...): lado derecho de la ecuación. Del mismo tipo
+        y tamaño que los elementos del sistema
+    rep (bool): si es cierto se muestran en Jupyter los pasos dados
+    sust (list): reglas de sustitución de variables simbólicas
+
+Atributos:
+    solP  (Vector): una solución particular (set() si no hay solución)
+    sgen (Sistema): sistema generador de las soluciones del sistema
+                    homogéneo asociado
+    eafin  (EAfin): conjunto de soluciones (set() si no hay solución)
+    sistema, b    : el sistema y el lado derecho de la ecuación
+    determinado (bool): indica si hay una única solución
+    tex      (str): código LaTeX con los pasos dados
+    pasos   (list): transformaciones elementales aplicadas
+
+Ejemplos:
+>>> # Combinaciones lineales de las columnas de A (vectores) iguales a b
+>>> A = Matrix([[1,2],[2,4]]);  b = Vector([1,2])
+>>> SEL(A, b)
+
+Vector([1, 0]) + Combinaciones lineales de (Sistema([Vector([-2, 1]);]))
+
+>>> # Combinaciones lineales de las matrices de S iguales a la matriz B
+>>> S = Sistema([ Matrix([[1,0],[0,0]]), Matrix([[0,1],[1,0]]), 
+...               Matrix([[1,1],[1,0]]), Matrix([[0,0],[0,1]]) ])
+>>> B = Matrix([[2,3],[3,5]])
+>>> SEL(S, B)
+
+Vector([2, 3, 0, 5]) + Combinaciones lineales de (Sistema([Vector([-1, -1, 1, 0]);]))
+
 """
 #+END_SRC
    
@@ -5567,6 +5600,8 @@ pasos     = [[], operaciones+[Normaliza] ] if Normaliza else [[], operaciones]
 
 K         = A & T(operaciones)
 
+self.sistema     = sistema.subs(sust)
+self.b           = b.subs(sust)
 self.base        = Sistema([ v for j, v in enumerate(E,1) if (K|j).es_nulo(sust) ])
 self.sgen        = self.base if self.base else Sistema([ V0(sistema.n) ])
 self.determinado = (len(self.base) == 0)
@@ -5614,14 +5649,75 @@ def _repr_html_(self):
     """Construye la representación para el entorno Jupyter Notebook"""
     return html(self.latex())
 
+def EcCombinacion(self):
+    """Conjunto de soluciones descrito mediante la ecuación que se resuelve"""
+    return r'\left\{ \boldsymbol{v}\in\mathbb{R}^' + latex(self.sistema.n) \
+        + r'\ \left|\ ' + latex(self.sistema) + r'\boldsymbol{v}=' + latex(self.b) \
+        + r'\right.\right\}'
+
 def latex(self):
-    """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
-    if self.determinado and self.solP:
-        return '\\left\\{\ ' + latex(self.solP) + '\ \\right\\}'
+    """ Construye el comando LaTeX para la solución de un Sistema de Ecuaciones"""
+    if not self.solP:
+        return '\\emptyset'
+    
+    if self.determinado:
+        solucion = '\\left\\{\\ ' + latex(self.solP) + '\\ \\right\\}'
     else:
-        return self.eafin.EcParametricas() if self.solP else '\\emptyset' #latex(set())
+        solucion = self.eafin.EcParametricas()
+
+    # si los elementos del sistema no son vectores de Rn (p.e. son matrices)
+    # se recuerda la ecuación de la que los vectores v son solución
+    if any(isinstance(e, Sistema) and not isinstance(e, Vector) for e in self.sistema):
+        return self.EcCombinacion() + '\\; = \\;' + solucion
+    else:
+        return solucion
 
 #+END_SRC
+
+*** Ejemplo: combinaciones lineales de matrices
+
+Los elementos del sistema no tienen por qué ser vectores de \R[n]. La clase ~SEL~ resuelve la
+ecuación para cualquier ~Sistema~ cuyos elementos sean del mismo tipo y tamaño. Por ejemplo, podemos
+buscar todas las combinaciones lineales de cuatro matrices de orden 2 que son iguales a una matriz
+dada.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+S = Sistema([ Matrix([[1,0],[0,0]]), Matrix([[0,1],[1,0]]), Matrix([[1,1],[1,0]]), Matrix([[0,0],[0,1]]) ])
+B = Matrix([[2,3],[3,5]])
+solucion = SEL(S, B, 1)
+#+END_SRC
+
+Los pasos de eliminación operan con las matrices del sistema ampliado como si fueran las columnas de
+una matriz de coeficientes:
+
+#+BEGIN_SRC jupyter-python :exports results :results raw :results output replace
+print(displaymath( solucion.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}1&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}-2&-3\\-3&-5\\ \end{array} \right]\\ \hline 1&0&0&0&0\\0&1&0&0&0\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{1}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&-3\\-3&-5\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&0&0&0\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(3\right)\mathbf{2}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&-5\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&-1&0&3\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(5\right)\mathbf{4}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&-1&0&3\\0&0&1&0&0\\0&0&0&1&5\\ \hline 0&0&0&0&1\\ \end{array} \right]$$
+
+El conjunto de soluciones lo forman los vectores de coeficientes de dichas combinaciones lineales
+(el atributo ~solP~ es una solución particular y ~sgen~ un sistema generador de las soluciones del
+sistema homogéneo). Como los elementos del sistema no son vectores de \R[n], la representación
+recuerda la ecuación de la que dichos vectores de coeficientes son solución:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( solucion ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^4\ \left|\ \left[ \begin{array}{cccc}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right];& \left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right];& \left[ \begin{array}{cc}1&1\\1&0\\ \end{array} \right];& \left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right];\end{array} \right]\boldsymbol{v}=\left[ \begin{array}{cc}2&3\\3&5\\ \end{array} \right]\right.\right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^4\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^1,\; \boldsymbol{v}= \begin{pmatrix}2\\ 3\\ 0\\ 5\end{pmatrix}+\left[ \begin{array}{c}-1\\-1\\1\\0\\ \end{array} \right]\boldsymbol{p}\right. \right\}$$
+
+Efectivamente, cada solución es la lista de coeficientes de una combinación lineal de las matrices
+de ~S~ que es igual a ~B~:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( S*solucion.solP ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}2&3\\3&5\\ \end{array} \right]$$
 
 
 * La clase ~Determinante~. Cálculo del determinante por eliminación
