@@ -4,7 +4,7 @@ fuente/
 nacal_src.html
 nacal_src.tex
 empaquetadoPIP/makefile
-empaquetadoPIP/setup.py
+empaquetadoPIP/pyproject.toml
 empaquetadoPIP/.pypirc
 __pycache__/
 .pytest_cache/

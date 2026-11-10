@@ -37,11 +37,7 @@ minutos en cargar el módulo y el Notebook de demostración).
   pip3 install nacal
 #+END_SRC
 
-[[https://pypi.org/project/nacal/][nacal]] emplea [[https://www.sympy.org/en/index.html][Sympy]]. Para instalar Sympy:
-
-#+BEGIN_SRC sh
-  pip3 install sympy
-#+END_SRC
+[[https://pypi.org/project/nacal/][nacal]] emplea [[https://www.sympy.org/en/index.html][Sympy]] e [[https://ipython.org/][IPython]], que se instalan automáticamente junto con el paquete.
 
 
 ** Uso
@@ -52,7 +48,7 @@ minutos en cargar el módulo y el Notebook de demostración).
 Para emplear este módulo en una consola de Python, una vez instalada:
 
 #+BEGIN_SRC sh
-  pyhton3
+  python3
   >>> from nacal import *
 #+END_SRC
 

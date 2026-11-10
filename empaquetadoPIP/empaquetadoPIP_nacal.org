@@ -58,7 +58,7 @@ hacer lo siguiente:
 #+BEGIN_SRC  makefile :results silent :tangle makefile
 
 ############################ -*- Mode: Makefile -*- ###########################
-DIRECTORIO_NACAL = $(HOME)/CloudStation/ReposGH/Docencia/nacallib
+DIRECTORIO_NACAL = $(abspath $(CURDIR)/..)
 
 name = nacal
 
@@ -70,9 +70,8 @@ nacal:
 	cp $(DIRECTORIO_NACAL)/nacal/__init__.py $(HOME)/$(name)/$(name)/__init__.py
 	cp $(DIRECTORIO_NACAL)/LICENSE $(HOME)/$(name)/
 	pandoc --from=org --to=gfm $(DIRECTORIO_NACAL)/README.org > $(HOME)/$(name)/README.md
-	cp setup.py $(HOME)/$(name)/
-	cd $(HOME)/$(name)/; python3 setup.py check
-	cd $(HOME)/$(name)/; python3 setup.py sdist bdist_wheel
+	cp pyproject.toml $(HOME)/$(name)/
+	cd $(HOME)/$(name)/; python3 -m build
 	cd $(HOME)/$(name)/; twine check dist/*
 
 upload: nacal
@@ -94,61 +93,56 @@ make upload
 
 \newpage
 
-* setup
+* pyproject.toml
 
-#+BEGIN_SRC python :tangle setup.py
+Los metadatos del paquete se indican en el fichero =pyproject.toml= (que sustituye al antiguo
+=setup.py=). El número de versión se lee del fichero =nacal/__init__.py=. Para construir el paquete
+es necesario el módulo =build= (en Debian: =sudo apt install python3-build python3-venv=).
 
-import setuptools
+La versión de =setuptools= se limita a las anteriores a la 69 (y la licencia se indica con el
+formato antiguo) porque las versiones recientes generan metadatos en un formato (2.4) que el
+=twine= 4.0.2 de Debian 12 no sabe leer, por lo que no podría subir el paquete a PyPI. Cuando se
+disponga de =twine= >= 6.1 se podrá quitar el límite e indicar la licencia con
+~license = "GPL-3.0-only"~ (quitando el clasificador de la licencia).
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+- [[https://packaging.python.org/en/latest/guides/writing-pyproject-toml/]]
 
-import codecs
-import os.path
+#+BEGIN_SRC toml :tangle pyproject.toml
+[build-system]
+requires = ["setuptools>=61,<69"]
+build-backend = "setuptools.build_meta"
 
-def read(rel_path):
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
-        return fp.read()
+[project]
+name = "nacal"
+dynamic = ["version"]
+description = "Notacion Asociativa para un curso de Algebra Lineal (NAcAL)"
+readme = "README.md"
+authors = [{name = "Marcos Bujosa", email = "mbujosab@ucm.es"}]
+license = {text = "GPLv3"}
+requires-python = ">=3.6"
+dependencies = ["sympy>=1.1.0", "ipython"]
+keywords = ["nacal"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Education",
+    "Framework :: Jupyter",
+    "Environment :: Console",
+    "Natural Language :: Spanish",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Development Status :: 3 - Alpha",
+]
 
-def get_version(rel_path):
-    for line in read(rel_path).splitlines():
-        if line.startswith('__version__'):
-            delim = '"' if '"' in line else "'"
-            return line.split(delim)[1]
-    else:
-        raise RuntimeError("Unable to find version string.")
+[project.urls]
+Homepage = "https://github.com/mbujosab/nacallib"
+Documentation = "https://github.com/mbujosab/nacallib/blob/master/nacal_src.pdf"
 
-nombre = "nacal"
+[tool.setuptools]
+packages = ["nacal"]
 
-setuptools.setup(
-    name = nombre,
-    version=get_version(nombre + "/__init__.py"),
-    author="Marcos Bujosa",
-    license="GPLv3",
-    author_email="mbujosab@ucm.es",
-    description="Notacion Asociativa para un curso de Algebra Lineal (NAcAL)",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/mbujosab/nacallib",
-    packages=setuptools.find_packages(),
-    #pakages=["nacal"],
-    install_requires=["sympy>=1.1.0"],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: OS Independent",
-        "Intended Audience :: Education",
-        "Framework :: Jupyter",
-        "Environment :: Console",
-        "Natural Language :: Spanish",
-        "Topic :: Scientific/Engineering :: Mathematics",
-        "Development Status :: 3 - Alpha",
-    ],
-    python_requires='>=3.6',
-    keywords="nacal"
-)
-
+[tool.setuptools.dynamic]
+version = {attr = "nacal.__version__"}
 #+END_SRC
 
 
