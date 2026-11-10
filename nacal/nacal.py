@@ -6,6 +6,27 @@ from os.path import join
 
 NumberTypes = (int, float, complex, sympy.Basic)
 es_numero   = lambda x: isinstance(x, NumberTypes) and not isinstance(x, bool)
+def es_funcion_racional(x):
+    """Indica si la expresión x es una función racional de sus símbolos
+    con coeficientes racionales"""
+    return x.is_rational_function(*x.free_symbols)                      \
+        and all(a.is_Symbol or a.is_Rational for a in x.atoms())        \
+        and all(p.exp.is_Integer for p in x.atoms(sympy.Pow))
+
+def es_cero(x):
+    """Indica si es cierto que el número (o la expresión simbólica) x es cero"""
+    if not isinstance(x, sympy.Basic):
+        return x == 0
+    if x.is_Number:
+        return bool(x == 0)
+    if not isinstance(x, sympy.Expr):
+        return False
+    if es_funcion_racional(x):
+        return sympy.fraction(sympy.together(x))[0].expand() == 0
+    if x.is_zero is not None:
+        return bool(x.is_zero)
+    simplificada = sympy.simplify(x)
+    return bool(simplificada == 0 or simplificada.is_zero)
 
 def fracc(a,b):
     """Transforma la fracción a/b en un número racional si ello es posible"""
@@ -38,9 +59,9 @@ def html(TeX):
 
 def latex(a):
     """Método latex general"""
-    try:
+    if hasattr(a, 'latex'):
         return a.latex()
-    except:
+    else:
         return sympy.latex(a)
     
 
@@ -155,7 +176,10 @@ def factor(self):
         self.abreviaturas=[ factor(op) for op in self.abreviaturas ]
         return self
     else:
-        return sympy.factor(self)
+        factorizada = sympy.factor(self)
+        if not isinstance(factorizada, sympy.Expr) or factorizada.is_Number or es_funcion_racional(factorizada):
+            return factorizada
+        return sympy.S.Zero if es_cero(factorizada) else factorizada
 
 def expand(self):
     """Devuelve las expresiones factorizadas"""
@@ -303,11 +327,11 @@ class Sistema:
     
     def __eq__(self, other):
         """Indica si es cierto que dos Sistemas son iguales"""
-        return self.lista == other.lista
+        return isinstance(other, Sistema) and self.lista == other.lista
     
     def __ne__(self, other):
         """Indica si es cierto que dos Sistemas son distintos"""
-        return self.lista != other.lista
+        return not (self == other)
     
     
     def reverse(self):
@@ -347,7 +371,12 @@ class Sistema:
             sistemaAmpliado.corteSistema = nuevoConjuntoMarcas(self, other)
             
     
-        return sistemaAmpliado if self.es_arreglo_rectangular() else Sistema(sistemaAmpliado)
+        if self.es_arreglo_rectangular():
+            return sistemaAmpliado
+        elif isinstance(self, Vector) and es_ristra_de_numeros(sistemaAmpliado.lista):
+            return sistemaAmpliado     # al concatenar números a un Vector se obtiene otro Vector
+        else:
+            return Sistema(sistemaAmpliado)
     
     
     def junta(self, lista, marcas=False):
@@ -420,11 +449,22 @@ class Sistema:
     
     def es_nulo(self, sust=[]):
         """Indica si es cierto que el Sistema es nulo"""
-        return self.subs(sust) == self*0
+        def nulo(elemento):
+            if isinstance(elemento, Sistema):
+                return elemento.es_nulo()
+            elif es_numero(elemento):
+                return es_cero(elemento)
+            else:
+                try:
+                    return elemento == 0*elemento
+                except Exception:
+                    return False
+                
+        return all(nulo(elemento) for elemento in self.subs(sust))
     
     def no_es_nulo(self, sust=[]):
         """Indica si es cierto que el Sistema no es nulo"""
-        return self.subs(sust) != self*0
+        return not self.es_nulo(sust)
     
     
     def es_arreglo_rectangular(self):
@@ -548,7 +588,7 @@ class Sistema:
             try:
                 MA = Matrix(self.copy().amplia(-v)).subs(sust).csis({self.n}).apila(I(self.n+1),1)
                 MA.corteElementos.update({self.n+A.m})
-            except:
+            except Exception:
                 MA = BlockM([self.copy().amplia(-v)]).subs(sust).csis({self.n}).apila(I(self.n+1),1)
                 MA.corteElementos.update({self.n+A.m})
                 
@@ -661,6 +701,8 @@ class Sistema:
             multiplo.lista = [ x*(self|i) for i in range(1,len(self)+1) ]
             return factor(multiplo)
     
+        return NotImplemented
+    
     
     def __neg__(self):
         """Devuelve el opuesto de un Sistema"""
@@ -731,6 +773,8 @@ class Sistema:
                 return factor(BlockM ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
             else:
                 return factor(type(self) ( [ self*(x|j) for j in range(1,(x.n)+1)] ))
+    
+        return NotImplemented
     
     
     def __and__(self,operaciones):
@@ -905,6 +949,8 @@ class Sistema:
                 if (tipo - (tipo % t)) in lista:
                     opcion.add(tipo - (tipo % t))
                     tipo = tipo % t
+            if tipo:
+                raise ValueError('Variante de eliminación no válida: debe ser una suma de números distintos de la lista [100, 20, 10, 4, 2, 1]')
             return opcion
             
         
@@ -996,7 +1042,7 @@ class Sistema:
             with open(join(workdir, 'borrame.png'), 'wb') as outputfile:
                 sympy.preview(expr, viewer='BytesIO', outputbuffer=outputfile)
             return open(join(workdir, 'borrame.png'),'rb').read()
-        except:
+        except Exception:
             return '$'+self.latex()+'$'
                                                                    
     
@@ -1283,7 +1329,7 @@ class BlockM(Sistema):
     
         try: 
             self.m  = (self|1).n
-        except:
+        except Exception:
             self.m  = 0
                 
         self.corteElementos = set()
@@ -1572,7 +1618,7 @@ class Matrix(BlockM):
     def __pow__(self,n):
         """Calcula la n-ésima potencia de una Matrix"""
         if not isinstance(n,int): raise ValueError('La potencia no es un entero')
-        if not self.es_cuadrada:  raise ValueError('Matrix no es cuadrada')
+        if not self.es_cuadrada():  raise ValueError('Matrix no es cuadrada')
     
         M = self if n else I(self.n)
         for i in range(1,abs(n)):
@@ -1684,7 +1730,7 @@ class Matrix(BlockM):
                 p, r = sympy.div(p, monomio(l,x), domain ='QQ')    
             return False if p!=1 or r!=0 else True
         
-        if not D.es_cuadrada:
+        if not D.es_cuadrada():
             raise ValueError('Matrix no es cuadrada')
         
         if not isinstance(espectro, list):
@@ -1867,7 +1913,7 @@ class Matrix(BlockM):
                 p, r = sympy.div(p, monomio(l,x), domain ='QQ')    
             return False if p!=1 or r!=0 else True
         
-        if not D.es_cuadrada:
+        if not D.es_cuadrada():
             raise ValueError('Matrix no es cuadrada')
         
         if not isinstance(espectro, list):
@@ -2286,7 +2332,7 @@ class T:
     
     def __eq__(self, other):
         """Indica si es cierto que dos Transformaciones elementales son iguales"""
-        return self.abreviaturas == other.abreviaturas
+        return isinstance(other, T) and self.abreviaturas == other.abreviaturas
     
     
     def __repr__(self):
@@ -2367,7 +2413,7 @@ class SubEspacio:
                 
             try:
                 A = Matrix(data).subs(sust)
-            except:
+            except Exception:
                 A = BlockM([data]).subs(sust)
             self.base = Sistema([data|j for j,v in enumerate(A.elim(0), 1) if v.no_es_nulo()])
             self.dim  = len(self.base)
@@ -2502,7 +2548,7 @@ class EAfin:
             return self.S.cart*other == (self.S.cart)*self.v
         
         elif isinstance(self.S.sgen|1, Matrix):
-            if not isinstance(other, Matrix) or (other.n,other.m) != self.Rn:
+            if not isinstance(other, Matrix) or (other.m,other.n) != self.Rn:
                 raise ValueError\
                     ('La matrix no tiene el orden adecuado')        
             return self.S.cart*other.vec() == self.S.cart*self.v.vec()
@@ -2546,7 +2592,7 @@ class EAfin:
         elif isinstance(other, SubEspacio):
             M = self.S.cart.apila( other.cart )
             if isinstance(self.S.sgen|1, Vector):
-                w = (self.S.cart*self.v).concatena( V0(other.cart.m) )                                                      
+                w = (self.S.cart*self.v).concatena( V0(other.cart.m) )
             elif isinstance(self.S.sgen|1, Matrix):
                 w = (self.S.cart*self.v.vec()).concatena( V0(other.cart.m) )
                 
@@ -2622,7 +2668,7 @@ class Homogenea:
         y muestra los pasos para encontrarlo"""
         try:
             A = Matrix(sistema).subs(sust)
-        except:
+        except Exception:
             A = BlockM([sistema]).subs(sust)
 
         MA = A.apila(I(A.n),1)
@@ -2660,9 +2706,9 @@ class Homogenea:
     def latex(self):
         """ Construye el comando LaTeX para la solución de un Sistema Homogéneo"""
         if self.determinado:
-            return '\\left\\{\ ' + latex(self.sgen|1) + '\ \\right\\}'
+            return '\\left\\{\\ ' + latex(self.sgen|1) + '\\ \\right\\}'
         else:
-            return '\\mathcal{L}\\left(\ ' + latex(self.sgen) + '\ \\right)' 
+            return '\\mathcal{L}\\left(\\ ' + latex(self.sgen) + '\\ \\right)' 
        
     
 class SEL:
@@ -2675,7 +2721,7 @@ class SEL:
         """
         try:
             A = Matrix(sistema.amplia(-b)).subs(sust).csis({sistema.n})
-        except:
+        except Exception:
             A = BlockM([sistema.amplia(-b)]).subs(sust).csis({sistema.n})
             
         MA = A.apila(I(A.n),1)
@@ -2967,7 +3013,7 @@ class InvMatFC(Sistema):
     
         pasos = sistema.elim(24).elim(10).pasos
         A = sistema.copy()
-        nan = sympy.symbols('\ ')
+        nan = sympy.symbols(r'\ ')
         dummyMatrix = M1(A.n)*nan
         A.tex, A.pasos = texYpasos(A.concatena(I(A.n),1).apila(I(A.n).concatena(dummyMatrix,1),1), pasos, rep, sust, repsust)
         A.TrF = A.pasos[0]
@@ -3011,19 +3057,19 @@ class DiagonalizaS(Matrix):
         D = A.diagonalizaS(espectro)
         
         if rep:
-            nan   = sympy.symbols('\ ')
+            nan   = sympy.symbols(r'\ ')
             dummyMatrix = M1(A.n)*nan
             if repType==1:
-                nan   = sympy.symbols('\ ')
+                nan   = sympy.symbols(r'\ ')
                 D.tex = rprElimCF(A.apila(I(A.n),1), D.pasos)
             elif repType==2:
-                nan   = sympy.symbols('\ ')
+                nan   = sympy.symbols(r'\ ')
                 D.tex = rprElimCF(A.apila(I(A.n),1).concatena(I(A.m).apila(dummyMatrix,1),1), D.pasos)
             elif repType==3:
-                nan   = sympy.symbols('\ ')
+                nan   = sympy.symbols(r'\ ')
                 D.tex = rprElimFyC(A.apila(I(A.n),1), D.pasos)
             elif repType==4:
-                nan   = sympy.symbols('\ ')
+                nan   = sympy.symbols(r'\ ')
                 D.tex = rprElimFyC(A.apila(I(A.n),1).concatena(I(A.m).apila(dummyMatrix,1),1), D.pasos)
                 
             display(Math(D.tex))
@@ -3104,7 +3150,6 @@ class FuncionLineal:
             return Sistema(s_generador).span(Rn=(dominio).span().Rn)
         
                 
-        pares        = BlockM([BlockV(elementos_del_Dominio), BlockV(elementos_de_la_Imagen)]).elim(16)
         self.pares   = BlockM([BlockV(elementos_del_Dominio), BlockV(elementos_de_la_Imagen)]).elim(16)
         self.dominio = (self.pares|1).span()
         self.imagen  = (self.pares|2).span()
@@ -3113,14 +3158,6 @@ class FuncionLineal:
     
     def es_invertible(self):
         return self.nucleo.dim==0 and self.es_lineal(reversed(self.pares))
-    
-    def es_lineal(pares):
-        dominio = pares|1 
-        imagen  = pares|2
-        if [pto for j,pto in enumerate(imagen,1) if (dominio|j).es_nulo() and (imagen|j).no_es_nulo()]:
-            return False
-        else:
-            return True
     
     def es_lineal(self,pares):
         nuevos_pares = BlockM([(pares|1).sis(), (pares|2).sis()]).elim(1)
@@ -3143,8 +3180,10 @@ class FuncionLineal:
             punto =  Vector([punto])
     
         try:
-            punto in self.dominio
-        except:
+            pertenece = punto in self.dominio
+        except ValueError:
+            pertenece = False
+        if not pertenece:
             raise ValueError('El elemento indicado no pertenece al dominio de la función')
     
         cero  = self.imagen.vector_nulo()
@@ -3162,8 +3201,10 @@ class FuncionLineal:
             punto =  Vector([punto])
             
         try:
-            punto in self.imagen
-        except:
+            pertenece = punto in self.imagen
+        except ValueError:
+            pertenece = False
+        if not pertenece:
             raise ValueError('El elemento indicado no pertenece a la imagen de la función')
     
         cero  = self.dominio.vector_nulo()
