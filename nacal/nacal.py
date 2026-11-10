@@ -28,9 +28,22 @@ def es_cero(x):
     simplificada = sympy.simplify(x)
     return bool(simplificada == 0 or simplificada.is_zero)
 
+def racional(x):
+    """Convierte los números en coma flotante en racionales exactos
+    leyendo su escritura decimal (0.1 se convierte en 1/10). Cualquier 
+    otro objeto se devuelve sin cambios"""
+    if isinstance(x, float):
+        return sympy.Rational(repr(x)) if x == x and abs(x) != float('inf') else x
+    elif isinstance(x, sympy.Basic) and not x.is_Rational and not x.is_Symbol:
+        flotantes = x.atoms(sympy.Float)
+        return x.xreplace({f: sympy.Rational(str(f)) for f in flotantes}) if flotantes else x
+    else:
+        return x
+        
 def fracc(a,b):
     """Transforma la fracción a/b en un número racional si ello es posible"""
-    if all( [ isinstance(i, (int, float, sympy.Rational) ) for i in (a,b) ] ):
+    a, b = racional(a), racional(b)
+    if all( [ isinstance(i, (int, sympy.Rational) ) for i in (a,b) ] ):
         return sympy.Rational(a, b)
     else:
         return a/b
@@ -298,7 +311,7 @@ class Sistema:
     def __init__(self, arg):
         """Inicializa un Sistema con una lista, tupla o Sistema"""
         if es_ristra(arg):
-            self.lista = list(arg)
+            self.lista = [racional(elemento) for elemento in arg]
         else:
             raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
         
@@ -411,7 +424,7 @@ class Sistema:
         
         def sustitucion(elemento, regla_de_sustitucion):
             if es_numero(elemento):
-                return sympy.S(elemento).subs(CreaLista(regla_de_sustitucion))
+                return racional(sympy.S(elemento).subs(CreaLista(regla_de_sustitucion)))
             else:
                 return elemento.subs(CreaLista(regla_de_sustitucion))
             
@@ -697,6 +710,7 @@ class Sistema:
         Sistema([30, 60, 90]) 
         """
         if es_numero(x):
+            x = racional(x)
             multiplo = self.fullcopy()
             multiplo.lista = [ x*(self|i) for i in range(1,len(self)+1) ]
             return factor(multiplo)
@@ -2181,9 +2195,9 @@ class T:
         
         def simplificacionSimbolica(arg):
             if isinstance(arg,tuple) and (len(arg) == 2):
-                return (sympy.factor(arg[0]), arg[1],)
+                return (sympy.factor(racional(arg[0])), arg[1],)
             elif isinstance(arg,tuple) and (len(arg) == 3):
-                return (sympy.factor(arg[0]), arg[1], arg[2],)
+                return (sympy.factor(racional(arg[0])), arg[1], arg[2],)
             else:
                 return arg
         

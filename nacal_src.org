@@ -349,7 +349,7 @@ La clase se inicia con el método: =def__init__(self,...)=.
 def __init__(self, arg):
     """Inicializa un Sistema con una lista, tupla o Sistema"""
     if es_ristra(arg):
-        self.lista = list(arg)
+        self.lista = [racional(elemento) for elemento in arg]
     else:
         raise ValueError('El argumento debe ser una lista, tupla, o Sistema.')
     
@@ -576,7 +576,7 @@ def subs(self, reglasDeSustitucion=[]):
     
     def sustitucion(elemento, regla_de_sustitucion):
         if es_numero(elemento):
-            return sympy.S(elemento).subs(CreaLista(regla_de_sustitucion))
+            return racional(sympy.S(elemento).subs(CreaLista(regla_de_sustitucion)))
         else:
             return elemento.subs(CreaLista(regla_de_sustitucion))
         
@@ -1209,6 +1209,7 @@ Sistema([30, 60, 90])
 def __rmul__(self, x):
     <<Texto de ayuda para el operador producto por la izquierda de un Sistema>>
     if es_numero(x):
+        x = racional(x)
         multiplo = self.fullcopy()
         multiplo.lista = [ x*(self|i) for i in range(1,len(self)+1) ]
         return factor(multiplo)
@@ -4367,9 +4368,9 @@ def verificacion(abrv):
 
 def simplificacionSimbolica(arg):
     if isinstance(arg,tuple) and (len(arg) == 2):
-        return (sympy.factor(arg[0]), arg[1],)
+        return (sympy.factor(racional(arg[0])), arg[1],)
     elif isinstance(arg,tuple) and (len(arg) == 3):
-        return (sympy.factor(arg[0]), arg[1], arg[2],)
+        return (sympy.factor(racional(arg[0])), arg[1], arg[2],)
     else:
         return arg
 
@@ -6004,12 +6005,33 @@ def es_cero(x):
 
 *** Números racionales
 
+Los números en coma flotante (=float=) no son exactos: =0.1+0.2-0.3= no es cero. Operando con
+ellos la eliminación puede tomar como pivote un ``casi cero'' debido al redondeo y dar, por
+ejemplo, un rango erróneo. Por ello NAcAL convierte los =float= en números racionales leyendo su
+escritura decimal (así =0.1= es $\frac{1}{10}$ y =0.75= es $\frac{3}{4}$) y opera con ellos de
+manera exacta. (Para usar números irracionales emplee las funciones de Sympy, por ejemplo
+=sympy.sqrt(2)=, pues =math.sqrt(2)= es un =float= y se convertiría en una fracción que solo
+aproxima a $\sqrt{2}$).
+
 #+name: Métodos para usar coeficientes racionales cuando sea posible
 #+BEGIN_SRC python
 
+def racional(x):
+    """Convierte los números en coma flotante en racionales exactos
+    leyendo su escritura decimal (0.1 se convierte en 1/10). Cualquier 
+    otro objeto se devuelve sin cambios"""
+    if isinstance(x, float):
+        return sympy.Rational(repr(x)) if x == x and abs(x) != float('inf') else x
+    elif isinstance(x, sympy.Basic) and not x.is_Rational and not x.is_Symbol:
+        flotantes = x.atoms(sympy.Float)
+        return x.xreplace({f: sympy.Rational(str(f)) for f in flotantes}) if flotantes else x
+    else:
+        return x
+        
 def fracc(a,b):
     """Transforma la fracción a/b en un número racional si ello es posible"""
-    if all( [ isinstance(i, (int, float, sympy.Rational) ) for i in (a,b) ] ):
+    a, b = racional(a), racional(b)
+    if all( [ isinstance(i, (int, sympy.Rational) ) for i in (a,b) ] ):
         return sympy.Rational(a, b)
     else:
         return a/b
