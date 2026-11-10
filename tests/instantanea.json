@@ -1,0 +1,454 @@
+{
+ "BlockM": {
+  "repr": "BlockM([BlockV([Vector([1, 2, 0]), Vector([1, 2, 1])]), BlockV([Vector([2, 4, 1]), Vector([2, 4, 0])]), BlockV([Vector([0, 1, 3]), Vector([3, 6, 1])])])",
+  "tex": "\\left[ \\begin{array}{ccc}\\begin{pmatrix}1\\\\ 2\\\\ 0\\end{pmatrix}&\\begin{pmatrix}2\\\\ 4\\\\ 1\\end{pmatrix}&\\begin{pmatrix}0\\\\ 1\\\\ 3\\end{pmatrix}\\\\\\begin{pmatrix}1\\\\ 2\\\\ 1\\end{pmatrix}&\\begin{pmatrix}2\\\\ 4\\\\ 0\\end{pmatrix}&\\begin{pmatrix}3\\\\ 6\\\\ 1\\end{pmatrix}\\\\ \\end{array} \\right]"
+ },
+ "BlockV_h": {
+  "repr": "BlockV([Matrix([Vector([1, 2, 0]), Vector([2, 4, 1]), Vector([0, 1, 3])]), Vector([1, 2, 3])])",
+  "tex": "\\begin{pmatrix}\\left[ \\begin{array}{ccc}1&2&0\\\\2&4&1\\\\0&1&3\\\\ \\end{array} \\right],& \\begin{pmatrix}1\\\\ 2\\\\ 3\\end{pmatrix},\\end{pmatrix}"
+ },
+ "Determinante_A": {
+  "repr": "Valor del determinante: -1",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&0&0\\\\2&4&1&0\\\\0&1&3&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&3&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&0&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{4}\\right]\\end{subarray}}{\\pmb{\\tau}}]{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&-1\\\\ \\end{array} \\right]"
+ },
+ "Determinante_B": {
+  "repr": "Valor del determinante: 0",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&3&0\\\\2&4&6&0\\\\1&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&-2&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&0&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "Determinante_P": {
+  "repr": "\\left[ \\begin{array}{cc|c}a&1&0\\\\1&a&0\\\\ \\hline 0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{a}\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc|c}a&0&0\\\\1&\\frac{\\left(a - 1\\right) \\left(a + 1\\right)}{a}&0\\\\ \\hline 0&0&1\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{cc|c}a&1&0\\\\1&a&0\\\\ \\hline 0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{a}\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc|c}a&0&0\\\\1&\\frac{\\left(a - 1\\right) \\left(a + 1\\right)}{a}&0\\\\ \\hline 0&0&1\\\\ \\end{array} \\right]"
+ },
+ "Determinante_tex": {
+  "repr": "\\left[ \\begin{array}{ccc|c}1&2&0&0\\\\2&4&1&0\\\\0&1&3&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&3&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&0&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{4}\\right]\\end{subarray}}{\\pmb{\\tau}}]{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&-1\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&0&0\\\\2&4&1&0\\\\0&1&3&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&3&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[ ]{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&0&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{4}\\right]\\end{subarray}}{\\pmb{\\tau}}]{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&-1\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaC": {
+  "repr": "Matrix([Vector([2, 0, 0]), Vector([0, 6, 0]), Vector([0, 0, 3])])",
+  "tex": "\\left[ \\begin{array}{ccc}2&1&0\\\\1&2&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{2}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}2&0&0\\\\1&3&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&6&0\\\\0&0&3\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaC_B": {
+  "repr": "Matrix([Vector([1, 0, 0]), Vector([-1, 2, 0]), Vector([0, 0, 1])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&-1&0\\\\0&2&0\\\\0&0&1\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaC_ceros": {
+  "repr": "\\left[ \\begin{array}{ccc}0&1&1\\\\1&0&1\\\\1&1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&1&1\\\\1&0&1\\\\2&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&1&2\\\\1&0&1\\\\2&1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{2}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}2&0&0\\\\1&-1&0\\\\2&0&-2\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&-2&0\\\\0&0&-2\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{ccc}0&1&1\\\\1&0&1\\\\1&1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&1&1\\\\1&0&1\\\\2&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&1&2\\\\1&0&1\\\\2&1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{2}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}2&0&0\\\\1&-1&0\\\\2&0&-2\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&-2&0\\\\0&0&-2\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaC_tex": {
+  "repr": "\\left[ \\begin{array}{ccc}2&1&0\\\\1&2&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{2}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}2&0&0\\\\1&3&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&6&0\\\\0&0&3\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{ccc}2&1&0\\\\1&2&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{2}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}2&0&0\\\\1&3&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&6&0\\\\0&0&3\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaC_var1": {
+  "repr": "Matrix([Vector([2, 0, 0]), Vector([0, 3/2, 0]), Vector([0, 0, 3])])",
+  "tex": "\\left[ \\begin{array}{ccc}2&1&0\\\\1&2&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{2}\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}2&0&0\\\\1&\\frac{3}{2}&0\\\\0&0&3\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{2}\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&\\frac{3}{2}&0\\\\0&0&3\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaO": {
+  "repr": "Matrix([Vector([3, 0, 0]), Vector([0, 3, 0]), Vector([0, 0, 1])])",
+  "tex": "\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\0&0&1\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaO_Q": {
+  "repr": "Matrix([Vector([sqrt(2)/2, sqrt(2)/2, 0]), Vector([0, 0, 1]), Vector([-sqrt(2)/2, sqrt(2)/2, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}\\frac{\\sqrt{2}}{2}&0&- \\frac{\\sqrt{2}}{2}\\\\\\frac{\\sqrt{2}}{2}&0&\\frac{\\sqrt{2}}{2}\\\\0&1&0\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaS": {
+  "repr": "Matrix([Vector([3, 0, 0]), Vector([0, 3, 0]), Vector([0, 0, 1])])",
+  "tex": "\\left[ \\begin{array}{ccc}2&1&0\\\\1&2&0\\\\0&0&3\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{1\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}1&1&0\\\\1&1&0\\\\0&0&2\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\1&0&0\\\\0&0&2\\\\ \\hline 1&-1&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\1&0&0\\\\0&2&0\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\\\\\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&2&0\\\\1&0&0\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{1\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\1&0&1\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\1&0&-2\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\1&0&1\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\1&0&-2\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(\\frac{1}{2}\\right)\\mathbf{3}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\0&0&-2\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{2}\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\0&0&-2\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\0&0&1\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaS_S": {
+  "repr": "Matrix([Vector([1/2, 1/2, 0]), Vector([0, 0, 1]), Vector([-1, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}\\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]"
+ },
+ "DiagonalizaS_tex": {
+  "repr": "\\left[ \\begin{array}{ccc}2&1&0\\\\1&2&0\\\\0&0&3\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{1\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}1&1&0\\\\1&1&0\\\\0&0&2\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\1&0&0\\\\0&0&2\\\\ \\hline 1&-1&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\1&0&0\\\\0&2&0\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\\\\\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&2&0\\\\1&0&0\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{1\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\1&0&1\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\1&0&-2\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\1&0&1\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\1&0&-2\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(\\frac{1}{2}\\right)\\mathbf{3}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\0&0&-2\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{2}\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\0&0&-2\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\0&0&1\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{ccc}2&1&0\\\\1&2&0\\\\0&0&3\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{1\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}1&1&0\\\\1&1&0\\\\0&0&2\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\1&0&0\\\\0&0&2\\\\ \\hline 1&-1&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\1&0&0\\\\0&2&0\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\\\\\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}2&0&0\\\\0&2&0\\\\1&0&0\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{1\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\1&0&1\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\1&0&-2\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\1&0&1\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(-)}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\1&0&-2\\\\ \\hline 1&0&-1\\\\0&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(\\frac{1}{2}\\right)\\mathbf{3}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\0&0&-2\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{2}\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\0&0&-2\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]\\xrightarrow[\\boxed{3\\mathbf{I}}]{(+)}\\left[ \\begin{array}{ccc}3&0&0\\\\0&3&0\\\\0&0&1\\\\ \\hline \\frac{1}{2}&0&-1\\\\\\frac{1}{2}&0&1\\\\0&1&0\\\\ \\end{array} \\right]"
+ },
+ "EAfin": {
+  "repr": "EAfin",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^2,\\; \\boldsymbol{v}= \\begin{pmatrix}0\\\\ 0\\\\ - \\frac{1}{4}\\end{pmatrix}+\\left[ \\begin{array}{cc}1&2\\\\2&0\\\\3&-1\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}2&-7&4\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}-1,\\end{pmatrix}\\right.\\right\\}"
+ },
+ "EAfin_cart": {
+  "repr": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}2&-7&4\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}-1,\\end{pmatrix}\\right.\\right\\}",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}2&-7&4\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}-1,\\end{pmatrix}\\right.\\right\\}"
+ },
+ "EAfin_in": {
+  "repr": "True",
+  "tex": "\\text{True}"
+ },
+ "EAfin_inter": {
+  "repr": "EAfin",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^1,\\; \\boldsymbol{v}= \\begin{pmatrix}- \\frac{1}{2}\\\\ 0\\\\ 0\\end{pmatrix}+\\left[ \\begin{array}{c}1\\\\2\\\\3\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}-2&1&0\\\\-3&0&1\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}1\\\\ \\frac{3}{2}\\end{pmatrix}\\right.\\right\\}"
+ },
+ "ElimF_C": {
+  "repr": "Matrix([Vector([1, 0, 0]), Vector([1, 0, 0]), Vector([2, -3, 0]), Vector([0, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{cccc}1&1&2&0\\\\0&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{cccc}1&1&2&0\\\\0&0&-3&1\\\\0&0&0&0\\\\ \\end{array} \\right]"
+ },
+ "ElimGF_C": {
+  "repr": "Matrix([Vector([1, 0, 0]), Vector([1, 0, 0]), Vector([2, -3, 0]), Vector([0, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{cccc}1&1&2&0\\\\0&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{cccc}1&1&2&0\\\\0&0&-3&1\\\\0&0&0&0\\\\ \\end{array} \\right]"
+ },
+ "ElimGJF_C": {
+  "repr": "Matrix([Vector([1, 0, 0]), Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([2/3, -1/3, 0])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{cccc}1&1&2&0\\\\0&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}+\\mathbf{1} \\right]\\\\\\left[\\left(3\\right)\\mathbf{1}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{cccc}3&3&0&2\\\\0&0&-3&1\\\\0&0&0&0\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{3}\\right)\\mathbf{2}\\right]\\\\\\left[\\left(\\frac{1}{3}\\right)\\mathbf{1}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{cccc}1&1&0&\\frac{2}{3}\\\\0&0&1&- \\frac{1}{3}\\\\0&0&0&0\\\\ \\end{array} \\right]"
+ },
+ "ElimGJF_pasos": {
+  "repr": "[[T([(-1/3, 2), (1/3, 1)]), T([(1, 2, 3), (2, 2, 1), (3, 1)]), T([(-2, 1, 2)])], []]",
+  "tex": "[[T([(-1/3, 2), (1/3, 1)]), T([(1, 2, 3), (2, 2, 1), (3, 1)]), T([(-2, 1, 2)])], []]"
+ },
+ "ElimGJ_B": {
+  "repr": "Matrix([Vector([1, 2, 0]), Vector([0, 0, 1]), Vector([0, 0, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&3\\\\2&4&6\\\\1&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\1&-2&-2\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{1}\\right]\\\\\\left[\\left(1\\right)\\mathbf{2}+\\mathbf{1} \\right]\\\\\\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}2&0&0\\\\4&0&0\\\\0&-2&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(\\frac{1}{2}\\right)\\mathbf{1}\\right]\\\\\\left[\\left(- \\frac{1}{2}\\right)\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\0&1&0\\\\ \\end{array} \\right]"
+ },
+ "ElimGJ_C": {
+  "repr": "Matrix([Vector([1, 0, 2]), Vector([0, 1, -1]), Vector([0, 0, 0]), Vector([0, 0, 0])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{1}\\right]\\\\\\left[\\left(2\\right)\\mathbf{3}+\\mathbf{1} \\right]\\\\\\left[\\left(3\\right)\\mathbf{4}\\right]\\\\\\left[\\left(1\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}3&0&0&0\\\\0&0&-3&0\\\\6&0&3&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(\\frac{1}{3}\\right)\\mathbf{1}\\right]\\\\\\left[\\left(- \\frac{1}{3}\\right)\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\0&0&1&0\\\\2&0&-1&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\0&1&0&0\\\\2&-1&0&0\\\\ \\end{array} \\right]"
+ },
+ "ElimG_C": {
+  "repr": "Matrix([Vector([1, 2, 0]), Vector([0, -3, 3]), Vector([0, 0, 0]), Vector([0, 0, 0])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}\\right]\\\\\\left[\\left(1\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&0\\\\0&0&3&0\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&-3&0&0\\\\0&3&0&0\\\\ \\end{array} \\right]"
+ },
+ "Elim_A": {
+  "repr": "Matrix([Vector([1, 2, 0]), Vector([0, 0, 1]), Vector([0, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&0\\\\2&4&1\\\\0&1&3\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&3\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&0\\\\ \\end{array} \\right]"
+ },
+ "Elim_C": {
+  "repr": "Matrix([Vector([1, 2, 0]), Vector([0, 0, 0]), Vector([0, -3, 3]), Vector([0, 0, 0])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}\\right]\\\\\\left[\\left(1\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&0\\\\0&0&3&0\\\\ \\end{array} \\right]"
+ },
+ "Elim_parametro": {
+  "repr": "Matrix([Vector([a, 1]), Vector([0, (a - 1)*(a + 1)/a])])",
+  "tex": "\\left[ \\begin{array}{cc}a&1\\\\1&a\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{a}\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc}a&0\\\\1&\\frac{\\left(a - 1\\right) \\left(a + 1\\right)}{a}\\\\ \\end{array} \\right]"
+ },
+ "Elim_pasos": {
+  "repr": "[[], [T([(-1, 1, 2), (-2, 1, 3)]), T([(3, 4), (1, 3, 4)])]]",
+  "tex": "[[], [T([(-1, 1, 2), (-2, 1, 3)]), T([(3, 4), (1, 3, 4)])]]"
+ },
+ "Elim_repsust": {
+  "repr": "Matrix([Vector([1, 1]), Vector([0, 0])])",
+  "tex": "\\left[ \\begin{array}{cc}1&1\\\\1&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc}1&0\\\\1&0\\\\ \\end{array} \\right]"
+ },
+ "Elim_sust": {
+  "repr": "Matrix([Vector([1, 1]), Vector([0, 0])])",
+  "tex": "\\left[ \\begin{array}{cc}a&1\\\\1&a\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc}a&1 - a\\\\1&a - 1\\\\ \\end{array} \\right]"
+ },
+ "FL_imagen_de": {
+  "repr": "Vector([2, 5, 3])",
+  "tex": "\\begin{pmatrix}2\\\\ 5\\\\ 3\\end{pmatrix}"
+ },
+ "FL_nucleo": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{\\ \\begin{pmatrix}0\\\\ 0\\end{pmatrix}\\ \\right\\}"
+ },
+ "FuncionLineal": {
+  "repr": "Sistema inicial de pares (Dominio, Imagen): BlockM([BlockV([Vector([1, 0]), Vector([0, 1])]), BlockV([Vector([1, 1, 0]), Vector([0, 1, 1])])])",
+  "tex": "\\left[ \\begin{array}{cc}\\begin{pmatrix}\\begin{pmatrix}1\\\\ 0\\end{pmatrix}\\\\ \\begin{pmatrix}1\\\\ 1\\\\ 0\\end{pmatrix}\\end{pmatrix};& \\begin{pmatrix}\\begin{pmatrix}0\\\\ 1\\end{pmatrix}\\\\ \\begin{pmatrix}0\\\\ 1\\\\ 1\\end{pmatrix}\\end{pmatrix};\\end{array} \\right]"
+ },
+ "GS": {
+  "repr": "Matrix([Vector([1, 2, 0]), Vector([0, 0, 1]), Vector([-2/5, 1/5, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&0&- \\frac{2}{5}\\\\2&0&\\frac{1}{5}\\\\0&1&0\\\\ \\end{array} \\right]"
+ },
+ "Homogenea_A": {
+  "repr": "Combinaciones lineales de (Sistema([Vector([0, 0, 0]);]))",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&0\\\\2&4&1\\\\0&1&3\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&3\\\\ \\hline 1&-2&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&0\\\\ \\hline 1&-2&6\\\\0&1&-3\\\\0&0&1\\\\ \\end{array} \\right]"
+ },
+ "Homogenea_B": {
+  "repr": "Combinaciones lineales de (Sistema([Vector([-1, -1, 1]);]))",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&3\\\\2&4&6\\\\1&0&1\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\1&-2&-2\\\\ \\hline 1&-2&-3\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\1&-2&0\\\\ \\hline 1&-2&-1\\\\0&1&-1\\\\0&0&1\\\\ \\end{array} \\right]"
+ },
+ "Homogenea_B_tex": {
+  "repr": "\\left[ \\begin{array}{ccc}1&2&3\\\\2&4&6\\\\1&0&1\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\1&-2&-2\\\\ \\hline 1&-2&-3\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\1&-2&0\\\\ \\hline 1&-2&-1\\\\0&1&-1\\\\0&0&1\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&3\\\\2&4&6\\\\1&0&1\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\1&-2&-2\\\\ \\hline 1&-2&-3\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&0\\\\1&-2&0\\\\ \\hline 1&-2&-1\\\\0&1&-1\\\\0&0&1\\\\ \\end{array} \\right]"
+ },
+ "Homogenea_C": {
+  "repr": "Combinaciones lineales de (Sistema([Vector([-1, 1, 0, 0]); Vector([-2, 0, 1, 3]);]))",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&1\\\\0&0&3&-1\\\\ \\hline 1&-1&-2&0\\\\0&1&0&0\\\\0&0&1&0\\\\0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}\\right]\\\\\\left[\\left(1\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&0\\\\0&0&3&0\\\\ \\hline 1&-1&-2&-2\\\\0&1&0&0\\\\0&0&1&1\\\\0&0&0&3\\\\ \\end{array} \\right]"
+ },
+ "Homogenea_matrices": {
+  "repr": "Combinaciones lineales de (Sistema([Vector([-1, -1, 1]);]))",
+  "tex": "\\left[ \\begin{array}{ccc}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}1&1\\\\1&0\\\\ \\end{array} \\right]\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1\\\\0&1&-1\\\\0&0&1\\\\ \\end{array} \\right]"
+ },
+ "InvMat": {
+  "repr": "Matrix([Vector([-11, 6, -2]), Vector([6, -3, 1]), Vector([-2, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&0\\\\2&4&1\\\\0&1&3\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&3\\\\ \\hline 1&-2&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&0\\\\ \\hline 1&-2&6\\\\0&1&-3\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{3}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\0&0&1\\\\0&1&0\\\\ \\hline -11&-2&6\\\\6&1&-3\\\\-2&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\hline -11&6&-2\\\\6&-3&1\\\\-2&1&0\\\\ \\end{array} \\right]"
+ },
+ "InvMatF": {
+  "repr": "Matrix([Vector([-11, 6, -2]), Vector([6, -3, 1]), Vector([-2, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc|ccc}1&2&0&1&0&0\\\\2&4&1&0&1&0\\\\0&1&3&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc|ccc}1&2&0&1&0&0\\\\0&0&1&-2&1&0\\\\0&1&3&0&0&1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc|ccc}1&2&0&1&0&0\\\\0&0&1&-2&1&0\\\\0&1&0&6&-3&1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{3}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc|ccc}1&0&0&-11&6&-2\\\\0&0&1&-2&1&0\\\\0&1&0&6&-3&1\\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc|ccc}1&0&0&-11&6&-2\\\\0&1&0&6&-3&1\\\\0&0&1&-2&1&0\\\\ \\end{array} \\right]"
+ },
+ "InvMatFC": {
+  "repr": "Matrix([Vector([-11, 6, -2]), Vector([6, -3, 1]), Vector([-2, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc|ccc}1&2&0&1&0&0\\\\2&4&1&0&1&0\\\\0&1&3&0&0&1\\\\ \\hline 1&0&0& & & \\\\0&1&0& & & \\\\0&0&1& & & \\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc|ccc}1&2&0&1&0&0\\\\0&0&1&-2&1&0\\\\0&1&3&0&0&1\\\\ \\hline 1&0&0& & & \\\\0&1&0& & & \\\\0&0&1& & & \\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc|ccc}1&2&0&1&0&0\\\\0&0&1&-2&1&0\\\\0&1&0&6&-3&1\\\\ \\hline 1&0&0& & & \\\\0&1&0& & & \\\\0&0&1& & & \\\\ \\end{array} \\right]\\xrightarrow[\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}]{}\\left[ \\begin{array}{ccc|ccc}1&2&0&1&0&0\\\\0&1&0&6&-3&1\\\\0&0&1&-2&1&0\\\\ \\hline 1&0&0& & & \\\\0&1&0& & & \\\\0&0&1& & & \\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|ccc}1&0&0&1&0&0\\\\0&1&0&6&-3&1\\\\0&0&1&-2&1&0\\\\ \\hline 1&-2&0& & & \\\\0&1&0& & & \\\\0&0&1& & & \\\\ \\end{array} \\right]"
+ },
+ "InvMat_parametro": {
+  "repr": "Matrix([Vector([a/((a - 1)*(a + 1)), -1/((a - 1)*(a + 1))]), Vector([-1/((a - 1)*(a + 1)), a/((a - 1)*(a + 1))])])",
+  "tex": "\\left[ \\begin{array}{cc}a&1\\\\1&a\\\\ \\hline 1&0\\\\0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{1}{a}\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc}a&0\\\\1&\\frac{\\left(a - 1\\right) \\left(a + 1\\right)}{a}\\\\ \\hline 1&- \\frac{1}{a}\\\\0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(- \\frac{a}{\\left(a - 1\\right) \\left(a + 1\\right)}\\right)\\mathbf{2}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc}a&0\\\\0&\\frac{\\left(a - 1\\right) \\left(a + 1\\right)}{a}\\\\ \\hline \\frac{a^{2}}{\\left(a - 1\\right) \\left(a + 1\\right)}&- \\frac{1}{a}\\\\- \\frac{a}{\\left(a - 1\\right) \\left(a + 1\\right)}&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(\\frac{1}{a}\\right)\\mathbf{1}\\right]\\\\\\left[\\left(\\frac{a}{\\left(a - 1\\right) \\left(a + 1\\right)}\\right)\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc}1&0\\\\0&1\\\\ \\hline \\frac{a}{\\left(a - 1\\right) \\left(a + 1\\right)}&- \\frac{1}{\\left(a - 1\\right) \\left(a + 1\\right)}\\\\- \\frac{1}{\\left(a - 1\\right) \\left(a + 1\\right)}&\\frac{a}{\\left(a - 1\\right) \\left(a + 1\\right)}\\\\ \\end{array} \\right]"
+ },
+ "M0_M1_I": {
+  "repr": "Sistema([Matrix([Vector([0, 0]), Vector([0, 0]), Vector([0, 0])]); Matrix([Vector([1, 1]), Vector([1, 1])]); Matrix([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])]); Vector([0, 0]); Vector([1, 1]);])",
+  "tex": "\\left[ \\begin{array}{ccccc}\\left[ \\begin{array}{ccc}0&0&0\\\\0&0&0\\\\ \\end{array} \\right];& \\left[ \\begin{array}{cc}1&1\\\\1&1\\\\ \\end{array} \\right];& \\left[ \\begin{array}{ccc}1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right];& \\begin{pmatrix}0\\\\ 0\\end{pmatrix};& \\begin{pmatrix}1\\\\ 1\\end{pmatrix};\\end{array} \\right]"
+ },
+ "MatrixSimbol": {
+  "repr": "MatrixSimbol(Matrix([Vector([1, 2, 0]), Vector([2, 4, 1]), Vector([0, 1, 3])]), \"A\")",
+  "tex": "\\boldsymbol{\\mathsf{A}}"
+ },
+ "SEL_C": {
+  "repr": "set() + Combinaciones lineales de (Sistema([Vector([-1, 1, 0, 0]); Vector([-2, 0, 1, 3]);]))",
+  "tex": "\\left[ \\begin{array}{cccc|c}1&1&2&0&-1\\\\2&2&1&1&-2\\\\0&0&3&-1&-3\\\\ \\hline 1&0&0&0&0\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}1&0&0&0&0\\\\2&0&-3&1&0\\\\0&0&3&-1&-3\\\\ \\hline 1&-1&-2&0&1\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}\\right]\\\\\\left[\\left(1\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}1&0&0&0&0\\\\2&0&-3&0&0\\\\0&0&3&0&-3\\\\ \\hline 1&-1&-2&-2&1\\\\0&1&0&0&0\\\\0&0&1&1&0\\\\0&0&0&3&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_det": {
+  "repr": "Vector([-5, 3, 0]) + Combinaciones lineales de (Sistema([Vector([0, 0, 0]);]))",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&0&-1\\\\2&4&1&-2\\\\0&1&3&-3\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&3&-3\\\\ \\hline 1&-2&0&1\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\\\\\left[\\left(3\\right)\\mathbf{2}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&0&0\\\\ \\hline 1&-2&6&-5\\\\0&1&-3&3\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_det_tex": {
+  "repr": "\\left[ \\begin{array}{ccc|c}1&2&0&-1\\\\2&4&1&-2\\\\0&1&3&-3\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&3&-3\\\\ \\hline 1&-2&0&1\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\\\\\left[\\left(3\\right)\\mathbf{2}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&0&0\\\\ \\hline 1&-2&6&-5\\\\0&1&-3&3\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&0&-1\\\\2&4&1&-2\\\\0&1&3&-3\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&3&-3\\\\ \\hline 1&-2&0&1\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\\\\\left[\\left(3\\right)\\mathbf{2}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&1&0\\\\0&1&0&0\\\\ \\hline 1&-2&6&-5\\\\0&1&-3&3\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_incompatible": {
+  "repr": "set() + Combinaciones lineales de (Sistema([Vector([-1, -1, 1]);]))",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&3&-1\\\\2&4&6&0\\\\1&0&1&-1\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&2\\\\1&-2&-2&0\\\\ \\hline 1&-2&-3&1\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&2\\\\1&-2&0&0\\\\ \\hline 1&-2&-1&1\\\\0&1&-1&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_indet": {
+  "repr": "Vector([1, 0, 0]) + Combinaciones lineales de (Sistema([Vector([-1, -1, 1]);]))",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&3&-1\\\\2&4&6&-2\\\\1&0&1&-1\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&-2&0\\\\ \\hline 1&-2&-3&1\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&0&0\\\\ \\hline 1&-2&-1&1\\\\0&1&-1&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_indet_tex": {
+  "repr": "\\left[ \\begin{array}{ccc|c}1&2&3&-1\\\\2&4&6&-2\\\\1&0&1&-1\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&-2&0\\\\ \\hline 1&-2&-3&1\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&0&0\\\\ \\hline 1&-2&-1&1\\\\0&1&-1&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{ccc|c}1&2&3&-1\\\\2&4&6&-2\\\\1&0&1&-1\\\\ \\hline 1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-3\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(1\\right)\\mathbf{1}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&-2&0\\\\ \\hline 1&-2&-3&1\\\\0&1&0&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc|c}1&0&0&0\\\\2&0&0&0\\\\1&-2&0&0\\\\ \\hline 1&-2&-1&1\\\\0&1&-1&0\\\\0&0&1&0\\\\ \\hline 0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_matrices": {
+  "repr": "Vector([2, 3, 0, 5]) + Combinaciones lineales de (Sistema([Vector([-1, -1, 1, 0]);]))",
+  "tex": "\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}1&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}-2&-3\\\\-3&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&0&0&0\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(2\\right)\\mathbf{1}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&-3\\\\-3&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\\\\\left[\\left(3\\right)\\mathbf{2}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&-1&0&3\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(5\\right)\\mathbf{4}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&-1&0&3\\\\0&0&1&0&0\\\\0&0&0&1&5\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_matrices_incomp": {
+  "repr": "set() + Combinaciones lineales de (Sistema([Vector([0, 0]);]))",
+  "tex": "\\left[ \\begin{array}{cc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}-2&-3\\\\-4&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&0\\\\0&1&0\\\\ \\hline 0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&-3\\\\-4&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&2\\\\0&1&0\\\\ \\hline 0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(4\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\0&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&2\\\\0&1&4\\\\ \\hline 0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_matrices_tex": {
+  "repr": "\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}1&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}-2&-3\\\\-3&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&0&0&0\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(2\\right)\\mathbf{1}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&-3\\\\-3&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\\\\\left[\\left(3\\right)\\mathbf{2}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&-1&0&3\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(5\\right)\\mathbf{4}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&-1&0&3\\\\0&0&1&0&0\\\\0&0&0&1&5\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}1&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}-2&-3\\\\-3&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&0&0&0\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(2\\right)\\mathbf{1}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&-3\\\\-3&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&0&0&0\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{2}+\\mathbf{3} \\right]\\\\\\left[\\left(3\\right)\\mathbf{2}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&-5\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&-1&0&3\\\\0&0&1&0&0\\\\0&0&0&1&0\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(5\\right)\\mathbf{4}+\\mathbf{5} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc|c}\\left[ \\begin{array}{cc}1&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&1\\\\1&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&1\\\\ \\end{array} \\right]&\\left[ \\begin{array}{cc}0&0\\\\0&0\\\\ \\end{array} \\right]\\\\ \\hline 1&0&-1&0&2\\\\0&1&-1&0&3\\\\0&0&1&0&0\\\\0&0&0&1&5\\\\ \\hline 0&0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "SEL_solP": {
+  "repr": "set()",
+  "tex": "\\left\\{\\right\\}"
+ },
+ "SubEspacio_cart": {
+  "repr": "Matrix([Vector([2]), Vector([-7]), Vector([4])])",
+  "tex": "\\left[ \\begin{array}{ccc}2&-7&4\\\\ \\end{array} \\right]"
+ },
+ "SubEspacio_dim": {
+  "repr": "[2, 1]",
+  "tex": "\\left[ 2, \\  1\\right]"
+ },
+ "SubEspacio_igual": {
+  "repr": "True",
+  "tex": "\\text{True}"
+ },
+ "SubEspacio_in": {
+  "repr": "[True, False]",
+  "tex": "\\left[ \\text{True}, \\  \\text{False}\\right]"
+ },
+ "SubEspacio_inter": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^1,\\; \\boldsymbol{v}= \\left[ \\begin{array}{c}-1\\\\-2\\\\-3\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}-2&1&0\\\\-3&0&1\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}0\\\\ 0\\end{pmatrix}\\right.\\right\\}"
+ },
+ "SubEspacio_matrices": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\pmb{\\mathsf{M}}\\in\\mathbb{R}^{2\\times2}\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^2,\\; \\mathsf{\\pmb{M}}= \\left[ \\begin{array}{cc}\\left[ \\begin{array}{cc}1&0\\\\0&1\\\\ \\end{array} \\right];& \\left[ \\begin{array}{cc}1&1\\\\1&1\\\\ \\end{array} \\right];\\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\mathsf{\\pmb{M}}\\in\\mathbb{R}^{2\\times2}\\ \\left|\\ \\left[ \\begin{array}{cccc}0&-1&1&0\\\\-1&0&0&1\\\\ \\end{array} \\right]vec(\\mathsf{\\pmb{M}})=\\begin{pmatrix}0\\\\ 0\\end{pmatrix}\\right.\\right\\}"
+ },
+ "SubEspacio_matriz": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^1,\\; \\boldsymbol{v}= \\left[ \\begin{array}{c}-1\\\\-1\\\\1\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}-1&1&0\\\\1&0&1\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}0\\\\ 0\\end{pmatrix}\\right.\\right\\}"
+ },
+ "SubEspacio_ortog": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^1,\\; \\boldsymbol{v}= \\left[ \\begin{array}{c}2\\\\-7\\\\4\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}7&2&0\\\\-2&0&1\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}0\\\\ 0\\end{pmatrix}\\right.\\right\\}"
+ },
+ "SubEspacio_sgen": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^2,\\; \\boldsymbol{v}= \\left[ \\begin{array}{cc}1&2\\\\2&0\\\\3&-1\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}2&-7&4\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}0,\\end{pmatrix}\\right.\\right\\}"
+ },
+ "SubEspacio_suma": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^2,\\; \\boldsymbol{v}= \\left[ \\begin{array}{cc}1&2\\\\2&0\\\\3&-1\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}2&-7&4\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}0,\\end{pmatrix}\\right.\\right\\}"
+ },
+ "T_composicion": {
+  "repr": "T([{1, 2}, (2, 4), (2, 1, 3)])",
+  "tex": "\\underset{\\begin{subarray}{c} \\left[\\mathbf{1}\\rightleftharpoons\\mathbf{2}\\right]\\\\\\left[\\left(2\\right)\\mathbf{4}\\right]\\\\\\left[\\left(2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}"
+ },
+ "T_dcha": {
+  "repr": "Matrix([Vector([2, 4, 1]), Vector([1, 2, 0]), Vector([10, 25, 15])])",
+  "tex": "\\left[ \\begin{array}{ccc}2&1&10\\\\4&2&25\\\\1&0&15\\\\ \\end{array} \\right]"
+ },
+ "T_espejo": {
+  "repr": "T([(2, 4), (2, 3, 1), {1, 2}])",
+  "tex": "\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{4}\\right]\\\\\\left[\\left(2\\right)\\mathbf{3}+\\mathbf{1} \\right]\\\\\\left[\\mathbf{1}\\rightleftharpoons\\mathbf{2}\\right]\\end{subarray}}{\\pmb{\\tau}}"
+ },
+ "T_inversa": {
+  "repr": "T([{1, 2}, (-2, 1, 3), (1/2, 4)])",
+  "tex": "\\underset{\\begin{subarray}{c} \\left[\\mathbf{1}\\rightleftharpoons\\mathbf{2}\\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(\\frac{1}{2}\\right)\\mathbf{4}\\right]\\end{subarray}}{\\pmb{\\tau}}"
+ },
+ "T_izda": {
+  "repr": "Matrix([Vector([2, 1, 4]), Vector([4, 2, 13]), Vector([1, 0, 17])])",
+  "tex": "\\left[ \\begin{array}{ccc}2&4&1\\\\1&2&0\\\\4&13&17\\\\ \\end{array} \\right]"
+ },
+ "T_latex_h": {
+  "repr": "T([(2, 4), (2, 1, 3), {1, 2}])",
+  "tex": "\\underset{\\left[\\left(2\\right)\\mathbf{4}\\right]}{\\pmb{\\tau}}\\underset{\\left[\\left(2\\right)\\mathbf{1}+\\mathbf{3} \\right]}{\\pmb{\\tau}}\\underset{\\left[\\mathbf{1}\\rightleftharpoons\\mathbf{2}\\right]}{\\pmb{\\tau}}"
+ },
+ "T_transpuesta": {
+  "repr": "T([{1, 2}, (2, 1, 3), (2, 4)])",
+  "tex": "\\underset{\\begin{subarray}{c} \\left[\\mathbf{1}\\rightleftharpoons\\mathbf{2}\\right]\\\\\\left[\\left(2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\\\\\left[\\left(2\\right)\\mathbf{4}\\right]\\end{subarray}}{\\pmb{\\tau}}"
+ },
+ "VectorSimbol": {
+  "repr": "VectorSimbol(Vector([1, 2, 3]), \"a\")",
+  "tex": "\\boldsymbol{a}"
+ },
+ "apila": {
+  "repr": "Matrix([Vector([1, 2, 0, 1, 2, 1]), Vector([2, 4, 1, 2, 4, 0]), Vector([0, 1, 3, 3, 6, 1])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&0\\\\2&4&1\\\\0&1&3\\\\ \\hline 1&2&3\\\\2&4&6\\\\1&0&1\\\\ \\end{array} \\right]"
+ },
+ "columna": {
+  "repr": "Vector([1, 2, 0])",
+  "tex": "\\begin{pmatrix}1\\\\ 2\\\\ 0\\end{pmatrix}"
+ },
+ "concatena": {
+  "repr": "Matrix([Vector([1, 2, 0]), Vector([2, 4, 1]), Vector([0, 1, 3]), Vector([1, 2, 1]), Vector([2, 4, 0]), Vector([3, 6, 1])])",
+  "tex": "\\left[ \\begin{array}{ccc|ccc}1&2&0&1&2&3\\\\2&4&1&2&4&6\\\\0&1&3&1&0&1\\\\ \\end{array} \\right]"
+ },
+ "det_Laplace": {
+  "repr": "[-1, 0, a**2 - 1]",
+  "tex": "\\left[ -1, \\  0, \\  a^{2} - 1\\right]"
+ },
+ "determinante": {
+  "repr": "[-1, 0, a**2 - 1]",
+  "tex": "\\left[ -1, \\  0, \\  a^{2} - 1\\right]"
+ },
+ "diag": {
+  "repr": "Vector([1, 4, 3])",
+  "tex": "\\begin{pmatrix}1\\\\ 4\\\\ 3\\end{pmatrix}"
+ },
+ "elemento": {
+  "repr": "1",
+  "tex": "1"
+ },
+ "elim_1": {
+  "repr": "Matrix([Vector([1, 2, 0]), Vector([0, 0, 0]), Vector([0, -3, 3]), Vector([0, 0, 0])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(\\frac{1}{3}\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&0\\\\0&0&3&0\\\\ \\end{array} \\right]"
+ },
+ "elim_100": {
+  "repr": "Matrix([Vector([0, 0, 0]), Vector([0, 0, 0]), Vector([2, 4, 0]), Vector([0, 1, -1])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&4&1\\\\0&0&0&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{1}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{3}+\\mathbf{1} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{3}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}0&0&2&0\\\\0&0&4&1\\\\0&0&0&-1\\\\ \\end{array} \\right]"
+ },
+ "elim_120": {
+  "repr": "Matrix([Vector([0, 0, 0]), Vector([0, 0, 0]), Vector([2, 4, 0]), Vector([0, 1, -1])])",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&4&1\\\\0&0&0&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(2\\right)\\mathbf{1}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{3}+\\mathbf{1} \\right]\\\\\\left[\\left(2\\right)\\mathbf{2}\\right]\\\\\\left[\\left(-1\\right)\\mathbf{3}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}0&0&2&0\\\\0&0&4&1\\\\0&0&0&-1\\\\ \\end{array} \\right]"
+ },
+ "escalar_dcha": {
+  "repr": "Matrix([Vector([1/2, 1, 0]), Vector([1, 2, 1/2]), Vector([0, 1/2, 3/2])])",
+  "tex": "\\left[ \\begin{array}{ccc}\\frac{1}{2}&1&0\\\\1&2&\\frac{1}{2}\\\\0&\\frac{1}{2}&\\frac{3}{2}\\\\ \\end{array} \\right]"
+ },
+ "escalar_izda": {
+  "repr": "Matrix([Vector([3, 6, 0]), Vector([6, 12, 3]), Vector([0, 3, 9])])",
+  "tex": "\\left[ \\begin{array}{ccc}3&6&0\\\\6&12&3\\\\0&3&9\\\\ \\end{array} \\right]"
+ },
+ "espacio_nulo": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^4\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^2,\\; \\boldsymbol{v}= \\left[ \\begin{array}{cc}-1&-2\\\\1&0\\\\0&1\\\\0&3\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^4\\ \\left|\\ \\left[ \\begin{array}{cccc}1&1&2&0\\\\3&3&0&2\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}0\\\\ 0\\end{pmatrix}\\right.\\right\\}"
+ },
+ "extDiag": {
+  "repr": "Matrix([Vector([1, 2, 0, 0, 0]), Vector([2, 4, 1, 0, 0]), Vector([0, 1, 3, 0, 0]), Vector([0, 0, 0, 1, 0]), Vector([0, 0, 0, 0, 1])])",
+  "tex": "\\left[ \\begin{array}{ccc|cc}1&2&0&0&0\\\\2&4&1&0&0\\\\0&1&3&0&0\\\\ \\hline 0&0&0&1&0\\\\0&0&0&0&1\\\\ \\end{array} \\right]"
+ },
+ "fila": {
+  "repr": "Vector([2, 2, 1, 1])",
+  "tex": "\\begin{pmatrix}2,& 2,& 1,& 1,\\end{pmatrix}"
+ },
+ "inversa": {
+  "repr": "Matrix([Vector([-11, 6, -2]), Vector([6, -3, 1]), Vector([-2, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&0\\\\2&4&1\\\\0&1&3\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&3\\\\ \\hline 1&-2&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&0\\\\ \\hline 1&-2&6\\\\0&1&-3\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{3}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\0&0&1\\\\0&1&0\\\\ \\hline -11&-2&6\\\\6&1&-3\\\\-2&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\hline -11&6&-2\\\\6&-3&1\\\\-2&1&0\\\\ \\end{array} \\right]"
+ },
+ "matriz_por_matriz": {
+  "repr": "Matrix([Vector([5, 11, 5]), Vector([10, 20, 4]), Vector([15, 31, 9])])",
+  "tex": "\\left[ \\begin{array}{ccc}5&10&15\\\\11&20&31\\\\5&4&9\\\\ \\end{array} \\right]"
+ },
+ "matriz_por_vector": {
+  "repr": "Vector([5, 13, 11])",
+  "tex": "\\begin{pmatrix}5\\\\ 13\\\\ 11\\end{pmatrix}"
+ },
+ "norma": {
+  "repr": "sqrt(14)",
+  "tex": "\\sqrt{14}"
+ },
+ "normalizado": {
+  "repr": "Vector([sqrt(14)/14, sqrt(14)/7, 3*sqrt(14)/14])",
+  "tex": "\\begin{pmatrix}\\frac{\\sqrt{14}}{14}\\\\ \\frac{\\sqrt{14}}{7}\\\\ \\frac{3 \\sqrt{14}}{14}\\end{pmatrix}"
+ },
+ "potencia": {
+  "repr": "Matrix([Vector([25, 52, 16]), Vector([52, 111, 42]), Vector([16, 42, 37])])",
+  "tex": "\\left[ \\begin{array}{ccc}25&52&16\\\\52&111&42\\\\16&42&37\\\\ \\end{array} \\right]"
+ },
+ "potencia_negativa": {
+  "repr": "Matrix([Vector([-11, 6, -2]), Vector([6, -3, 1]), Vector([-2, 1, 0])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&0\\\\2&4&1\\\\0&1&3\\\\ \\hline 1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{2} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&3\\\\ \\hline 1&-2&0\\\\0&1&0\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-3\\right)\\mathbf{2}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\2&0&1\\\\0&1&0\\\\ \\hline 1&-2&6\\\\0&1&-3\\\\0&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-2\\right)\\mathbf{3}+\\mathbf{1} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\0&0&1\\\\0&1&0\\\\ \\hline -11&-2&6\\\\6&1&-3\\\\-2&0&1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\mathbf{2}\\rightleftharpoons\\mathbf{3}\\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{ccc}1&0&0\\\\0&1&0\\\\0&0&1\\\\ \\hline -11&6&-2\\\\6&-3&1\\\\-2&1&0\\\\ \\end{array} \\right]"
+ },
+ "producto_punto": {
+  "repr": "-1",
+  "tex": "-1"
+ },
+ "rango": {
+  "repr": "[3, 2, 2, 3]",
+  "tex": "\\left[ 3, \\  2, \\  2, \\  3\\right]"
+ },
+ "repr_sistema": {
+  "repr": "Sistema([1; Vector([1, 2, 3]); Matrix([Vector([1, 2, 0]), Vector([2, 4, 1]), Vector([0, 1, 3])]);])",
+  "tex": "Sistema([1; Vector([1, 2, 3]); Matrix([Vector([1, 2, 0]), Vector([2, 4, 1]), Vector([0, 1, 3])]);])"
+ },
+ "resta_matrices": {
+  "repr": "Matrix([Vector([0, 0, -1]), Vector([0, 0, 1]), Vector([-3, -5, 2])])",
+  "tex": "\\left[ \\begin{array}{ccc}0&0&-3\\\\0&0&-5\\\\-1&1&2\\\\ \\end{array} \\right]"
+ },
+ "rprElim": {
+  "repr": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}\\right]\\\\\\left[\\left(1\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&0\\\\0&0&3&0\\\\ \\end{array} \\right]",
+  "tex": "\\left[ \\begin{array}{cccc}1&1&2&0\\\\2&2&1&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(-1\\right)\\mathbf{1}+\\mathbf{2} \\right]\\\\\\left[\\left(-2\\right)\\mathbf{1}+\\mathbf{3} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&1\\\\0&0&3&-1\\\\ \\end{array} \\right]\\xrightarrow{\\underset{\\begin{subarray}{c} \\left[\\left(3\\right)\\mathbf{4}\\right]\\\\\\left[\\left(1\\right)\\mathbf{3}+\\mathbf{4} \\right]\\end{subarray}}{\\pmb{\\tau}}}\\left[ \\begin{array}{cccc}1&0&0&0\\\\2&0&-3&0\\\\0&0&3&0\\\\ \\end{array} \\right]"
+ },
+ "sel_metodo": {
+  "repr": "Sistema([])",
+  "tex": "\\left[\\ \\right]"
+ },
+ "slice": {
+  "repr": "Vector([2, 3, 4])",
+  "tex": "\\begin{pmatrix}2\\\\ 3\\\\ 4\\end{pmatrix}"
+ },
+ "span": {
+  "repr": "SubEspacio",
+  "tex": "\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\exists\\boldsymbol{p}\\in\\mathbb{R}^2,\\; \\boldsymbol{v}= \\left[ \\begin{array}{cc}1&2\\\\2&1\\\\0&3\\\\ \\end{array} \\right]\\boldsymbol{p}\\right. \\right\\}\\; = \\;\\left\\{ \\boldsymbol{v}\\in\\mathbb{R}^3\\ \\left|\\ \\left[ \\begin{array}{ccc}-2&1&1\\\\ \\end{array} \\right]\\boldsymbol{v}=\\begin{pmatrix}0,\\end{pmatrix}\\right.\\right\\}"
+ },
+ "str_matriz": {
+  "repr": "| 1  1| 2  0|\n-------------\n| 2  2| 1  1|\n| 0  0| 3 -1|",
+  "tex": "| 1  1| 2  0|\n-------------\n| 2  2| 1  1|\n| 0  0| 3 -1|"
+ },
+ "submatriz": {
+  "repr": "Matrix([Vector([1, 0]), Vector([0, -1])])",
+  "tex": "\\left[ \\begin{array}{cc}1&0\\\\0&-1\\\\ \\end{array} \\right]"
+ },
+ "subs": {
+  "repr": "Matrix([Vector([2, 1]), Vector([1, 2])])",
+  "tex": "\\left[ \\begin{array}{cc}2&1\\\\1&2\\\\ \\end{array} \\right]"
+ },
+ "suma_vectores": {
+  "repr": "Vector([3, 2, 2])",
+  "tex": "\\begin{pmatrix}3\\\\ 2\\\\ 2\\end{pmatrix}"
+ },
+ "transpuesta": {
+  "repr": "Matrix([Vector([1, 1, 2, 0]), Vector([2, 2, 1, 1]), Vector([0, 0, 3, -1])])",
+  "tex": "\\left[ \\begin{array}{ccc}1&2&0\\\\1&2&0\\\\2&1&3\\\\0&1&-1\\\\ \\end{array} \\right]"
+ },
+ "traza": {
+  "repr": "8",
+  "tex": "8"
+ },
+ "vector_por_matriz": {
+  "repr": "Vector([5, 13, 11])",
+  "tex": "\\begin{pmatrix}5,& 13,& 11,\\end{pmatrix}"
+ }
+}
