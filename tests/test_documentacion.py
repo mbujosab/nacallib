@@ -16,6 +16,9 @@ ORG = pathlib.Path(__file__).resolve().parent.parent / 'nacal_src.org'
 # Encabezados de las secciones cuyos ejemplos se comprueban
 SECCIONES = [
     '**** Ejemplos de eliminación',
+    '***** Ejemplos de matrices inversas',
+    '*** Ejemplos de sistemas homogéneos',
+    '*** Ejemplos de sistemas de ecuaciones',
     '*** Ejemplo: combinaciones lineales de matrices',
 ]
 

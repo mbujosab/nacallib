@@ -3866,6 +3866,10 @@ def GS(self):
 **** Otros métodos específicos de las matrices cuadradas que usan eliminación
 ***** Rango de una Matrix
 
+El rango de una matriz es el número de columnas no nulas (el número de pivotes) de cualquiera de sus
+formas pre-escalonadas ({{{libro(section.5.2,Sección 5.2 del libro)}}}). Así que basta contar las columnas
+no nulas de ~self.K()~.
+
 #+name: Rango de una Matrix
 #+BEGIN_SRC python
 
@@ -3876,6 +3880,9 @@ def rango(self):
 #+END_SRC
 
 ***** Comprobación de que una Matrix es singular o de que es invertible
+
+Una matriz cuadrada de orden $n$ es invertible si y solo si su rango es $n$; es decir, si sus formas
+pre-escalonadas no tienen columnas nulas. En caso contrario se dice que es singular.
 
 #+name: Comprobación de que una Matrix es singular o de que es invertible
 #+BEGIN_SRC python
@@ -3894,8 +3901,33 @@ def es_invertible(self):
 
 ***** Cálculo de la matriz inversa
 
-En la representación se muestra primero la reducción adelante y atrás,
-luego se escalona y finalmente se normaliza.
+El método ~inversa~ implementa el /Método para encontrar la inversa de una matriz/ de la
+{{{libro(subsection.5.1.4,Sección 5.1.4 del libro)}}}. Dicho método se apoya en que, al aplicar una secuencia
+de transformaciones elementales a las columnas de la matriz que resulta de apilar \Mat{A} sobre la
+identidad, en la parte inferior queda registrada la matriz que ha realizado la transformación:
+\begin{displaymath}
+  \begin{bmatrix} \Mat{A}\\\hline \Mat{I} \end{bmatrix}
+  \xrightarrow{\quad\pmb{\tau}_1\cdots\pmb{\tau}_k\quad}
+  \begin{bmatrix} \Mat{A}\Mat{E}\\\hline \Mat{E} \end{bmatrix},
+  \qquad\text{donde}\quad \Mat{E}=\Mat{I}_{\pmb{\tau}_1\cdots\pmb{\tau}_k}.
+\end{displaymath}
+Si la secuencia de transformaciones conduce a la forma escalonada reducida de \Mat{A}, y esta es la
+identidad, entonces $\Mat{A}\Mat{E}=\Mat{I}$ y, por tanto, \Mat{E} es la inversa de \Mat{A}. Si por el
+contrario la forma escalonada reducida tiene columnas nulas, \Mat{A} es singular.
+
+El código sigue esos pasos:
+
+1. Encadena tres eliminaciones (véase la tabla de variantes): la doble reducción ~elim(2)~ anula
+   los componentes a ambos lados de cada pivote, ~elim(20)~ reordena las columnas para escalonar la
+   matriz y ~elim(10)~ normaliza los pivotes. El resultado es la forma escalonada reducida, y el
+   atributo ~pasos~ acumula las transformaciones de las tres etapas.
+2. Si la matriz es singular se produce un error.
+3. En caso contrario la inversa es el resultado de aplicar sobre la identidad las transformaciones
+   de las columnas: ~I(self.n) & T(TrC)~.
+
+No es necesario apilar realmente la identidad para hacer los cálculos; la matriz apilada solo se usa
+para escribir el código \LaTeX{} del atributo ~tex~, de modo que la representación muestra el
+procedimiento tal como aparece en el libro.
 
 #+name: Cálculo de la matriz inversa
 #+BEGIN_SRC python
@@ -3924,6 +3956,115 @@ def inversa(self, rep=0):
     return InvMat
 
 #+END_SRC
+
+Las clases ~InvMat~, ~InvMatF~ e ~InvMatFC~ (que se definen más adelante) ofrecen tres maneras
+de llegar a la inversa:
+
+| Clase         | Transformaciones   | Matriz que se transforma                    | La inversa es                    |
+|---------------+--------------------+---------------------------------------------+----------------------------------|
+| ~InvMat(A)~   | de las columnas    | \Mat{A} apilada sobre \Mat{I}               | la parte inferior                |
+| ~InvMatF(A)~  | de las filas       | \Mat{A} concatenada con \Mat{I}             | la parte derecha                 |
+| ~InvMatFC(A)~ | de filas y columnas| \Mat{A} con \Mat{I} a la derecha y debajo   | el producto de ambas identidades |
+
+~InvMat(A)~ es otro modo de llamar a ~A.inversa()~. ~InvMatF~ hace lo mismo con las filas (al
+transformar las filas, la matriz que realiza la transformación queda registrada a la derecha).
+~InvMatFC~ primero escalona con transformaciones de las filas y después termina de reducir con
+transformaciones de las columnas; si \Mat{F} y \Mat{C} son las matrices en que se transforman las
+identidades de la derecha y de debajo, entonces $\Mat{F}\Mat{A}\Mat{C}=\Mat{I}$, y por tanto la inversa
+de \Mat{A} es el producto $\Mat{C}\Mat{F}$.
+
+***** Ejemplos de matrices inversas
+
+Usaremos la matriz de un ejemplo de la {{{libro(subsection.5.1.4,Sección 5.1.4 del libro)}}}.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [5,0], [2,-2] ] )
+#+END_SRC
+
+El atributo ~tex~ de la inversa muestra el proceso sobre la matriz apilada:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( InvMat(A).tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}5&0\\2&-2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}5&0\\0&-2\\ \hline 1&0\\1&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{5}\right)\mathbf{1}\right]\\\left[\left(- \frac{1}{2}\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\0&1\\ \hline \frac{1}{5}&0\\\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
+
+La inversa es la matriz que ha quedado en la parte inferior
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( InvMat(A) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}\frac{1}{5}&0\\\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
+
+y, como con cualquier resultado de una eliminación, el atributo ~pasos~ guarda las transformaciones
+aplicadas (aquí todas son de las columnas):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( InvMat(A).pasos ))
+#+END_SRC
+
+#+RESULTS:
+=[[], [T([(1, 2, 1)]), T([(1/5, 1), (-1/2, 2)])]]=
+
+Efectivamente, el producto de la matriz por su inversa es la identidad:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( A*InvMat(A) == I(2) ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+Operando con las filas, la inversa aparece a la derecha:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( InvMatF(A).tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc|cc}5&0&1&0\\2&-2&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(5\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}5&0&1&0\\0&-10&-2&5\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{10}\right)\mathbf{2}\right]\\\left[\left(\frac{1}{5}\right)\mathbf{1}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}1&0&\frac{1}{5}&0\\0&1&\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
+
+Y operando primero con las filas y después con las columnas, la inversa es el producto de la
+matriz de debajo por la matriz de la derecha (por ese orden):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( InvMatFC(A).tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc|cc}5&0&1&0\\2&-2&0&1\\ \hline 1&0& & \\0&1& & \\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(5\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}5&0&1&0\\0&-10&-2&5\\ \hline 1&0& & \\0&1& & \\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{5}\right)\mathbf{1}\right]\\\left[\left(- \frac{1}{10}\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc|cc}1&0&1&0\\0&1&-2&5\\ \hline \frac{1}{5}&0& & \\0&- \frac{1}{10}& & \\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( InvMatFC(A) == InvMat(A) ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+Cuando la matriz es singular su rango es menor que su orden, y al intentar invertirla se produce un
+error:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+B = Matrix( [ [1,2], [2,4] ] )
+print(dprint( (B.rango(), B.es_singular()) ))
+#+END_SRC
+
+#+RESULTS:
+=(1, True)=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+try:
+    B.inversa()
+except ValueError as error:
+    print(dprint( error ))
+#+END_SRC
+
+#+RESULTS:
+=Matrix es singular=
+
 
 ***** Cálculo del determinante
 
@@ -6041,11 +6182,42 @@ class EAfin:
 
 ** Resolución de sistemas de ecuaciones homogéneos. La clase  ~Homogenea~ 
 
-El siguiente código devuelve el conjunto de soluciones de un sistema homogéneo \SEL{A}{x}{0}. Descripción de los atributos:
-- ~sgen~ es un sistema generador del espacio nulo \nulls{A}.
-- ~determinado~ indica si es cierto que el sistema es determinado (una única solución)
-- ~tex~ es la cadena de texto \LaTeX que representa los pasos dados
-  para resolver el sistema.
+La clase ~Homogenea~ calcula el conjunto de soluciones de un sistema homogéneo \SEL{A}{x}{0}; es
+decir, el espacio nulo \nulls{A}. Implementa el procedimiento de la
+{{{libro(section.7.4,Sección 7.4 del libro)}}} (/Resolución de un Sistema Homogéneo por eliminación/).
+
+La idea es la misma que la del cálculo de la inversa: al pre-escalonar las columnas de la matriz que
+resulta de apilar \Mat{A} sobre la identidad se obtiene
+\begin{displaymath}
+  \begin{bmatrix} \Mat{A}\\\hline \Mat{I} \end{bmatrix}
+  \xrightarrow{\quad\pmb{\tau}_1\cdots\pmb{\tau}_k\quad}
+  \begin{bmatrix} \Mat{K}\\\hline \Mat{E} \end{bmatrix},
+  \qquad\text{donde}\quad \Mat{K}=\Mat{A}\Mat{E}.
+\end{displaymath}
+En cada columna, la parte inferior contiene los coeficientes de la combinación lineal de las columnas
+de \Mat{A} cuyo resultado es la parte superior. Por tanto, debajo de cada columna nula de \Mat{K} hay
+una solución del sistema. El libro las llama /soluciones especiales/ y demuestra que toda solución es
+combinación lineal de ellas; y que si \Mat{K} no tiene columnas nulas la única solución es el vector
+nulo.
+
+El código hace exactamente eso: calcula una forma pre-escalonada ~K~ de la matriz de coeficientes,
+aplica las mismas transformaciones a la identidad para obtener ~E~, y selecciona las columnas de ~E~
+que están bajo las columnas nulas de ~K~. Como en el caso de la inversa, la matriz apilada solo se
+usa para escribir el atributo ~tex~.
+
+Atributos del resultado:
+
+| Atributo               | Contenido                                                                          |
+|------------------------+------------------------------------------------------------------------------------|
+| ~base~                 | ~Sistema~ con las soluciones especiales (vacío si la única solución es \Vect{0})   |
+| ~sgen~                 | sistema generador de \nulls{A}: es ~base~, o el sistema que solo contiene \Vect{0} |
+| ~determinado~          | indica si la única solución es el vector nulo                                      |
+| ~enulo~                | el espacio nulo como objeto de la clase ~SubEspacio~                               |
+| ~pasos~, ~TrF~ y ~TrC~ | transformaciones elementales aplicadas                                             |
+| ~tex~                  | código \LaTeX{} con los pasos dados                                                |
+
+Al igual que ~elim~, la clase admite como argumento cualquier ~Sistema~ cuyos elementos sean del
+mismo tipo y tamaño (no solo una ~Matrix~).
 
 *** Implementación de la clase ~Homogenea~
 
@@ -6090,7 +6262,7 @@ class Homogenea:
 #+END_SRC
 
 La base la constituyen los vectores ~v~ de ~E~ que corresponden a los
-vectores nulos de ~K~:
+vectores nulos de ~K~.
 
 # #+name: Cálculo de una ~base~ del espacio nulo de ~A~
 # #+BEGIN_SRC python
@@ -6121,8 +6293,116 @@ def latex(self):
 
 #+END_SRC
 
+*** Ejemplos de sistemas homogéneos
+
+Usaremos la matriz del ejemplo de la {{{libro(section.7.4,Sección 7.4 del libro)}}}.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [1,2,0,1], [0,1,1,0], [1,2,0,1] ] )
+H = Homogenea(A)
+#+END_SRC
+
+Tras la eliminación quedan dos columnas nulas en la parte superior (la tercera y la cuarta):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( H.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cccc}1&2&0&1\\0&1&1&0\\1&2&0&1\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc}1&0&0&0\\0&1&1&0\\1&0&0&0\\ \hline 1&-2&0&-1\\0&1&0&0\\0&0&1&0\\0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc}1&0&0&0\\0&1&0&0\\1&0&0&0\\ \hline 1&-2&2&-1\\0&1&-1&0\\0&0&1&0\\0&0&0&1\\ \end{array} \right]$$
+
+Así que las dos soluciones especiales son las columnas tercera y cuarta de la parte inferior
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( H.sgen ))
+#+END_SRC
+
+#+RESULTS:
+=[(2, -1, 1, 0,); (-1, 0, 0, 1,);]=
+
+y el conjunto de soluciones es el conjunto de combinaciones lineales de dichos vectores:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( H ))
+#+END_SRC
+
+#+RESULTS:
+$$\mathcal{L}\left(\ \left[ \begin{array}{cc}\begin{pmatrix}2\\ -1\\ 1\\ 0\end{pmatrix};& \begin{pmatrix}-1\\ 0\\ 0\\ 1\end{pmatrix};\end{array} \right]\ \right)$$
+
+Efectivamente, al multiplicar la matriz por cada una de las soluciones especiales se obtiene el
+vector nulo:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( (A*Matrix(H.sgen)).es_nulo() ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+El atributo ~enulo~ es el espacio nulo como objeto de la clase ~SubEspacio~, cuya representación
+muestra tanto unas ecuaciones paramétricas como unas ecuaciones cartesianas:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( H.enulo ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^4\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \left[ \begin{array}{cc}2&-1\\-1&0\\1&0\\0&1\\ \end{array} \right]\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^4\ \left|\ \left[ \begin{array}{cccc}0&2&2&0\\1&2&0&1\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}0\\ 0\end{pmatrix}\right.\right\}$$
+
+Cuando la forma pre-escalonada no tiene columnas nulas el sistema es determinado y la única solución
+es el vector nulo:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+D = Homogenea( Matrix( [ [1,2], [3,4] ] ) )
+print(dprint( (D.determinado, D.sgen) ))
+#+END_SRC
+
+#+RESULTS:
+=(True, Sistema([Vector([0, 0]);]))=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( D ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{\ \begin{pmatrix}0\\ 0\end{pmatrix}\ \right\}$$
+
+
 
 ** Resolución de sistemas de ecuaciones lineales. La clase  ~SEL~ 
+
+La clase ~SEL~ resuelve el sistema \SEL{A}{x}{b} con el procedimiento de la
+{{{libro(section.8.1,Sección 8.1 del libro)}}} (/Eliminación sobre la matriz ampliada/), que reduce el
+problema al caso homogéneo:
+\begin{displaymath}
+  \Mat{A}\Vect{x}=\Vect{b}
+  \qquad\Longleftrightarrow\qquad
+  \left[\begin{array}{c|c} \Mat{A}&-\Vect{b} \end{array}\right]
+  \begin{pmatrix} \Vect{x}\\\hline 1 \end{pmatrix} =\Vect{0}.
+\end{displaymath}
+Es decir, las soluciones son los vectores del espacio nulo de la matriz ampliada
+$[\Mat{A}|-\Vect{b}]$ cuya última componente es un 1 (nótese el cambio de signo del vector del lado
+derecho). Por eso se pre-escalona la matriz ampliada apilada sobre la identidad, y se mira la última
+columna del resultado:
+
+- Si su parte superior no es nula el sistema no tiene solución, pues la matriz ampliada tiene un
+  pivote más que la matriz de coeficientes
+  ({{{libro(subsection.8.1.1,Teorema de Rouché-Frobenius)}}}).
+- Si su parte superior es nula, bajo ella hay un vector del espacio nulo de la matriz ampliada. Se
+  divide la columna por su última componente para que esta sea un 1 (por eso el último paso es una
+  transformación que normaliza la última columna), y el resto de componentes de la parte inferior
+  es una solución del sistema.
+
+Las demás columnas nulas de la parte superior corresponden, como en la clase ~Homogenea~, a las
+soluciones especiales del sistema homogéneo \SEL{A}{x}{0}. Si no hay ninguna, la solución es única;
+y en caso contrario el conjunto de soluciones es el formado por las sumas de la solución encontrada
+con las combinaciones lineales de las soluciones especiales.
+
+En el código, ~operaciones~ es la lista de transformaciones que pre-escalonan la matriz ampliada
+~A~ (su última columna es $-\Vect{b}$). El ~testigo~ es el último componente de la última columna
+de la identidad tras aplicarle dichas transformaciones; es decir, el número por el que hay que
+dividir para que la última componente sea un 1. La solución particular ~solP~ se lee aplicando
+todos los pasos sobre la identidad ampliada con una columna de ceros.
 
 *** Implementación
 **** Texto de ayuda
@@ -6279,6 +6559,98 @@ def latex(self):
         return solucion
 
 #+END_SRC
+
+*** Ejemplos de sistemas de ecuaciones
+
+Usaremos el sistema de un ejemplo de la {{{libro(section.8.1,Sección 8.1 del libro)}}}.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [7,-2,0], [6,4,2] ] )
+b = Vector( [4,12] )
+S = SEL(A, b)
+#+END_SRC
+
+La matriz ampliada tiene a la derecha el opuesto de ~b~, y bajo ella se ha apilado la identidad.
+El último paso divide la última columna para que su última componente sea un 1:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( S.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc|c}7&-2&0&-4\\6&4&2&-12\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(7\right)\mathbf{2}\right]\\\left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(7\right)\mathbf{4}\right]\\\left[\left(4\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&2&-60\\ \hline 1&2&0&4\\0&7&0&0\\0&0&1&0\\ \hline 0&0&0&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(20\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{4}\right]\\\left[\left(3\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&0&0\\ \hline 1&2&-2&14\\0&7&-7&21\\0&0&20&0\\ \hline 0&0&0&14\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{14}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&0&0\\ \hline 1&2&-2&1\\0&7&-7&\frac{3}{2}\\0&0&20&0\\ \hline 0&0&0&1\\ \end{array} \right]$$
+
+Sobre el 1 de la última columna se lee una solución, y bajo la columna nula de la matriz de
+coeficientes (la tercera) una solución especial del sistema homogéneo:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( (S.solP, S.sgen) ))
+#+END_SRC
+
+#+RESULTS:
+=(Vector([1, 3/2, 0]), Sistema([Vector([-2, -7, 20]);]))=
+
+El conjunto de soluciones se representa mediante unas ecuaciones paramétricas:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( S ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^1,\; \boldsymbol{v}= \begin{pmatrix}1\\ \frac{3}{2}\\ 0\end{pmatrix}+\left[ \begin{array}{c}-2\\-7\\20\\ \end{array} \right]\boldsymbol{p}\right. \right\}$$
+
+El atributo ~eafin~ es dicho conjunto como objeto de la clase ~EAfin~. Podemos comprobar que
+~solP~ es solución, y que también lo es al sumarle un múltiplo de la solución especial:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( (A*S.solP == b,  A*(S.solP + 3*(S.sgen|1)) == b) ))
+#+END_SRC
+
+#+RESULTS:
+=(True, True)=
+
+Cuando la matriz de coeficientes es de rango completo por columnas la solución es única:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+U = SEL( Matrix( [ [1,2], [3,4] ] ), Vector( [5,6] ) )
+print(dprint( (U.determinado, U.solP) ))
+#+END_SRC
+
+#+RESULTS:
+=(True, Vector([-4, 9/2]))=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( U ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{\ \begin{pmatrix}-4\\ \frac{9}{2}\end{pmatrix}\ \right\}$$
+
+Y cuando tras la eliminación la parte superior de la última columna no es nula, el sistema no tiene
+solución. Los atributos ~solP~ y ~eafin~ son entonces el conjunto vacío:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+N = SEL( Matrix( [ [1,2], [2,4] ] ), Vector( [1,3] ) )
+print(displaymath( N.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc|c}1&2&-1\\2&4&-3\\ \hline 1&0&0\\0&1&0\\ \hline 0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc|c}1&0&0\\2&0&-1\\ \hline 1&-2&1\\0&1&0\\ \hline 0&0&1\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( N.solP ))
+#+END_SRC
+
+#+RESULTS:
+=set()=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( N ))
+#+END_SRC
+
+#+RESULTS:
+$$\emptyset$$
+
 
 *** Ejemplo: combinaciones lineales de matrices
 
