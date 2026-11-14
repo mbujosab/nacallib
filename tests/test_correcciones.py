@@ -175,3 +175,45 @@ def test_latex_de_SEL():
     assert SEL(A, Vector([1, 2])).latex() == SEL(A, Vector([1, 2])).eafin.EcParametricas()
     assert SEL(Sistema([Vector([1, 2]), Vector([2, 4])]), Vector([1, 2])).latex() == SEL(A, Vector([1, 2])).latex()
     assert SEL(I(2), Vector([1, 2])).latex() == r'\left\{\ ' + latex(Vector([1, 2])) + r'\ \right\}'
+
+
+# --- presentación de los desarrollos: varias líneas, compactos o abreviados
+def _desarrollos():
+    a, b, c, d = sympy.symbols('a b c d')
+    A = Matrix([[a, b], [c, d]])
+    M = Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]])
+    return [SEL(Sistema([A**0, A]), A**2), ElimGJ(M), ElimGJF(M), InvMat(M),
+            Determinante(M), Homogenea(Matrix([[1, 2, 3], [2, 4, 6]])), ElimG(Elim(M))]
+
+def test_desarrollo_por_defecto_no_cambia_nada():
+    for objeto in _desarrollos():
+        trozos = trozos_del_desarrollo(objeto.tex)
+        assert ''.join(trozos) == objeto.tex
+        assert desarrollo(objeto) == desarrollo(objeto.tex) == objeto.tex
+        assert len(trozos) == 2*objeto.tex.count('xrightarrow') + 1
+        assert all(f.startswith('\\xrightarrow') for f in trozos[1::2])
+        assert not any('xrightarrow' in s for s in trozos[0::2])
+
+def test_desarrollo_por_lineas():
+    E = ElimGJ(Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]]))     # 5 pasos
+    for por_linea, lineas in [(1, 5), (2, 3), (3, 2), (5, 1), (9, 1)]:
+        tex = desarrollo(E, por_linea=por_linea)
+        assert tex.count('\\\\[1ex]') == lineas - 1
+        assert tex.replace('\\begin{aligned}&', '').replace('\\\\[1ex]&', '').replace('\\end{aligned}', '') == E.tex
+    with pytest.raises(ValueError):
+        desarrollo(E, por_linea=0)
+
+def test_desarrollo_compacto():
+    E = ElimGJ(Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]]))
+    assert desarrollo(E, compacto=True) == '{\\setlength{\\arraycolsep}{2pt}' + E.tex + '}'
+    assert desarrollo(E, compacto=1.5).startswith('{\\setlength{\\arraycolsep}{1.5pt}')
+
+def test_desarrollo_abreviado():
+    E = ElimGJ(Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]]))     # 5 pasos
+    sistemas, flechas = trozos_del_desarrollo(E.tex)[0::2], trozos_del_desarrollo(E.tex)[1::2]
+    puntos = '\\xrightarrow{\\ \\cdots\\ }'
+    assert desarrollo(E, pasos=[]) == sistemas[0] + puntos + sistemas[-1]
+    assert desarrollo(E, pasos=[1, -2]) == sistemas[0] + flechas[0] + sistemas[1] + puntos + sistemas[4] + flechas[4] + sistemas[5]
+    assert desarrollo(E, pasos=[1, 2, 3, 4]) == E.tex
+    with pytest.raises(ValueError):
+        desarrollo(E, pasos=[6])

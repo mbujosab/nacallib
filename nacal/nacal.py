@@ -283,6 +283,94 @@ def dispElimFyC(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
 def dispElimCF(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     display(Math(rprElimCF(self, pasos, TexPasosPrev, sust, metodo)))
 
+def trozos_del_desarrollo(tex):
+    """Separa el código LaTeX de un desarrollo en la lista
+    [sistema, flecha, sistema, ..., flecha, sistema]"""
+    FLECHA = '\\xrightarrow'
+    
+    def fin_del_argumento(inicio):
+        "Posición siguiente al cierre del argumento que comienza en inicio"
+        cierre, nivel, k = {'[':']', '{':'}'}[tex[inicio]], 0, inicio
+        while True:
+            if   tex[k] == '\\': k += 1
+            elif tex[k] == '{':  nivel += 1
+            elif tex[k] == '}':  nivel -= 1
+            if nivel == 0 and tex[k] == cierre:
+                return k + 1
+            k += 1
+    
+    trozos, inicio, nivel, i = [], 0, 0, 0
+    while i < len(tex):
+        if nivel == 0 and tex.startswith(FLECHA, i):
+            j = i + len(FLECHA)
+            while j < len(tex) and tex[j] in '[{':       # rótulos de la flecha
+                j = fin_del_argumento(j)
+            trozos += [tex[inicio:i], tex[i:j]]
+            inicio  = i = j
+        elif tex[i] == '\\':                             # otras órdenes (y llaves \{ \})
+            i += 2
+        else:
+            nivel += (tex[i] == '{') - (tex[i] == '}')
+            i += 1
+    return trozos + [tex[inicio:]]
+
+def desarrollo(objeto, por_linea=None, compacto=False, pasos=None):
+    """Código LaTeX de un proceso de eliminación con otra presentación
+
+    Parámetros:
+        objeto:    objeto con atributo tex (resultado de elim, Elim, SEL,
+                   Homogenea, InvMat, Determinante...) o cadena con el código
+        por_linea: número de pasos (flechas) en cada línea. Por defecto
+                   todo el desarrollo va en una única línea
+        compacto:  si es True la separación entre columnas se reduce a 2pt;
+                   si es un número, a dicho número de puntos (solo LaTeX)
+        pasos:     lista de los pasos que se muestran además del sistema
+                   inicial y el final (se numeran desde 1; los negativos
+                   cuentan desde el final). Por defecto se muestran todos
+
+    Sin argumentos opcionales devuelve el código sin modificar.
+
+    Ejemplos:
+    >>> A = Matrix([ [0,2,2], [1,-2,-8], [1,1,1] ])
+    >>> desarrollo(ElimGJ(A)) == ElimGJ(A).tex
+    True
+    >>> desarrollo(ElimGJ(A), por_linea=2).count('[1ex]')      # 5 pasos: 3 líneas
+    2
+    >>> desarrollo(ElimGJ(A), pasos=[]).count('xrightarrow')   # inicial y final
+    1
+    """
+    tex    = objeto if isinstance(objeto, str) else objeto.tex
+    trozos = trozos_del_desarrollo(tex)
+    sistemas, flechas = trozos[0::2], trozos[1::2]
+
+    if pasos is not None:
+        ultimo   = len(sistemas) - 1
+        if any(not -ultimo <= p <= ultimo for p in pasos):
+            raise ValueError('El desarrollo solo tiene ' + str(ultimo) + ' pasos')
+        elegidos = sorted({0, ultimo} | {p % (ultimo + 1) for p in pasos})
+        flechas  = [flechas[q-1] if q == p+1 else '\\xrightarrow{\\ \\cdots\\ }'
+                    for p, q in zip(elegidos, elegidos[1:])]
+        sistemas = [sistemas[p] for p in elegidos]
+
+    eslabones = [sistemas[0]] + [f + s for f, s in zip(flechas, sistemas[1:])]
+
+    if por_linea is not None and por_linea < 1:
+        raise ValueError('por_linea debe ser un entero positivo')
+
+    if por_linea and len(eslabones) > por_linea + 1:
+        lineas = [''.join(eslabones[:por_linea+1])] + \
+                 [''.join(eslabones[k:k+por_linea])
+                  for k in range(por_linea+1, len(eslabones), por_linea)]
+        tex = '\\begin{aligned}' + '\\\\[1ex]'.join('&' + l for l in lineas) + '\\end{aligned}'
+    else:
+        tex = ''.join(eslabones)
+
+    if compacto:
+        separacion = 2 if compacto is True else compacto
+        tex = '{\\setlength{\\arraycolsep}{' + str(separacion) + 'pt}' + tex + '}'
+
+    return tex
+
 
 class Sistema:
     """Clase para listas ordenadas con reprentación latex
