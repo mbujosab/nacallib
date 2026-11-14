@@ -60,6 +60,7 @@ __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
 from .nacal import *
+from .nacal import __all__    # el paquete exporta lo mismo que el módulo
 
 #+END_SRC
 
@@ -158,9 +159,7 @@ Pendiente tras la revisión de noviembre de 2026:
 - [ ] Las subclases =Elim=, =InvMat=, =DiagonalizaS=, etc. cambian su propia clase al
   inicializarse (=isinstance(x, Elim)= siempre es falso). Valorar sustituirlas por funciones
 
-- [ ] Definir =__all__=: =from nacal import *= exporta también =sympy=, =display=, =Math=,
-  =tempfile=, =join=..., y la matriz identidad =I= oculta la unidad imaginaria =sympy.I=. (Ojo: los
-  notebooks usan =sympy.symbols= tras =from nacal import *=, así que =sympy= debe seguir exportado)
+- [X] Definir =__all__= (sección /Nombres que exporta el módulo/)
 
 - [ ] Argumentos por defecto mutables (=sust=[]=, =TexPasosPrev=[]=). Hoy no causan fallos porque
   no se modifican, pero es frágil
@@ -7329,6 +7328,56 @@ from os.path import join
 <<Definición de las subclases DiagonalizaX>>
 
 <<Definición de la clase ~FuncionLineal~>>
+
+<<Nombres que exporta el módulo>>
+#+END_SRC
+
+** Nombres que exporta el módulo
+
+La lista =__all__= indica qué nombres quedan disponibles al escribir ~from nacal import *~. Sin
+ella se exportaría todo lo que no comienza por un guión bajo, incluidos los módulos importados y
+las funciones auxiliares de uso interno.
+
+Se exportan las clases, las funciones de uso general y, por compatibilidad con los cuadernos y
+documentos que ya usan el módulo, algunos nombres que no son propios: =sympy= (se usa
+~sympy.symbols~ tras importar el módulo), =display=, =Math=, =display_png= y =join=. Nótese que la
+matriz identidad =I= oculta la unidad imaginaria de Sympy, que sigue disponible como ~sympy.I~.
+
+No se exportan (aunque siguen disponibles escribiendo, por ejemplo, ~nacal.nacal.es_ristra~) el
+módulo =tempfile= ni los siguientes nombres de uso interno: =NumberTypes=, =RistraTypes=,
+=CreaLista=, =es_ristra=, =es_ristra_de_numeros=, =es_funcion_racional=, =elementoPivote=,
+=elementoAntiPivote=, =fin_del_argumento=, =trozos_del_desarrollo=, =flecha_resumen=,
+=TEXTOS_DE_SALIDA=, =idioma_en_uso= y =texto_de_salida=.
+
+Una prueba (=tests/test_exportaciones.py=) comprueba que todo nombre nuevo del módulo está en una
+de las dos listas, de modo que al añadir una función hay que decidir si se exporta.
+
+#+name: Nombres que exporta el módulo
+#+BEGIN_SRC python
+__all__ = [
+    # clases de sistemas
+    'Sistema', 'BlockV', 'Vector', 'V0', 'V1', 'Polinomio',
+    'BlockM', 'Matrix', 'M0', 'M1', 'I',
+    'SistemaSimbol', 'VectorSimbol', 'MatrixSimbol',
+    # transformaciones elementales y procedimientos de eliminación
+    'T', 'Elim', 'ElimG', 'ElimGJ', 'ElimF', 'ElimGF', 'ElimGJF',
+    'InvMat', 'InvMatF', 'InvMatFC',
+    'DiagonalizaS', 'DiagonalizaO', 'DiagonalizaC',
+    # subespacios, sistemas de ecuaciones, determinantes y funciones lineales
+    'SubEspacio', 'EAfin', 'Homogenea', 'SEL', 'Determinante', 'FuncionLineal',
+    # representación
+    'latex', 'html', 'pinta', 'desarrollo', 'idioma',
+    'rprElim', 'rprElimFyC', 'rprElimCF', 'dispElim', 'dispElimFyC', 'dispElimCF',
+    # números y expresiones simbólicas
+    'es_numero', 'es_cero', 'racional', 'fracc', 'numer', 'denom',
+    'simplify', 'factor', 'expand',
+    # funciones auxiliares que usa el material del curso
+    'CreaSistema', 'primer_no_nulo', 'ultimo_no_nulo', 'filtradopasos',
+    'particion', 'estructura',
+    # nombres ajenos que se mantienen por compatibilidad
+    'sympy', 'display', 'Math', 'display_png', 'join',
+]
+
 #+END_SRC
 
 ** Métodos generales

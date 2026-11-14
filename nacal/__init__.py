@@ -7,3 +7,4 @@ __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
 from .nacal import *
+from .nacal import __all__    # el paquete exporta lo mismo que el módulo

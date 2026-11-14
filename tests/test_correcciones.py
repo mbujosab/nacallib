@@ -3,6 +3,7 @@ import warnings
 import pytest
 import sympy
 from nacal import *
+from nacal.nacal import trozos_del_desarrollo, TEXTOS_DE_SALIDA   # no se exportan
 
 r2 = sympy.sqrt(2)
 x, a = sympy.symbols('x a')

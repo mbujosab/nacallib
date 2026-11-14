@@ -3631,3 +3631,29 @@ class FuncionLineal:
     def _repr_html_(self):
         """ Construye la representación para el entorno jupyter notebook """
         return html(self.latex())
+    
+    
+
+__all__ = [
+    # clases de sistemas
+    'Sistema', 'BlockV', 'Vector', 'V0', 'V1', 'Polinomio',
+    'BlockM', 'Matrix', 'M0', 'M1', 'I',
+    'SistemaSimbol', 'VectorSimbol', 'MatrixSimbol',
+    # transformaciones elementales y procedimientos de eliminación
+    'T', 'Elim', 'ElimG', 'ElimGJ', 'ElimF', 'ElimGF', 'ElimGJF',
+    'InvMat', 'InvMatF', 'InvMatFC',
+    'DiagonalizaS', 'DiagonalizaO', 'DiagonalizaC',
+    # subespacios, sistemas de ecuaciones, determinantes y funciones lineales
+    'SubEspacio', 'EAfin', 'Homogenea', 'SEL', 'Determinante', 'FuncionLineal',
+    # representación
+    'latex', 'html', 'pinta', 'desarrollo', 'idioma',
+    'rprElim', 'rprElimFyC', 'rprElimCF', 'dispElim', 'dispElimFyC', 'dispElimCF',
+    # números y expresiones simbólicas
+    'es_numero', 'es_cero', 'racional', 'fracc', 'numer', 'denom',
+    'simplify', 'factor', 'expand',
+    # funciones auxiliares que usa el material del curso
+    'CreaSistema', 'primer_no_nulo', 'ultimo_no_nulo', 'filtradopasos',
+    'particion', 'estructura',
+    # nombres ajenos que se mantienen por compatibilidad
+    'sympy', 'display', 'Math', 'display_png', 'join',
+]
