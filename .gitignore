@@ -8,3 +8,12 @@ empaquetadoPIP/pyproject.toml
 empaquetadoPIP/.pypirc
 __pycache__/
 .pytest_cache/
+
+# ficheros auxiliares de la exportación a PDF
+nacal_src.aux
+nacal_src.log
+nacal_src.out
+nacal_src.out.pyg
+nacal_src.pyg
+nacal_src.toc
+_minted-nacal_src/
