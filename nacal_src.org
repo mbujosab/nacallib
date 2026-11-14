@@ -21,6 +21,8 @@
 #+LaTeX_HEADER: \usepackage{parskip}
 
 #+macro: URL [[https://github.com/mbujosab/nacallib]]
+# Enlace a una parte del libro: {{{libro(ancla del pdf,texto del enlace)}}}
+#+macro: libro [[https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf#$1][$2]]
 
 # +TOC: headlines 4
 
@@ -842,7 +844,7 @@ def primer_no_nulo(self, reglasDeSustitucion=[]):
     return next( ([indice] for indice, elemento in enumerate(sistema, 1) if CreaSistema(elemento).no_es_nulo()), [])
 
 def ultimo_no_nulo(self, reglasDeSustitucion=[]):
-    """Devuelve una lista con la posición del primer no nulo o vacía si
+    """Devuelve una lista con la posición del último no nulo o vacía si
     todos los elementos son nulos
 
     """
@@ -1515,146 +1517,122 @@ def __rand__(self, operaciones):
 #+END_SRC
 
 *** Eliminación
-**** Reducción por eliminación mediante transformaciones elementales
 
-#+name: Análisis de las opciones de eliminación elegidas
-#+BEGIN_SRC python
+La eliminación es el procedimiento central del curso. Casi todos los demás algoritmos de este módulo
+(el rango, la inversa, la resolución de sistemas de ecuaciones, las bases de un subespacio, el
+determinante o las diagonalizaciones) consisten en aplicar el método ~elim~ y leer el resultado. El
+propio libro lo advierte al enunciar el teorema de /Eliminación/: «¡Prácticamente el resto del curso
+descansa sobre este teorema!».
 
-def analisis_opcion_elegida(tipo):
-    'Análisis de las opciones de eliminación elegidas'
-    lista = [100,20,10,4,2,1]
-    opcion = set()
-    for t in lista:
-        if (tipo - (tipo % t)) in lista:
-            opcion.add(tipo - (tipo % t))
-            tipo = tipo % t
-    if tipo:
-        raise ValueError('Variante de eliminación no válida: debe ser una suma de números distintos de la lista [100, 20, 10, 4, 2, 1]')
-    return opcion
-    
-#+END_SRC
+El método implementa las demostraciones de la {{{libro(section.4.2,Sección 4.2 del libro)}}}
+(/Eliminación por columnas/). Recordemos sus definiciones:
 
+- El /pivote/ de una columna no nula es su primer componente no nulo, y su /posición de pivote/ es
+  el índice de la fila en la que se encuentra.
+- Una matriz es /pre-escalonada/ si las componentes a la derecha de cada pivote son nulas.
+- Una matriz es /escalonada/ si es pre-escalonada, los pivotes describen una escalera descendente y
+  las columnas nulas (si las hay) están a la derecha.
+- Una matriz es /escalonada reducida/ si es escalonada, cada pivote es un uno y el resto de
+  componentes de la fila de cada pivote son ceros.
 
-#+name: Variantes de eliminación
-#+BEGIN_SRC python :noweb no-export
-def metodos_auxiliares_de_la(variante):
-    """Define los métodos auxilares y el módo de actuació sobre el sistema
-    en función de la variante de elimiación elegida.
+El libro demuestra que toda matriz se puede transformar en cada uno de esos tres tipos de matriz
+mediante una secuencia de transformaciones elementales de sus columnas:
 
-    'variante' es la suma de los siguientes números:
-        
-       +1 reduccion rápida (solo transformaciones tipo I)
-       +2 doble reducción
-       +4 por filas
-      +10 normalización de los pivotes
-      +20 escalonamiento
-     +100 de atrás hacia delante
-    
-    Por defecto arg = 0 (reducción simple hacia delante, por
-    columnas y evitando fraciones)
+| Resultado del libro                 | Sección                                          | Matriz que se obtiene |
+|-------------------------------------+--------------------------------------------------+-----------------------|
+| Teorema de /Eliminación/            | {{{libro(subsection.4.2.1,4.2.1)}}} | pre-escalonada        |
+| Corolario /Eliminación gaussiana/   | {{{libro(subsection.4.2.2,4.2.2)}}} | escalonada            |
+| Corolario /Eliminación Gauss-Jordan/ | {{{libro(subsection.4.2.3,4.2.3)}}} | escalonada reducida   |
 
-    """
-    if 100 in analisis_opcion_elegida(variante): # reducción hacia delante
-        componentesAmodificar     = lambda    sistema:  filter(lambda x:  x < indiceXP, range(1,len(sistema)+1))
-        recorrido                 = lambda    sistema:  reversed(list(enumerate(CreaSistema(sistema),1)))
-        XPivote                   = lambda componente:  elementoAntiPivote(componente)
-        posicionXPivote           = lambda componente:  ultimo_no_nulo(componente)
-                
-    else:                                    # reducción hacia atrás
-        componentesAmodificar     = lambda    sistema:  filter(lambda x:  x > indiceXP, range(1,len(sistema)+1))
-        recorrido                 = lambda    sistema:  enumerate(CreaSistema(sistema),1)
-        XPivote                   = lambda componente:  elementoPivote(componente)
-        posicionXPivote           = lambda componente:  primer_no_nulo(componente)
-        
-    if 4 in analisis_opcion_elegida(variante):   # reducción de los componentes en arreglos rectangulares
-        if (not self.es_arreglo_rectangular()) or (not all([item.es_de_composicion_uniforme() for item in self])):
-            raise ValueError('El sistema debe ser un arreglo rectangular con componentes de composición uniforme')
-        sistema = ~self.fullcopy().subs(sust);
-    else:
-        sistema = self.fullcopy().subs(sust);
+Las tres demostraciones son constructivas (indican qué transformaciones hay que aplicar), así que
+programarlas es traducirlas a Python.
 
-    if 2 in analisis_opcion_elegida(variante):   # doble reducción (reducción posiciones anteriores y posteriores al pivote)
-        componentesAmodificar = lambda    sistema:  filter(lambda x: x != indiceXP, range(1,len(sistema)+1))
+El método ~elim~ pertenece a la clase ~Sistema~, y no a la subclase ~Matrix~, porque las
+transformaciones elementales actúan sobre cualquier sistema de vectores
+({{{libro(section.9.3,Sección 9.3)}}}). Basta generalizar la idea de pivote: el pivote de un
+elemento del sistema es su primer componente no nulo, y si dicho componente es a su vez un
+~Sistema~, se busca dentro de él su primer componente no nulo, y así sucesivamente (por eso los
+métodos ~primer_no_nulo~ y ~ultimo_no_nulo~ devuelven una lista de índices). De este modo el mismo
+código pre-escalona las columnas de una ~Matrix~, un ~Sistema~ de matrices (véase el ejemplo de la
+clase ~SEL~) o los sistemas «acoplados» de vectores de la
+{{{libro(subsection.9.5.1,Sección 9.5.1)}}}.
 
-    return sistema, recorrido, XPivote, posicionXPivote, componentesAmodificar
+**** El método ~elim~
 
-    
-def Reduccion(sistema):
-    if 1 in analisis_opcion_elegida(variante):   # reducción rápida (solo trasformaciones tipo I)
-        operaciones = [ (-fracc(ValorAEliminar(indiceVAE), pivote), indiceXP, indiceVAE)  \
-                                                    for indiceVAE in componentesAmodificar(sistema)]
-    else:                                        # reducción lenta (evitando fracciones)
-        operaciones = [[( denom(ValorAEliminar(indiceVAE), pivote),           indiceVAE), \
-                        (-numer(ValorAEliminar(indiceVAE), pivote), indiceXP, indiceVAE)] \
-                                                    for indiceVAE in componentesAmodificar(sistema)]
-    return filtradopasos(T(operaciones))
+El método recorre los elementos del sistema (las columnas, si se trata de una matriz) de izquierda
+a derecha. Si el elemento visitado no es nulo, se toma su pivote y con él se anulan, mediante
+transformaciones elementales, los componentes de los elementos /posteriores/ que están en esa misma
+posición de pivote. El bucle ~for~ del código hace exactamente eso: ~indiceXP~ es el índice del
+elemento visitado, ~pivote~ su pivote y ~Reduccion~ la secuencia de transformaciones que anula lo
+que hay a su derecha.
 
-def Normalizacion(sistema):
-    return filtradopasos(T([ (fracc(1, XPivote(sistema|indiceXP)), indiceXP)
-                             for indiceXP,_ in recorrido(sistema) if XPivote(sistema|indiceXP)]))
+Al terminar el recorrido el sistema está pre-escalonado. En efecto, tras visitar el elemento
+\(j\)-ésimo todos los elementos posteriores tienen un cero en la posición de su pivote; y los
+pasos siguientes solo suman a esos elementos posteriores múltiplos de otros elementos posteriores,
+que también tienen un cero en dicha posición. Por tanto, los ceros logrados a la derecha de cada
+pivote ya no se pierden.
 
-def Escalonamiento(sistema):
-    M = sistema.copy()
-    if 100 in analisis_opcion_elegida(variante): # con reducción hacia atrás
-        destino       = lambda     : (M.n)-r+1
-        resto         = lambda    r: slice(None, max(M.n-r,1))
-        columnaAMover = lambda i, r: posicionXPivote(i|M|resto(r))[0]   if posicionXPivote(i|M|resto(r)) and i==posicionXPivote(M|posicionXPivote(i|M|resto(r))[0]  )[0] else 0
-    else:                                        # con reducción hacia delante
-        destino       = lambda     : r
-        resto         = lambda    r: slice(r+1, None)
-        columnaAMover = lambda i, r: posicionXPivote(i|M|resto(r))[0]+r if posicionXPivote(i|M|resto(r)) and i==posicionXPivote(M|posicionXPivote(i|M|resto(r))[0]+r)[0] else 0
+La demostración del libro llega al mismo sitio por inducción sobre el número de filas (pre-escalona
+las primeras filas y después se ocupa de la última), mientras que ~elim~ avanza columna a
+columna. El orden de las operaciones es distinto, pero en ambos casos se usa cada pivote para
+eliminar lo que tiene a su derecha, y el resultado es una matriz pre-escalonada.
 
-    r = 0
-    intercambios = []
-    for i,_ in recorrido(M|1):
-        indiceColumnaPivote = columnaAMover(i,r)
-        if indiceColumnaPivote:
-            r += 1
-            intercambio  = T( {destino(), indiceColumnaPivote} )
-            M & intercambio
-            intercambios.append(intercambio)
-            
-    return filtradopasos(T(intercambios))
+Tras la reducción, y solo si la variante elegida lo pide, se normalizan los pivotes y se reordenan
+los elementos para escalonar el sistema. El método no modifica el sistema original: opera sobre
+una copia y devuelve un nuevo sistema del mismo tipo.
 
+Los argumentos del método son:
 
-def transformacionYPasos(sistema, operacion, pasosPrevios):
-    pasoDado = operacion(sistema)
-    if 4 in analisis_opcion_elegida(variante):    # reducción de los componentes en arreglos rectangulares
-        pasosAcumulados = [~pasoDado] + pasosPrevios if pasoDado else pasosPrevios
-    else:
-        pasosAcumulados = pasosPrevios  + [pasoDado] if pasoDado else pasosPrevios
-    sistema & T(pasoDado)
-    return factor(sistema.subs(sust)), pasosAcumulados
-
-
-def sistemaFinalYPasosDchaIzda(sistema,transformaciones):
-    if 4 in analisis_opcion_elegida(variante):    # reducción de los componentes en arreglos rectangulares
-        TransformacionesPorLaIzquierda = filtradopasos(transformaciones)
-        TransformacionesPorLaDerecha   = []
-        if self.es_arreglo_rectangular():
-            sistema = ~sistema
-    else: 
-        TransformacionesPorLaDerecha   = filtradopasos(transformaciones)
-        TransformacionesPorLaIzquierda = []
-
-    SistemaFinal =  sistema.subs(sust)
-    pasos        = [TransformacionesPorLaIzquierda, TransformacionesPorLaDerecha]
-    SistemaFinal.tex, SistemaFinal.pasos = texYpasos(self, pasos, rep, sust, repsust)
-    SistemaFinal.TrF = T(SistemaFinal.pasos[0])
-    SistemaFinal.TrC = T(SistemaFinal.pasos[1])
-    return factor(SistemaFinal)
-
-#+END_SRC
-
-
+- ~variante~ :: número que indica el modo de proceder (se describe en el siguiente apartado). Por
+  defecto es 0: pre-escalonar.
+- ~rep~ :: si es verdadero, se muestran en Jupyter todos los pasos del proceso.
+- ~sust~ :: lista de reglas de sustitución para las variables simbólicas.
+- ~repsust~ :: si es verdadero, los pasos se muestran con las sustituciones ya hechas.
 
 #+name: Eliminación
 #+BEGIN_SRC python :noweb no-export
 
 def elim(self, variante=0, rep=False, sust=[], repsust=False):
-    """Versión pre-escalonada de un sistema por eliminacion Derecha-Izquierda"""
+    """Forma pre-escalonada de un Sistema mediante transformaciones elementales
+
+    Parámetros:
+        variante: suma de los números (distintos) que indican el modo de
+              proceder (por defecto 0: pre-escalona operando con los
+              elementos del sistema, de izquierda a derecha, y evitando
+              las fracciones)
+               +1 reducción rápida (solo transformaciones Tipo I)
+               +2 doble reducción (a ambos lados de cada pivote)
+               +4 por filas
+              +10 normalización de los pivotes
+              +20 escalonamiento
+             +100 de atrás hacia delante
+        rep:  si es True se muestran los pasos en Jupyter
+        sust: lista de reglas de sustitución de variables simbólicas
+        repsust: si es True los pasos se muestran tras la sustitución
+
+    Atributos del Sistema devuelto:
+        pasos: [pasos por la izquierda (filas), pasos por la derecha]
+        TrF, TrC: transformaciones aplicadas por la izquierda y por la derecha
+        tex:   código LaTeX con la representación de todo el proceso
+
+    Ejemplos:
+    >>> A = Matrix([ [0,2,2], [1,-2,-8], [1,1,1] ])
+    >>> A.elim()      # una forma pre-escalonada   (lo mismo que A.K())
+    Matrix([Vector([0, 1, 1]), Vector([2, 0, 3]), Vector([0, 0, 6])])
+    >>> A.elim(20)    # una forma escalonada       (lo mismo que A.L())
+    Matrix([Vector([2, 0, 3]), Vector([0, 1, 1]), Vector([0, 0, 6])])
+    >>> A.elim(32)    # forma escalonada reducida  (lo mismo que A.R())
+    Matrix([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])])
+    >>> A.elim().TrC  # transformaciones aplicadas a las columnas
+    T([(2, 1, 2), (8, 1, 3), (-1, 2, 3)])
+    """
     <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
-    <<Variantes de eliminación>>
+    <<Métodos auxiliares de la variante de eliminación>>
+    <<Reducción con un pivote>>
+    <<Normalización de los pivotes>>
+    <<Escalonamiento>>
+    <<Aplicación de un paso de eliminación y registro de las transformaciones>>
+    <<Sistema final con los atributos del proceso de eliminación>>
     <<Análisis de las opciones de eliminación elegidas>>
     
     if not self:
@@ -1682,7 +1660,269 @@ def elim(self, variante=0, rep=False, sust=[], repsust=False):
         
 #+END_SRC
 
+El método comienza comprobando dos casos especiales: un sistema vacío ya está pre-escalonado; y
+si los elementos del sistema no son todos del mismo tipo y longitud no es posible operar con ellos
+(no se puede sumar un vector de \R[2] con uno de \R[3]), así que se lanza un error.
 
+**** Variantes de eliminación
+
+Todas las variantes del método comparten el mismo esquema, y se eligen sumando los números de la
+siguiente tabla:
+
+| Número | Efecto                                                                                     |
+|--------+--------------------------------------------------------------------------------------------|
+|     +1 | Reducción rápida: solo transformaciones Tipo I (pueden aparecer fracciones)                |
+|     +2 | Doble reducción: con cada pivote se elimina a su derecha y a su izquierda                  |
+|     +4 | Por filas: se opera con las filas en lugar de con las columnas                             |
+|    +10 | Normalización: se divide cada elemento no nulo por su pivote                              |
+|    +20 | Escalonamiento: se reordenan los elementos para que los pivotes formen una escalera        |
+|   +100 | De atrás hacia delante: con el último componente no nulo se elimina a su izquierda         |
+
+Así, la variante 32 (\(=20+10+2\)) realiza una doble reducción, normaliza los pivotes y escalona
+el resultado; es decir, obtiene la forma escalonada reducida.
+
+Como cada número de la lista es mayor que la suma de todos los menores que él, la descomposición
+de ~variante~ en sumandos es única, y se obtiene restando en cada paso el mayor número posible de
+la lista. Si al terminar queda un resto, el número no era una suma válida y se lanza un error.
+
+#+name: Análisis de las opciones de eliminación elegidas
+#+BEGIN_SRC python
+
+def analisis_opcion_elegida(tipo):
+    'Análisis de las opciones de eliminación elegidas'
+    lista = [100,20,10,4,2,1]
+    opcion = set()
+    for t in lista:
+        if (tipo - (tipo % t)) in lista:
+            opcion.add(tipo - (tipo % t))
+            tipo = tipo % t
+    if tipo:
+        raise ValueError('Variante de eliminación no válida: debe ser una suma de números distintos de la lista [100, 20, 10, 4, 2, 1]')
+    return opcion
+    
+#+END_SRC
+
+***** Modo de recorrer el sistema y de localizar los pivotes
+
+Según la variante elegida se definen cinco objetos que usa el bucle principal:
+
+- ~sistema~ :: la copia del sistema sobre la que se opera (con las sustituciones de ~sust~ ya
+  hechas).
+- ~recorrido~ :: el orden en el que se visitan los elementos.
+- ~XPivote~ y ~posicionXPivote~ :: el componente que hace de pivote en un elemento, y su posición.
+- ~componentesAmodificar~ :: los índices de los elementos en los que se va a eliminar.
+
+Por defecto, el recorrido es de izquierda a derecha, el pivote es el primer componente no nulo y
+se elimina en los elementos posteriores. Con la opción +100 todo se hace al revés: el recorrido
+es de derecha a izquierda, se usa el /último/ componente no nulo y se elimina en los elementos
+anteriores. Con la opción +2 se elimina en todos los elementos distintos del visitado.
+
+La eliminación por filas (opción +4) no necesita código propio. La
+{{{libro(section.alph3.4.Alph1,Sección 4.A del libro)}}} muestra que transformar las filas de
+una matriz es transformar las columnas de su transpuesta y volver a transponer, y eso es
+literalmente lo que se hace: se opera sobre la transpuesta =~self= y al final se deshace la
+transposición. Por eso esta opción exige que el sistema sea un arreglo rectangular.
+
+#+name: Métodos auxiliares de la variante de eliminación
+#+BEGIN_SRC python
+def metodos_auxiliares_de_la(variante):
+    """Define los métodos auxiliares y el modo de actuación sobre el sistema
+    en función de la variante de eliminación elegida.
+
+    'variante' es la suma de los siguientes números:
+        
+       +1 reduccion rápida (solo transformaciones tipo I)
+       +2 doble reducción
+       +4 por filas
+      +10 normalización de los pivotes
+      +20 escalonamiento
+     +100 de atrás hacia delante
+    
+    Por defecto variante = 0 (reducción simple de delante hacia atrás,
+    por columnas y evitando fracciones)
+
+    """
+    if 100 in analisis_opcion_elegida(variante): # recorrido de atrás hacia delante
+        componentesAmodificar     = lambda    sistema:  filter(lambda x:  x < indiceXP, range(1,len(sistema)+1))
+        recorrido                 = lambda    sistema:  reversed(list(enumerate(CreaSistema(sistema),1)))
+        XPivote                   = lambda componente:  elementoAntiPivote(componente)
+        posicionXPivote           = lambda componente:  ultimo_no_nulo(componente)
+                
+    else:                                    # recorrido de delante hacia atrás
+        componentesAmodificar     = lambda    sistema:  filter(lambda x:  x > indiceXP, range(1,len(sistema)+1))
+        recorrido                 = lambda    sistema:  enumerate(CreaSistema(sistema),1)
+        XPivote                   = lambda componente:  elementoPivote(componente)
+        posicionXPivote           = lambda componente:  primer_no_nulo(componente)
+        
+    if 4 in analisis_opcion_elegida(variante):   # reducción de los componentes en arreglos rectangulares
+        if (not self.es_arreglo_rectangular()) or (not all([item.es_de_composicion_uniforme() for item in self])):
+            raise ValueError('El sistema debe ser un arreglo rectangular con componentes de composición uniforme')
+        sistema = ~self.fullcopy().subs(sust);
+    else:
+        sistema = self.fullcopy().subs(sust);
+
+    if 2 in analisis_opcion_elegida(variante):   # doble reducción (reducción posiciones anteriores y posteriores al pivote)
+        componentesAmodificar = lambda    sistema:  filter(lambda x: x != indiceXP, range(1,len(sistema)+1))
+
+    return sistema, recorrido, XPivote, posicionXPivote, componentesAmodificar
+
+    
+#+END_SRC
+
+***** Reducción con un pivote
+
+La función ~Reduccion~ construye la secuencia de transformaciones que anula, con el pivote del
+elemento visitado, los componentes de los demás elementos que están en su posición de pivote. Si
+\(p\) es el pivote y \(a\) el componente que queremos anular en el elemento \(j\)-ésimo, hay dos
+modos de hacerlo:
+
+- Reducción rápida (opción +1). :: Es la de la demostración del libro: se resta al elemento
+  \(j\)-ésimo el elemento del pivote multiplicado por \(a/p\). Es una única transformación
+  Tipo I, pero si \(a/p\) no es entero aparecen fracciones.
+- Reducción sin fracciones (por defecto). :: Si \(n/d\) es la fracción irreducible igual a
+  \(a/p\), primero se multiplica el elemento \(j\)-ésimo por \(d\) (transformación Tipo II) y
+  después se le resta el elemento del pivote multiplicado por \(n\). Así, si el sistema solo
+  contiene enteros, todos los pasos se dan con números enteros, que es lo más cómodo cuando se
+  hacen las cuentas con lápiz y papel.
+
+Cuando \(a\) es cero ambos modos generan transformaciones que no hacen nada (sumar cero veces un
+elemento, o multiplicar por uno). La función ~filtradopasos~ las descarta para que no aparezcan
+al representar el proceso.
+
+#+name: Reducción con un pivote
+#+BEGIN_SRC python
+def Reduccion(sistema):
+    if 1 in analisis_opcion_elegida(variante):   # reducción rápida (solo trasformaciones tipo I)
+        operaciones = [ (-fracc(ValorAEliminar(indiceVAE), pivote), indiceXP, indiceVAE)  \
+                                                    for indiceVAE in componentesAmodificar(sistema)]
+    else:                                        # reducción lenta (evitando fracciones)
+        operaciones = [[( denom(ValorAEliminar(indiceVAE), pivote),           indiceVAE), \
+                        (-numer(ValorAEliminar(indiceVAE), pivote), indiceXP, indiceVAE)] \
+                                                    for indiceVAE in componentesAmodificar(sistema)]
+    return filtradopasos(T(operaciones))
+#+END_SRC
+
+***** Normalización de los pivotes y escalonamiento
+
+La normalización (opción +10) multiplica cada elemento no nulo por el inverso de su pivote.
+
+#+name: Normalización de los pivotes
+#+BEGIN_SRC python
+def Normalizacion(sistema):
+    return filtradopasos(T([ (fracc(1, XPivote(sistema|indiceXP)), indiceXP)
+                             for indiceXP,_ in recorrido(sistema) if XPivote(sistema|indiceXP)]))
+#+END_SRC
+
+El escalonamiento (opción +20) es la demostración del corolario de /Eliminación gaussiana/: «basta
+pre-escalonar la matriz y reordenar sus columnas para que los pivotes describan una escalera
+descendente, dejando las columnas nulas a la derecha». Para ello se recorren las filas de arriba
+a abajo; cada vez que se encuentra una fila que es posición de pivote de alguna columna aún no
+colocada, dicha columna se intercambia con la que ocupa el primer lugar todavía libre. Como solo
+se mueven columnas con pivote, las columnas nulas terminan a la derecha. La función devuelve la
+secuencia de intercambios.
+
+#+name: Escalonamiento
+#+BEGIN_SRC python
+def Escalonamiento(sistema):
+    M = sistema.copy()
+    if 100 in analisis_opcion_elegida(variante): # con recorrido de atrás hacia delante
+        destino       = lambda     : (M.n)-r+1
+        resto         = lambda    r: slice(None, max(M.n-r,1))
+        columnaAMover = lambda i, r: posicionXPivote(i|M|resto(r))[0]   if posicionXPivote(i|M|resto(r)) and i==posicionXPivote(M|posicionXPivote(i|M|resto(r))[0]  )[0] else 0
+    else:                                        # con recorrido de delante hacia atrás
+        destino       = lambda     : r
+        resto         = lambda    r: slice(r+1, None)
+        columnaAMover = lambda i, r: posicionXPivote(i|M|resto(r))[0]+r if posicionXPivote(i|M|resto(r)) and i==posicionXPivote(M|posicionXPivote(i|M|resto(r))[0]+r)[0] else 0
+
+    r = 0
+    intercambios = []
+    for i,_ in recorrido(M|1):
+        indiceColumnaPivote = columnaAMover(i,r)
+        if indiceColumnaPivote:
+            r += 1
+            intercambio  = T( {destino(), indiceColumnaPivote} )
+            M & intercambio
+            intercambios.append(intercambio)
+            
+    return filtradopasos(T(intercambios))
+#+END_SRC
+
+Nótese que el orden de las operaciones en el corolario de /Eliminación Gauss-Jordan/ del libro es
+escalonar, reducir y normalizar, mientras que ~elim(32)~ reduce, normaliza y escalona. El
+resultado es el mismo, pues la forma escalonada reducida de una matriz es única.
+
+***** Registro de los pasos y sistema resultante
+
+Cada grupo de transformaciones (la reducción con un pivote, la normalización o el escalonamiento)
+es un /paso/. La función ~transformacionYPasos~ calcula un paso, lo aplica al sistema y lo añade a
+la lista de pasos ya dados. Cuando se opera por filas se trabaja con la transpuesta, así que el
+paso que se guarda es el transpuesto y, como las transformaciones de las filas se escriben a la
+izquierda de la matriz, se añade al principio de la lista:
+\[
+ \TrF[\tau_k\cdots\tau_1]{\Mat{A}} \qquad\text{frente a}\qquad \TrC[\tau_1\cdots\tau_k]{\Mat{A}}.
+\]
+
+#+name: Aplicación de un paso de eliminación y registro de las transformaciones
+#+BEGIN_SRC python
+def transformacionYPasos(sistema, operacion, pasosPrevios):
+    pasoDado = operacion(sistema)
+    if 4 in analisis_opcion_elegida(variante):    # reducción de los componentes en arreglos rectangulares
+        pasosAcumulados = [~pasoDado] + pasosPrevios if pasoDado else pasosPrevios
+    else:
+        pasosAcumulados = pasosPrevios  + [pasoDado] if pasoDado else pasosPrevios
+    sistema & T(pasoDado)
+    return factor(sistema.subs(sust)), pasosAcumulados
+#+END_SRC
+
+Por último, ~sistemaFinalYPasosDchaIzda~ deshace la transposición si se ha operado por filas y
+añade al sistema resultante cuatro atributos que guardan la historia del proceso:
+
+- ~pasos~ :: lista con dos listas de pasos: los dados por la izquierda (sobre las filas) y los
+  dados por la derecha (sobre las columnas, o sobre los elementos del sistema).
+- ~TrF~ y ~TrC~ :: las mismas transformaciones, pero como objetos de la clase ~T~; de manera que si
+  ~B~ es el resultado de aplicar ~elim~ sobre ~A~, entonces ~B~ es igual a ~B.TrF & A & B.TrC~.
+- ~tex~ :: el código \LaTeX{} que representa el proceso completo.
+
+Estos atributos son los que usan el resto de procedimientos del módulo. Por ejemplo, para invertir
+una matriz no interesa la matriz reducida, sino las transformaciones que la han reducido. Además,
+si el sistema de partida ya tenía estos atributos (porque es el resultado de una eliminación
+previa) los nuevos pasos se añaden a los anteriores, así que se pueden encadenar varias
+eliminaciones sin perder la historia (el método ~texYpasos~ se describe en el siguiente apartado).
+
+#+name: Sistema final con los atributos del proceso de eliminación
+#+BEGIN_SRC python
+def sistemaFinalYPasosDchaIzda(sistema,transformaciones):
+    if 4 in analisis_opcion_elegida(variante):    # reducción de los componentes en arreglos rectangulares
+        TransformacionesPorLaIzquierda = filtradopasos(transformaciones)
+        TransformacionesPorLaDerecha   = []
+        if self.es_arreglo_rectangular():
+            sistema = ~sistema
+    else: 
+        TransformacionesPorLaDerecha   = filtradopasos(transformaciones)
+        TransformacionesPorLaIzquierda = []
+
+    SistemaFinal =  sistema.subs(sust)
+    pasos        = [TransformacionesPorLaIzquierda, TransformacionesPorLaDerecha]
+    SistemaFinal.tex, SistemaFinal.pasos = texYpasos(self, pasos, rep, sust, repsust)
+    SistemaFinal.TrF = T(SistemaFinal.pasos[0])
+    SistemaFinal.TrC = T(SistemaFinal.pasos[1])
+    return factor(SistemaFinal)
+#+END_SRC
+
+**** Formas pre-escalonada, escalonada y escalonada reducida
+
+Por comodidad se definen métodos con el nombre que el libro da a cada tipo de matriz. Además,
+por compatibilidad con versiones anteriores del módulo, cada uno tiene asociada una clase que hace
+lo mismo (se definen más adelante): ~Elim(A)~ es lo mismo que ~A.K()~.
+
+| Método | Variante     | Clase     | Resultado                               | Libro                                                |
+|--------+--------------+-----------+-----------------------------------------+------------------------------------------------------|
+| ~K()~  | ~elim(0)~    | ~Elim~    | una forma pre-escalonada                | {{{libro(subsection.4.2.1,4.2.1)}}}     |
+| ~L()~  | ~elim(20)~   | ~ElimG~   | una forma escalonada                    | {{{libro(subsection.4.2.2,4.2.2)}}}     |
+| ~R()~  | ~elim(32)~   | ~ElimGJ~  | la forma escalonada reducida            | {{{libro(subsection.4.2.3,4.2.3)}}}     |
+|        | ~elim(4)~    | ~ElimF~   | una forma pre-escalonada por filas      | {{{libro(section.alph3.4.Alph1,4.A)}}}  |
+| ~U()~  | ~elim(24)~   | ~ElimGF~  | una forma escalonada por filas          | {{{libro(subsection.alph3.4.Alph1.1,4.A.1)}}} |
+| ~UR()~ | ~elim(36)~   | ~ElimGJF~ | la forma escalonada reducida por filas  | {{{libro(subsection.alph3.4.Alph1.1,4.A.1)}}} |
 
 #+name: formas escalonadas
 #+BEGIN_SRC python
@@ -1709,6 +1949,157 @@ def UR(self,rep=0, sust=[], repsust=0):
 
 #+END_SRC
 
+**** Ejemplos de eliminación
+
+Usaremos la matriz del ejemplo de la {{{libro(subsection.4.2.1,Sección 4.2.1 del libro)}}}.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [0,2,2], [1,-2,-8], [1,1,1] ] )
+#+END_SRC
+
+El atributo ~tex~ de la forma pre-escalonada muestra el proceso. Con el pivote de la primera
+columna (el 1 de la segunda fila) se anulan los componentes de la segunda fila que están a su
+derecha, y después se hace lo mismo con el pivote de la segunda columna (el 2 de la primera fila):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( A.K().tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}0&2&2\\1&-2&-8\\1&1&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(8\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}0&2&2\\1&0&0\\1&3&9\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}0&2&0\\1&0&0\\1&3&6\\ \end{array} \right]$$
+
+Cada flecha es un /paso/, y el atributo ~pasos~ los guarda todos. La primera lista está vacía
+porque no se ha transformado ninguna fila:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+K = A.K()
+print(dprint( K.pasos ))
+#+END_SRC
+
+#+RESULTS:
+=[[], [T([(2, 1, 2), (8, 1, 3)]), T([(-1, 2, 3)])]]=
+
+El atributo ~TrC~ es la secuencia completa de transformaciones de las columnas
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( K.TrC ))
+#+END_SRC
+
+#+RESULTS:
+$$\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(8\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}$$
+
+y al aplicarla sobre ~A~ se obtiene de nuevo la forma pre-escalonada:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Matrix(A) & K.TrC == K ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+(como las transformaciones elementales modifican el sistema sobre el que actúan, se han aplicado
+sobre la copia ~Matrix(A)~).
+
+***** Reducción con y sin fracciones
+
+En la siguiente matriz el pivote de la primera columna es 2 y a su derecha hay un 3 y un 1.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+D = Matrix( [ [2,3,1], [1,1,1], [4,5,7] ] )
+#+END_SRC
+
+Por defecto se evitan las fracciones multiplicando antes las columnas en las que se va a eliminar:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( D.elim(0).tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}2&3&1\\1&1&1\\4&5&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{2}\right]\\\left[\left(-3\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(2\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\1&-1&1\\4&-2&10\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\1&-1&0\\4&-2&8\\ \end{array} \right]$$
+
+Con la reducción rápida (opción +1) solo se usan transformaciones Tipo I, como en la demostración
+del libro, y aparecen las fracciones:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( D.elim(1).tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}2&3&1\\1&1&1\\4&5&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(- \frac{3}{2}\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\1&- \frac{1}{2}&\frac{1}{2}\\4&-1&5\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\1&- \frac{1}{2}&0\\4&-1&4\\ \end{array} \right]$$
+
+***** Eliminación gaussiana y Gauss-Jordan
+
+Para escalonar, tras la reducción se intercambian las columnas:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( A.L().tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}0&2&2\\1&-2&-8\\1&1&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(8\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}0&2&2\\1&0&0\\1&3&9\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}0&2&0\\1&0&0\\1&3&6\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\0&1&0\\3&1&6\\ \end{array} \right]$$
+
+Para obtener la forma escalonada reducida se elimina también a la izquierda de cada pivote, se
+normalizan los pivotes y, si hace falta, se intercambian las columnas. En el siguiente ejemplo la
+matriz tiene rango 2, así que queda una columna nula a la derecha:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+C = Matrix( [ [1,2,3], [2,4,6], [1,1,1] ] )
+print(displaymath( C.R().tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}1&2&3\\2&4&6\\1&1&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(-3\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}1&0&0\\2&0&0\\1&-1&-2\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\\\left[\left(-2\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}1&0&0\\2&0&0\\0&-1&0\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}1&0&0\\2&0&0\\0&1&0\\ \end{array} \right]$$
+
+***** Eliminación por filas
+
+Cuando se opera con las filas las transformaciones se representan bajo las flechas. Como se
+escriben a la izquierda de la matriz, la primera transformación que se aplica es la última de
+cada lista (la de más abajo):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( A.U().tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}0&2&2\\1&-2&-8\\1&1&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{3}\right]\\\left[\left(1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{ccc}0&2&2\\1&0&-6\\2&0&0\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{ccc}0&2&2\\1&0&-6\\0&0&12\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{ccc}1&0&-6\\0&2&2\\0&0&12\\ \end{array} \right]$$
+
+***** Eliminaciones encadenadas
+
+Al aplicar un método de eliminación sobre el resultado de otro, los pasos se acumulan. Aquí se
+pre-escalona por columnas y después se escalona por filas:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+E  = Matrix( [ [1,2,3], [1,1,1], [2,4,6] ] )
+KU = E.K().U()
+print(displaymath( KU.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}1&2&3\\1&1&1\\2&4&6\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(-3\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}1&0&0\\1&-1&-2\\2&0&0\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}1&0&0\\1&-1&0\\2&0&0\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{ccc}1&0&0\\0&-1&0\\0&0&0\\ \end{array} \right]$$
+
+El atributo ~pasos~ guarda las transformaciones de las filas en la primera lista y las de las
+columnas en la segunda:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( KU.pasos ))
+#+END_SRC
+
+#+RESULTS:
+=[[T([(-2, 1, 3), (-1, 1, 2)])], [T([(-2, 1, 2), (-3, 1, 3)]), T([(-2, 2, 3)])]]=
+
+***** Eliminación de atrás hacia delante
+
+Con la opción +100 se recorren las columnas de derecha a izquierda, y con el último componente no
+nulo de cada una se anula lo que hay a su izquierda:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( A.elim(100).tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}0&2&2\\1&-2&-8\\1&1&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{3}+\mathbf{1} \right]\\\left[\left(-1\right)\mathbf{3}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}-2&0&2\\9&6&-8\\0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{1}\right]\\\left[\left(-3\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}-4&0&2\\0&6&-8\\0&0&1\\ \end{array} \right]$$
+
+
 **** Representación de los procesos de eliminación Gaussiana
 
 Cuando hemos encadenado varios procedimientos de eliminación,
@@ -1717,11 +2108,11 @@ ello comprobamos si =data= fue obtenido mediante un proceso previo de
 eliminación. El modo de saberlo es comprobar si =data= posee el
 atributo =pasos=.  El atributo =tex= guarda el código \LaTeX{} que
 muestra el proceso completo, y se construye aplicando el método
-=PasosYEscritura=.  El atributo =pasos= guarda las listas de
+=rprElim=.  El atributo =pasos= guarda las listas de
 abreviaturas de las transformaciones elementales empleadas. Por
 comodidad añadimos dos atributos más: =TrF= es la
-\texttt{T}transformación aplicada a las filas y =TrC= es la
-\texttt{T}ransformación aplicada a las columnas.
+transformación (de la clase =T=) aplicada a las filas y =TrC= es la
+aplicada a las columnas.
 
 #+name: Método que define los atributos .tex y .pasos y representa los pasos si se pide
 #+BEGIN_SRC python
@@ -6332,7 +6723,7 @@ def primer_no_nulo(s):
     return c + primer_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
 
 def ultimo_no_nulo(s):
-    """Primer elemento no nulo en un sistema de sistemas de números"""
+    """Último elemento no nulo en un sistema de sistemas de números"""
     c = [] if es_numero(s) else s.ultimo_no_nulo()
     return c + ultimo_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
 

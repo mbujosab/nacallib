@@ -99,7 +99,7 @@ def primer_no_nulo(s):
     return c + primer_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
 
 def ultimo_no_nulo(s):
-    """Primer elemento no nulo en un sistema de sistemas de números"""
+    """Último elemento no nulo en un sistema de sistemas de números"""
     c = [] if es_numero(s) else s.ultimo_no_nulo()
     return c + ultimo_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
 
@@ -530,7 +530,7 @@ class Sistema:
         return next( ([indice] for indice, elemento in enumerate(sistema, 1) if CreaSistema(elemento).no_es_nulo()), [])
     
     def ultimo_no_nulo(self, reglasDeSustitucion=[]):
-        """Devuelve una lista con la posición del primer no nulo o vacía si
+        """Devuelve una lista con la posición del último no nulo o vacía si
         todos los elementos son nulos
     
         """
@@ -830,7 +830,39 @@ class Sistema:
     
     
     def elim(self, variante=0, rep=False, sust=[], repsust=False):
-        """Versión pre-escalonada de un sistema por eliminacion Derecha-Izquierda"""
+        """Forma pre-escalonada de un Sistema mediante transformaciones elementales
+    
+        Parámetros:
+            variante: suma de los números (distintos) que indican el modo de
+                  proceder (por defecto 0: pre-escalona operando con los
+                  elementos del sistema, de izquierda a derecha, y evitando
+                  las fracciones)
+                   +1 reducción rápida (solo transformaciones Tipo I)
+                   +2 doble reducción (a ambos lados de cada pivote)
+                   +4 por filas
+                  +10 normalización de los pivotes
+                  +20 escalonamiento
+                 +100 de atrás hacia delante
+            rep:  si es True se muestran los pasos en Jupyter
+            sust: lista de reglas de sustitución de variables simbólicas
+            repsust: si es True los pasos se muestran tras la sustitución
+    
+        Atributos del Sistema devuelto:
+            pasos: [pasos por la izquierda (filas), pasos por la derecha]
+            TrF, TrC: transformaciones aplicadas por la izquierda y por la derecha
+            tex:   código LaTeX con la representación de todo el proceso
+    
+        Ejemplos:
+        >>> A = Matrix([ [0,2,2], [1,-2,-8], [1,1,1] ])
+        >>> A.elim()      # una forma pre-escalonada   (lo mismo que A.K())
+        Matrix([Vector([0, 1, 1]), Vector([2, 0, 3]), Vector([0, 0, 6])])
+        >>> A.elim(20)    # una forma escalonada       (lo mismo que A.L())
+        Matrix([Vector([2, 0, 3]), Vector([0, 1, 1]), Vector([0, 0, 6])])
+        >>> A.elim(32)    # forma escalonada reducida  (lo mismo que A.R())
+        Matrix([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])])
+        >>> A.elim().TrC  # transformaciones aplicadas a las columnas
+        T([(2, 1, 2), (8, 1, 3), (-1, 2, 3)])
+        """
         
         def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
             pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
@@ -848,8 +880,8 @@ class Sistema:
             return tex, pasos
         
         def metodos_auxiliares_de_la(variante):
-            """Define los métodos auxilares y el módo de actuació sobre el sistema
-            en función de la variante de elimiación elegida.
+            """Define los métodos auxiliares y el modo de actuación sobre el sistema
+            en función de la variante de eliminación elegida.
         
             'variante' es la suma de los siguientes números:
                 
@@ -860,17 +892,17 @@ class Sistema:
               +20 escalonamiento
              +100 de atrás hacia delante
             
-            Por defecto arg = 0 (reducción simple hacia delante, por
-            columnas y evitando fraciones)
+            Por defecto variante = 0 (reducción simple de delante hacia atrás,
+            por columnas y evitando fracciones)
         
             """
-            if 100 in analisis_opcion_elegida(variante): # reducción hacia delante
+            if 100 in analisis_opcion_elegida(variante): # recorrido de atrás hacia delante
                 componentesAmodificar     = lambda    sistema:  filter(lambda x:  x < indiceXP, range(1,len(sistema)+1))
                 recorrido                 = lambda    sistema:  reversed(list(enumerate(CreaSistema(sistema),1)))
                 XPivote                   = lambda componente:  elementoAntiPivote(componente)
                 posicionXPivote           = lambda componente:  ultimo_no_nulo(componente)
                         
-            else:                                    # reducción hacia atrás
+            else:                                    # recorrido de delante hacia atrás
                 componentesAmodificar     = lambda    sistema:  filter(lambda x:  x > indiceXP, range(1,len(sistema)+1))
                 recorrido                 = lambda    sistema:  enumerate(CreaSistema(sistema),1)
                 XPivote                   = lambda componente:  elementoPivote(componente)
@@ -898,18 +930,16 @@ class Sistema:
                                 (-numer(ValorAEliminar(indiceVAE), pivote), indiceXP, indiceVAE)] \
                                                             for indiceVAE in componentesAmodificar(sistema)]
             return filtradopasos(T(operaciones))
-        
         def Normalizacion(sistema):
             return filtradopasos(T([ (fracc(1, XPivote(sistema|indiceXP)), indiceXP)
                                      for indiceXP,_ in recorrido(sistema) if XPivote(sistema|indiceXP)]))
-        
         def Escalonamiento(sistema):
             M = sistema.copy()
-            if 100 in analisis_opcion_elegida(variante): # con reducción hacia atrás
+            if 100 in analisis_opcion_elegida(variante): # con recorrido de atrás hacia delante
                 destino       = lambda     : (M.n)-r+1
                 resto         = lambda    r: slice(None, max(M.n-r,1))
                 columnaAMover = lambda i, r: posicionXPivote(i|M|resto(r))[0]   if posicionXPivote(i|M|resto(r)) and i==posicionXPivote(M|posicionXPivote(i|M|resto(r))[0]  )[0] else 0
-            else:                                        # con reducción hacia delante
+            else:                                        # con recorrido de delante hacia atrás
                 destino       = lambda     : r
                 resto         = lambda    r: slice(r+1, None)
                 columnaAMover = lambda i, r: posicionXPivote(i|M|resto(r))[0]+r if posicionXPivote(i|M|resto(r)) and i==posicionXPivote(M|posicionXPivote(i|M|resto(r))[0]+r)[0] else 0
@@ -925,8 +955,6 @@ class Sistema:
                     intercambios.append(intercambio)
                     
             return filtradopasos(T(intercambios))
-        
-        
         def transformacionYPasos(sistema, operacion, pasosPrevios):
             pasoDado = operacion(sistema)
             if 4 in analisis_opcion_elegida(variante):    # reducción de los componentes en arreglos rectangulares
@@ -935,8 +963,6 @@ class Sistema:
                 pasosAcumulados = pasosPrevios  + [pasoDado] if pasoDado else pasosPrevios
             sistema & T(pasoDado)
             return factor(sistema.subs(sust)), pasosAcumulados
-        
-        
         def sistemaFinalYPasosDchaIzda(sistema,transformaciones):
             if 4 in analisis_opcion_elegida(variante):    # reducción de los componentes en arreglos rectangulares
                 TransformacionesPorLaIzquierda = filtradopasos(transformaciones)
@@ -953,7 +979,6 @@ class Sistema:
             SistemaFinal.TrF = T(SistemaFinal.pasos[0])
             SistemaFinal.TrC = T(SistemaFinal.pasos[1])
             return factor(SistemaFinal)
-        
         
         def analisis_opcion_elegida(tipo):
             'Análisis de las opciones de eliminación elegidas'
