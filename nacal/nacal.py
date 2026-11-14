@@ -283,28 +283,28 @@ def dispElimFyC(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
 def dispElimCF(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     display(Math(rprElimCF(self, pasos, TexPasosPrev, sust, metodo)))
 
+def fin_del_argumento(tex, inicio):
+    "Posición siguiente al cierre del argumento [...] o {...} que comienza en inicio"
+    cierre, nivel, k = {'[':']', '{':'}'}[tex[inicio]], 0, inicio
+    while True:
+        if   tex[k] == '\\': k += 1
+        elif tex[k] == '{':  nivel += 1
+        elif tex[k] == '}':  nivel -= 1
+        if nivel == 0 and tex[k] == cierre:
+            return k + 1
+        k += 1
+
 def trozos_del_desarrollo(tex):
     """Separa el código LaTeX de un desarrollo en la lista
     [sistema, flecha, sistema, ..., flecha, sistema]"""
     FLECHA = '\\xrightarrow'
-    
-    def fin_del_argumento(inicio):
-        "Posición siguiente al cierre del argumento que comienza en inicio"
-        cierre, nivel, k = {'[':']', '{':'}'}[tex[inicio]], 0, inicio
-        while True:
-            if   tex[k] == '\\': k += 1
-            elif tex[k] == '{':  nivel += 1
-            elif tex[k] == '}':  nivel -= 1
-            if nivel == 0 and tex[k] == cierre:
-                return k + 1
-            k += 1
     
     trozos, inicio, nivel, i = [], 0, 0, 0
     while i < len(tex):
         if nivel == 0 and tex.startswith(FLECHA, i):
             j = i + len(FLECHA)
             while j < len(tex) and tex[j] in '[{':       # rótulos de la flecha
-                j = fin_del_argumento(j)
+                j = fin_del_argumento(tex, j)
             trozos += [tex[inicio:i], tex[i:j]]
             inicio  = i = j
         elif tex[i] == '\\':                             # otras órdenes (y llaves \{ \})
@@ -314,7 +314,23 @@ def trozos_del_desarrollo(tex):
             i += 1
     return trozos + [tex[inicio:]]
 
-def desarrollo(objeto, por_linea=None, compacto=False, pasos=None):
+def flecha_resumen(flechas):
+    """Flecha rotulada con la composición de las transformaciones de varias flechas"""
+    def rotulos(flecha):
+        "Rótulos [inferior, superior] de una flecha"
+        j, encontrados = len('\\xrightarrow'), {'[':'', '{':''}
+        while j < len(flecha):
+            fin = fin_del_argumento(flecha, j)
+            encontrados[flecha[j]] = flecha[j+1:fin-1]
+            j = fin
+        return [encontrados['['], encontrados['{']]
+    
+    inferiores, superiores = zip(*[rotulos(f) for f in flechas])
+    inferior = ''.join(reversed(inferiores))   # por la izquierda: la última es la primera
+    superior = ''.join(superiores)
+    return '\\xrightarrow' + ('[' + inferior + ']' if inferior else '') + '{' + superior + '}'
+
+def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='transformaciones'):
     """Código LaTeX de un proceso de eliminación con otra presentación
 
     Parámetros:
@@ -327,6 +343,10 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None):
         pasos:     lista de los pasos que se muestran además del sistema
                    inicial y el final (se numeran desde 1; los negativos
                    cuentan desde el final). Por defecto se muestran todos
+        omitidos:  rótulo de la flecha que resume varios pasos omitidos:
+                   'transformaciones' (por defecto) para la composición de
+                   las transformaciones omitidas o 'puntos' para unos
+                   puntos suspensivos
 
     Sin argumentos opcionales devuelve el código sin modificar.
 
@@ -338,6 +358,8 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None):
     2
     >>> desarrollo(ElimGJ(A), pasos=[]).count('xrightarrow')   # inicial y final
     1
+    >>> desarrollo(ElimGJ(A), pasos=[], omitidos='puntos').count('cdots')
+    1
     """
     tex    = objeto if isinstance(objeto, str) else objeto.tex
     trozos = trozos_del_desarrollo(tex)
@@ -348,7 +370,11 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None):
         if any(not -ultimo <= p <= ultimo for p in pasos):
             raise ValueError('El desarrollo solo tiene ' + str(ultimo) + ' pasos')
         elegidos = sorted({0, ultimo} | {p % (ultimo + 1) for p in pasos})
-        flechas  = [flechas[q-1] if q == p+1 else '\\xrightarrow{\\ \\cdots\\ }'
+        if omitidos not in ('transformaciones', 'puntos'):
+            raise ValueError("omitidos debe ser 'transformaciones' o 'puntos'")
+        resumen  = flecha_resumen if omitidos == 'transformaciones' else \
+                   lambda flechas: '\\xrightarrow{\\ \\cdots\\ }'
+        flechas  = [flechas[p] if q == p+1 else resumen(flechas[p:q])
                     for p, q in zip(elegidos, elegidos[1:])]
         sistemas = [sistemas[p] for p in elegidos]
 

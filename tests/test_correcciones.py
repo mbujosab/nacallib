@@ -212,8 +212,26 @@ def test_desarrollo_abreviado():
     E = ElimGJ(Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]]))     # 5 pasos
     sistemas, flechas = trozos_del_desarrollo(E.tex)[0::2], trozos_del_desarrollo(E.tex)[1::2]
     puntos = '\\xrightarrow{\\ \\cdots\\ }'
-    assert desarrollo(E, pasos=[]) == sistemas[0] + puntos + sistemas[-1]
-    assert desarrollo(E, pasos=[1, -2]) == sistemas[0] + flechas[0] + sistemas[1] + puntos + sistemas[4] + flechas[4] + sistemas[5]
+    assert desarrollo(E, pasos=[], omitidos='puntos') == sistemas[0] + puntos + sistemas[-1]
+    assert desarrollo(E, pasos=[1, -2], omitidos='puntos') == sistemas[0] + flechas[0] + sistemas[1] + puntos + sistemas[4] + flechas[4] + sistemas[5]
     assert desarrollo(E, pasos=[1, 2, 3, 4]) == E.tex
     with pytest.raises(ValueError):
         desarrollo(E, pasos=[6])
+
+def test_desarrollo_abreviado_con_transformaciones():
+    M = Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]])
+    E = ElimGJ(M)                                               # 5 pasos por la derecha
+    sistemas, flechas = trozos_del_desarrollo(E.tex)[0::2], trozos_del_desarrollo(E.tex)[1::2]
+    rotulos = [f[len('\\xrightarrow{'):-1] for f in flechas]
+    assert desarrollo(E, pasos=[]) == sistemas[0] + '\\xrightarrow{' + ''.join(rotulos) + '}' + sistemas[-1]
+    assert desarrollo(E, pasos=[2]) == sistemas[0] + '\\xrightarrow{' + ''.join(rotulos[:2]) + '}' + sistemas[2] \
+                                                   + '\\xrightarrow{' + ''.join(rotulos[2:]) + '}' + sistemas[5]
+    F = ElimGJF(M)                                              # pasos por la izquierda: orden inverso
+    flechasF = trozos_del_desarrollo(F.tex)[1::2]
+    inferiores = [f[len('\\xrightarrow['):-len(']{}')] for f in flechasF]
+    assert all(f.endswith(']{}') for f in flechasF)
+    assert desarrollo(F, pasos=[]).count('\\xrightarrow[' + ''.join(reversed(inferiores)) + ']{}') == 1
+    D = Determinante(M)                                         # rótulos arriba y abajo
+    assert desarrollo(D, pasos=[1, 2, 3]) == D.tex
+    with pytest.raises(ValueError):
+        desarrollo(E, pasos=[], omitidos='nada')
