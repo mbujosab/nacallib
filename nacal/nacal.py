@@ -1637,7 +1637,7 @@ class BlockM(Sistema):
         "Extiende una BlockM a lo largo de la diagonal con una lista de BlockMs"
         lista = CreaLista(lista)
         if not all(isinstance(elemento, BlockM) for elemento in lista): 
-            return ValueError('No es una lista de BlockMs')
+            raise ValueError('No es una lista de BlockMs')
         Ext_dos = lambda x, y: x.apila(M0(y.m,x.n),c).concatena(M0(x.m,y.n).apila(y,c),c)
         ExtDiag = lambda x: x[0] if len(x)==1 else Ext_dos( ExtDiag(x[0:-1]), x[-1] )
         return ExtDiag([self]+lista)
@@ -2991,7 +2991,9 @@ class SEL:
         return self.eafin == other.eafin
     
     def __repr__(self):
-        """Muestra el Espacio Nulo de una matriz en su representación Python"""
+        """Muestra el conjunto de soluciones en su representación Python"""
+        if not self.solP:
+            return repr(set())       # sin solución: el conjunto vacío
         return repr(self.solP) + ' + ' + texto_de_salida('combinaciones') + ' (' + repr(self.sgen) + ')'
     
     def _repr_html_(self):
@@ -3216,6 +3218,8 @@ class InvMatF(Sistema):
         pasos = sistema.elim(26).elim(26).elim(14).pasos
         A = T(pasos[0]) & I(sistema.n)
         A.tex, A.pasos = texYpasos(sistema.concatena(I(sistema.n),1), pasos, rep, sust, repsust)
+        if sistema.subs(sust).es_singular():
+            raise ValueError('Matrix es singular')
         A.TrF = A.pasos[0]
         A.TrC = A.pasos[1]
         self.__dict__.update(A.__dict__)
@@ -3255,6 +3259,8 @@ class InvMatFC(Sistema):
         nan = sympy.symbols(r'\ ')
         dummyMatrix = M1(A.n)*nan
         A.tex, A.pasos = texYpasos(A.concatena(I(A.n),1).apila(I(A.n).concatena(dummyMatrix,1),1), pasos, rep, sust, repsust)
+        if sistema.subs(sust).es_singular():
+            raise ValueError('Matrix es singular')
         A.TrF = A.pasos[0]
         A.TrC = A.pasos[1]
         A.F   = T(A.TrF) & I(A.n)

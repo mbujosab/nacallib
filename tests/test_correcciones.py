@@ -277,3 +277,27 @@ def test_desarrollo_compila_con_mathtools(tmp_path):
                           + '\n'.join('\\[' + f + '\\]' for f in formulas) + '\n\\end{document}\n', encoding='utf-8')
         orden = ['pdflatex', '-interaction=batchmode', '-halt-on-error', fuente.name]
         assert subprocess.run(orden, cwd=tmp_path, capture_output=True).returncode == 0, paquete
+
+
+# --- fallos corregidos al documentar la inversa y SEL
+def test_inversa_de_matriz_singular():
+    S = Matrix([[1, 2], [2, 4]])
+    for inversa in (InvMat, InvMatF, InvMatFC, lambda M: M.inversa()):
+        with pytest.raises(ValueError, match='singular'):
+            inversa(S)
+    A = Matrix([[5, 0], [2, -2]])
+    assert InvMat(A) == InvMatF(A) == InvMatFC(A) == A.inversa()
+    assert A*InvMatF(A) == I(2)
+    a = sympy.symbols('a')
+    P = Matrix([[1, 2], [2, a]])
+    with pytest.raises(ValueError, match='singular'):
+        InvMatF(P, sust=[(a, 4)])
+
+def test_SEL_sin_solucion():
+    N = SEL(Matrix([[1, 2], [2, 4]]), Vector([1, 3]))
+    assert repr(N) == 'set()' and N.solP == set() and N.latex() == '\\emptyset'
+
+def test_extDiag_rechaza_lo_que_no_es_BlockM():
+    with pytest.raises(ValueError):
+        I(2).extDiag([3])
+    assert I(1).extDiag(I(1)) == I(2)
