@@ -821,6 +821,8 @@ def es_de_composicion_y_longitud_uniforme(self):
    """
    if self.es_de_composicion_uniforme() and es_numero(self|1):
       return True   
+   elif all(isinstance(elemento, Polinomio) for elemento in self):
+      return True      # polinomios de distinto grado se pueden sumar
    elif self.es_de_composicion_uniforme() and not es_numero(self|1):
       return all(len(elemento)==len(self|1) for elemento in self)
    else:
@@ -3235,6 +3237,219 @@ class V1(Vector):
         """
         super().__init__([1]*n, rpr)
         self.__class__ = Vector
+
+#+END_SRC
+
+** La subclase ~Polinomio~
+
+Los polinomios de una variable forman un espacio vectorial: se pueden sumar y multiplicar por
+números. La subclase ~Polinomio~ permite que los elementos de un ~Sistema~ sean polinomios, de modo
+que la eliminación y las clases ~Homogenea~ y ~SEL~ operen con ellos igual que con vectores de
+\R[n] o con matrices.
+
+Un ~Polinomio~ es un ~Vector~ cuyos componentes son los coeficientes, ordenados de menor a mayor
+grado; es decir, sus coordenadas respecto de la base $1,\ x,\ x^2,\ldots$ Lo único que cambia es su
+representación, que es la habitual de un polinomio (también escrito de menor a mayor grado).
+Consecuentemente, el /pivote/ de un polinomio no nulo (su primer componente no nulo) es el
+coeficiente de su término de menor grado, que es el primero que aparece escrito.
+
+No basta con usar las expresiones simbólicas de Sympy como elementos de un ~Sistema~, pues para
+este módulo dichas expresiones son /números/: la eliminación tomaría cada polinomio como un
+escalar por el que se puede dividir. Sympy solo se usa para leer los coeficientes de una expresión
+y para escribir los monomios.
+
+*** Implementación
+
+Se instancia con una expresión de Sympy (o un número), o con la lista de coeficientes. La variable
+se deduce de la expresión; solo hay que indicarla cuando la expresión contiene más de un símbolo
+(porque los coeficientes son simbólicos) o cuando, instanciando con una lista de coeficientes, no
+se quiere usar la variable $x$.
+
+#+name: Texto de ayuda de la clase Polinomio
+#+BEGIN_SRC python
+"""Clase para los polinomios de una variable
+
+Un Polinomio es un Vector cuyos componentes son los coeficientes del
+polinomio ordenados de menor a mayor grado.
+
+Parámetros:
+    arg: expresión de sympy (o número) polinómica en una variable, o
+        lista, tupla o Sistema con los coeficientes (de menor a mayor
+        grado)
+    rpr (str): modo de representación como elemento de un sistema
+    variable (sympy.Symbol): variable del polinomio. Por defecto es el
+        único símbolo de la expresión; o x si no hay ninguno
+
+Atributos:
+    variable (sympy.Symbol): la variable del polinomio
+    lista, n: los coeficientes y su número (heredados de Sistema)
+
+Ejemplos:
+>>> x = sympy.symbols('x')
+>>> Polinomio( (1+x)**2 )
+Polinomio(1 + 2*x + x**2)
+>>> Polinomio( [1,2,1] )
+Polinomio(1 + 2*x + x**2)
+>>> Polinomio( (1+x)**2 ).lista
+[1, 2, 1]
+>>> 2*Polinomio(1 + x) + Polinomio(x**2)
+Polinomio(2 + 2*x + x**2)
+>>> a = sympy.symbols('a')
+>>> Polinomio( a + x, variable=x )
+Polinomio(a + x)
+"""
+#+END_SRC
+
+#+name: Inicialización de la clase Polinomio
+#+BEGIN_SRC python
+def __init__(self, arg, rpr='columna', variable=None):
+    """Inicializa un Polinomio con una expresión o con sus coeficientes"""
+    if isinstance(arg, Polinomio) and variable is None:
+        variable = arg.variable
+
+    if es_ristra(arg):
+        coeficientes = list(arg)
+    elif es_numero(arg):
+        expresion = sympy.sympify(racional(arg))
+        if variable is None:
+            simbolos = sorted(expresion.free_symbols, key=str)
+            if len(simbolos) > 1:
+                raise ValueError('Hay más de un símbolo: indique cuál es la variable')
+            variable = simbolos[0] if simbolos else sympy.Symbol('x')
+        if not expresion.is_polynomial(variable):
+            raise ValueError('La expresión no es un polinomio en ' + str(variable))
+        coeficientes = sympy.Poly(expresion, variable).all_coeffs()[::-1]
+    else:
+        raise ValueError('El argumento debe ser una expresión o una lista de coeficientes')
+
+    super().__init__(coeficientes, rpr)
+    self.__class__ = Polinomio
+    self.variable  = variable if variable is not None else sympy.Symbol('x')
+
+def copy(self):
+    """Genera un Polinomio copiando los coeficientes y la variable de otro"""
+    return Polinomio(self.lista, self.rpr, self.variable)
+
+#+END_SRC
+
+(La penúltima línea de ~__init__~ es necesaria porque al inicializar un ~BlockV~ con una lista de
+números el objeto pasa a ser de la clase ~Vector~.)
+
+*** Operaciones
+
+La suma, la resta y el producto por un número son las de la clase ~Sistema~ (operan componente a
+componente). Pero la clase ~Sistema~ solo suma sistemas con el mismo número de elementos, y dos
+polinomios pueden tener distinto grado; así que antes de sumar o restar se completa con ceros la
+lista de coeficientes del más corto. La igualdad compara los polinomios y no las listas (pues
+$1+x$ y $1+x+0x^2$ son el mismo polinomio).
+
+El producto de dos polinomios es su producto como polinomios (y no el producto punto de sus
+listas de coeficientes, que es lo que se heredaría de la clase ~Vector~).
+
+#+name: Operaciones de la clase Polinomio
+#+BEGIN_SRC python
+def expresion(self):
+    """Expresión de sympy correspondiente al Polinomio"""
+    return sympy.expand(sum(c*self.variable**i for i, c in enumerate(self.lista)))
+
+def grado(self):
+    """Grado del polinomio (el del polinomio nulo es menos infinito)"""
+    no_nulos = [i for i, c in enumerate(self.lista) if not es_cero(c)]
+    return no_nulos[-1] if no_nulos else -sympy.oo
+
+def completado(self, n):
+    """Polinomio con n coeficientes (se añaden ceros en los grados altos)"""
+    completo       = self.fullcopy()
+    completo.lista = self.lista + [sympy.S.Zero]*(n - len(self))
+    completo.n     = len(completo.lista)
+    return completo
+
+def igualados(self, other):
+    """Los dos polinomios con el mismo número de coeficientes"""
+    if not isinstance(other, Polinomio) or self.variable != other.variable:
+        raise ValueError('Solo se operan Polinomios de la misma variable')
+    n = max(len(self), len(other))
+    return self.completado(n), other.completado(n)
+
+def __add__(self, other):
+    """Suma de dos polinomios"""
+    p, q = self.igualados(other)
+    return Sistema.__add__(p, q)
+
+def __sub__(self, other):
+    """Resta de dos polinomios"""
+    p, q = self.igualados(other)
+    return Sistema.__sub__(p, q)
+
+def __eq__(self, other):
+    """Indica si dos polinomios son iguales"""
+    return isinstance(other, Polinomio) and self.variable == other.variable \
+        and es_cero(self.expresion() - other.expresion())
+
+def __mul__(self, x):
+    """Producto por un número o por otro Polinomio"""
+    if isinstance(x, Polinomio):
+        if self.variable != x.variable:
+            raise ValueError('Solo se operan Polinomios de la misma variable')
+        return Polinomio(sympy.expand(self.expresion()*x.expresion()), self.rpr, self.variable)
+    if es_numero(x):
+        return x*self
+    raise ValueError('Un Polinomio solo se multiplica por números o por Polinomios')
+
+#+END_SRC
+
+*** Representación
+
+Los monomios se escriben de menor a mayor grado, y se omiten los de coeficiente nulo.
+
+#+name: Representación de la clase Polinomio
+#+BEGIN_SRC python
+def monomios(self, escribe, por, parentesis):
+    """Cadena con la suma de los monomios no nulos, de menor a mayor grado
+
+    escribe es la función que escribe una expresión; por es el signo del
+    producto y parentesis los que rodean a un coeficiente que es una suma"""
+    cadena = ''
+    for i, c in enumerate(self.lista):
+        if es_cero(c):
+            continue
+        c = sympy.sympify(c)
+        if c.is_number or i == 0:
+            texto = escribe(c*self.variable**i)
+        else:
+            coeficiente = parentesis[0] + escribe(c) + parentesis[1] if c.is_Add else escribe(c)
+            texto       = coeficiente + por + escribe(self.variable**i)
+        if not cadena:
+            cadena = texto
+        elif texto.startswith('-'):
+            cadena += ' - ' + texto[1:].lstrip()
+        else:
+            cadena += ' + ' + texto
+    return cadena if cadena else '0'
+
+def __str__(self):
+    """Muestra el Polinomio como texto"""
+    return self.monomios(str, '*', '()')
+
+def __repr__(self):
+    """Muestra el Polinomio en su representación Python"""
+    return 'Polinomio(' + str(self) + ')'
+
+def latex(self):
+    """Construye el comando LaTeX para representar un Polinomio"""
+    return self.monomios(sympy.latex, ' ', ('\\left(', '\\right)'))
+
+#+END_SRC
+
+*** La clase ~Polinomio~ completa
+
+#+name: Definición de la subclase Polinomio
+#+BEGIN_SRC python :noweb no-export
+class Polinomio(Vector):
+    <<Texto de ayuda de la clase Polinomio>>
+    <<Inicialización de la clase Polinomio>>
+    <<Operaciones de la clase Polinomio>>
+    <<Representación de la clase Polinomio>>
 
 #+END_SRC
 
@@ -6222,7 +6437,7 @@ Atributos del resultado:
 | ~tex~                  | código \LaTeX{} con los pasos dados                                                |
 
 Al igual que ~elim~, la clase admite como argumento cualquier ~Sistema~ cuyos elementos sean del
-mismo tipo y tamaño (no solo una ~Matrix~).
+mismo tipo y tamaño (no solo una ~Matrix~), o un ~Sistema~ de polinomios (clase ~Polinomio~).
 
 *** Implementación de la clase ~Homogenea~
 
@@ -6235,6 +6450,8 @@ class Homogenea:
         
         y muestra los pasos para encontrarlo"""
         try:
+            if any(isinstance(e, Polinomio) for e in sistema):
+                raise TypeError('los polinomios no se sustituyen por sus coeficientes')
             A = Matrix(sistema).subs(sust)
         except Exception:
             A = BlockM([sistema]).subs(sust)
@@ -6421,7 +6638,8 @@ dados
 
 Parámetros:
     sistema (Sistema): Matrix de coeficientes; o, en general, Sistema 
-        de objetos del mismo tipo y tamaño (por ejemplo de matrices)
+        de objetos del mismo tipo y tamaño (por ejemplo de matrices),
+        o Sistema de polinomios (clase Polinomio)
     b (Vector, Matrix,...): lado derecho de la ecuación. Del mismo tipo
         y tamaño que los elementos del sistema
     rep (bool): si es cierto se muestran en Jupyter los pasos dados
@@ -6461,6 +6679,8 @@ class SEL:
     def __init__(self, sistema, b, rep=0, sust=[], repsust=0):
         <<Texto de ayuda de la clase ~SEL~>>
         try:
+            if any(isinstance(e, Polinomio) for e in sistema.amplia(-b)):
+                raise TypeError('los polinomios no se sustituyen por sus coeficientes')
             A = Matrix(sistema.amplia(-b)).subs(sust).csis({sistema.n})
         except Exception:
             A = BlockM([sistema.amplia(-b)]).subs(sust).csis({sistema.n})
@@ -6558,9 +6778,9 @@ def latex(self):
     else:
         solucion = self.eafin.EcParametricas()
 
-    # si los elementos del sistema no son vectores de Rn (p.e. son matrices)
-    # se recuerda la ecuación de la que los vectores v son solución
-    if any(isinstance(e, Sistema) and not isinstance(e, Vector) for e in self.sistema):
+    # si los elementos del sistema no son vectores de Rn (p.e. son matrices
+    # o polinomios) se recuerda la ecuación de la que los vectores v son solución
+    if any(isinstance(e, Sistema) and (isinstance(e, Polinomio) or not isinstance(e, Vector)) for e in self.sistema):
         return self.EcCombinacion() + '\\; = \\;' + solucion
     else:
         return solucion
@@ -6703,6 +6923,71 @@ print(dmath( S*solucion.solP ))
 
 #+RESULTS:
 $$\left[ \begin{array}{cc}2&3\\3&5\\ \end{array} \right]$$
+
+
+*** Ejemplo: combinaciones lineales de polinomios
+
+Lo mismo se puede hacer con polinomios (clase ~Polinomio~). Busquemos las combinaciones lineales de
+los polinomios $1$, $1+x$ y $(1+x)^2$ que son iguales al polinomio $3-2x+5x^2$; es decir, las
+coordenadas de dicho polinomio respecto de la base formada por las potencias de $1+x$.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+S = Sistema([ Polinomio(1), Polinomio(1+x), Polinomio((1+x)**2) ])
+q = Polinomio(3 - 2*x + 5*x**2)
+solucion = SEL(S, q)
+#+END_SRC
+
+En la fila superior se ve cómo cambian los polinomios con cada transformación elemental. El pivote
+de cada polinomio es el coeficiente de su término de menor grado (el primero que aparece escrito), y
+con él se eliminan los términos del mismo grado de los polinomios que están a su derecha:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( solucion.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc|c}1&1 + x&1 + 2 x + x^{2}&-3 + 2 x - 5 x^{2}\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(3\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&2 x + x^{2}&2 x - 5 x^{2}\\ \hline 1&-1&-1&3\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(-2\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&x^{2}&- 5 x^{2}\\ \hline 1&-1&1&5\\0&1&-2&-2\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(5\right)\mathbf{3}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&x^{2}&0\\ \hline 1&-1&1&10\\0&1&-2&-12\\0&0&1&5\\ \hline 0&0&0&1\\ \end{array} \right]$$
+
+Como los polinomios no son vectores de \R[n], la representación recuerda la ecuación que se ha
+resuelto:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( solucion ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}1;& 1 + x;& 1 + 2 x + x^{2};\end{array} \right]\boldsymbol{v}=3 - 2 x + 5 x^{2}\right.\right\}\; = \;\left\{\ \begin{pmatrix}10\\ -12\\ 5\end{pmatrix}\ \right\}$$
+
+Efectivamente, la combinación lineal cuyos coeficientes son los componentes de la solución es el
+polinomio buscado:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( S*solucion.solP ))
+#+END_SRC
+
+#+RESULTS:
+=3 - 2*x + 5*x**2=
+
+Cuando el desarrollo es largo se puede partir en varias líneas con la función ~desarrollo~. Por
+ejemplo, ~desarrollo(solucion, por_linea=1)~ escribe un paso en cada línea.
+
+La clase ~Homogenea~ encuentra las relaciones de dependencia lineal entre polinomios. Por ejemplo,
+los polinomios $1+x$, $1-x$ y $x$ son linealmente dependientes:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+H = Homogenea( Sistema([ Polinomio(1+x), Polinomio(1-x), Polinomio(x), Polinomio(x**2) ]) )
+print(displaymath( H.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cccc}1 + x&1 - x&x&x^{2}\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc}1 + x&- 2 x&x&x^{2}\\ \hline 1&-1&0&0\\0&1&0&0\\0&0&1&0\\0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{3}\right]\\\left[\left(1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc}1 + x&- 2 x&0&x^{2}\\ \hline 1&-1&-1&0\\0&1&1&0\\0&0&2&0\\0&0&0&1\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( H.sgen ))
+#+END_SRC
+
+#+RESULTS:
+=[(-1, 1, 2, 0,);]=
 
 
 * La clase ~Determinante~. Cálculo del determinante por eliminación
@@ -7017,6 +7302,7 @@ from os.path import join
 <<Definición de la subclase BlockV>>
 <<Definición de la subclase Vector>>
 <<Definición de las subclases V0 y V1>>
+<<Definición de la subclase Polinomio>>
 <<Definición de la subclase BlockM>>
 <<Definición de la subclase Matrix>>
 <<Definición de las subclases M0, M1 e I>>

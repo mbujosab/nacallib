@@ -20,6 +20,7 @@ SECCIONES = [
     '*** Ejemplos de sistemas homogéneos',
     '*** Ejemplos de sistemas de ecuaciones',
     '*** Ejemplo: combinaciones lineales de matrices',
+    '*** Ejemplo: combinaciones lineales de polinomios',
 ]
 
 PREAMBULO = '''

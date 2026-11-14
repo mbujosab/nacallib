@@ -664,6 +664,8 @@ class Sistema:
        """
        if self.es_de_composicion_uniforme() and es_numero(self|1):
           return True   
+       elif all(isinstance(elemento, Polinomio) for elemento in self):
+          return True      # polinomios de distinto grado se pueden sumar
        elif self.es_de_composicion_uniforme() and not es_numero(self|1):
           return all(len(elemento)==len(self|1) for elemento in self)
        else:
@@ -1441,6 +1443,150 @@ class V1(Vector):
         """
         super().__init__([1]*n, rpr)
         self.__class__ = Vector
+
+class Polinomio(Vector):
+    """Clase para los polinomios de una variable
+    
+    Un Polinomio es un Vector cuyos componentes son los coeficientes del
+    polinomio ordenados de menor a mayor grado.
+    
+    Parámetros:
+        arg: expresión de sympy (o número) polinómica en una variable, o
+            lista, tupla o Sistema con los coeficientes (de menor a mayor
+            grado)
+        rpr (str): modo de representación como elemento de un sistema
+        variable (sympy.Symbol): variable del polinomio. Por defecto es el
+            único símbolo de la expresión; o x si no hay ninguno
+    
+    Atributos:
+        variable (sympy.Symbol): la variable del polinomio
+        lista, n: los coeficientes y su número (heredados de Sistema)
+    
+    Ejemplos:
+    >>> x = sympy.symbols('x')
+    >>> Polinomio( (1+x)**2 )
+    Polinomio(1 + 2*x + x**2)
+    >>> Polinomio( [1,2,1] )
+    Polinomio(1 + 2*x + x**2)
+    >>> Polinomio( (1+x)**2 ).lista
+    [1, 2, 1]
+    >>> 2*Polinomio(1 + x) + Polinomio(x**2)
+    Polinomio(2 + 2*x + x**2)
+    >>> a = sympy.symbols('a')
+    >>> Polinomio( a + x, variable=x )
+    Polinomio(a + x)
+    """
+    def __init__(self, arg, rpr='columna', variable=None):
+        """Inicializa un Polinomio con una expresión o con sus coeficientes"""
+        if isinstance(arg, Polinomio) and variable is None:
+            variable = arg.variable
+    
+        if es_ristra(arg):
+            coeficientes = list(arg)
+        elif es_numero(arg):
+            expresion = sympy.sympify(racional(arg))
+            if variable is None:
+                simbolos = sorted(expresion.free_symbols, key=str)
+                if len(simbolos) > 1:
+                    raise ValueError('Hay más de un símbolo: indique cuál es la variable')
+                variable = simbolos[0] if simbolos else sympy.Symbol('x')
+            if not expresion.is_polynomial(variable):
+                raise ValueError('La expresión no es un polinomio en ' + str(variable))
+            coeficientes = sympy.Poly(expresion, variable).all_coeffs()[::-1]
+        else:
+            raise ValueError('El argumento debe ser una expresión o una lista de coeficientes')
+    
+        super().__init__(coeficientes, rpr)
+        self.__class__ = Polinomio
+        self.variable  = variable if variable is not None else sympy.Symbol('x')
+    
+    def copy(self):
+        """Genera un Polinomio copiando los coeficientes y la variable de otro"""
+        return Polinomio(self.lista, self.rpr, self.variable)
+    
+    def expresion(self):
+        """Expresión de sympy correspondiente al Polinomio"""
+        return sympy.expand(sum(c*self.variable**i for i, c in enumerate(self.lista)))
+    
+    def grado(self):
+        """Grado del polinomio (el del polinomio nulo es menos infinito)"""
+        no_nulos = [i for i, c in enumerate(self.lista) if not es_cero(c)]
+        return no_nulos[-1] if no_nulos else -sympy.oo
+    
+    def completado(self, n):
+        """Polinomio con n coeficientes (se añaden ceros en los grados altos)"""
+        completo       = self.fullcopy()
+        completo.lista = self.lista + [sympy.S.Zero]*(n - len(self))
+        completo.n     = len(completo.lista)
+        return completo
+    
+    def igualados(self, other):
+        """Los dos polinomios con el mismo número de coeficientes"""
+        if not isinstance(other, Polinomio) or self.variable != other.variable:
+            raise ValueError('Solo se operan Polinomios de la misma variable')
+        n = max(len(self), len(other))
+        return self.completado(n), other.completado(n)
+    
+    def __add__(self, other):
+        """Suma de dos polinomios"""
+        p, q = self.igualados(other)
+        return Sistema.__add__(p, q)
+    
+    def __sub__(self, other):
+        """Resta de dos polinomios"""
+        p, q = self.igualados(other)
+        return Sistema.__sub__(p, q)
+    
+    def __eq__(self, other):
+        """Indica si dos polinomios son iguales"""
+        return isinstance(other, Polinomio) and self.variable == other.variable \
+            and es_cero(self.expresion() - other.expresion())
+    
+    def __mul__(self, x):
+        """Producto por un número o por otro Polinomio"""
+        if isinstance(x, Polinomio):
+            if self.variable != x.variable:
+                raise ValueError('Solo se operan Polinomios de la misma variable')
+            return Polinomio(sympy.expand(self.expresion()*x.expresion()), self.rpr, self.variable)
+        if es_numero(x):
+            return x*self
+        raise ValueError('Un Polinomio solo se multiplica por números o por Polinomios')
+    
+    def monomios(self, escribe, por, parentesis):
+        """Cadena con la suma de los monomios no nulos, de menor a mayor grado
+    
+        escribe es la función que escribe una expresión; por es el signo del
+        producto y parentesis los que rodean a un coeficiente que es una suma"""
+        cadena = ''
+        for i, c in enumerate(self.lista):
+            if es_cero(c):
+                continue
+            c = sympy.sympify(c)
+            if c.is_number or i == 0:
+                texto = escribe(c*self.variable**i)
+            else:
+                coeficiente = parentesis[0] + escribe(c) + parentesis[1] if c.is_Add else escribe(c)
+                texto       = coeficiente + por + escribe(self.variable**i)
+            if not cadena:
+                cadena = texto
+            elif texto.startswith('-'):
+                cadena += ' - ' + texto[1:].lstrip()
+            else:
+                cadena += ' + ' + texto
+        return cadena if cadena else '0'
+    
+    def __str__(self):
+        """Muestra el Polinomio como texto"""
+        return self.monomios(str, '*', '()')
+    
+    def __repr__(self):
+        """Muestra el Polinomio en su representación Python"""
+        return 'Polinomio(' + str(self) + ')'
+    
+    def latex(self):
+        """Construye el comando LaTeX para representar un Polinomio"""
+        return self.monomios(sympy.latex, ' ', ('\\left(', '\\right)'))
+    
 
 class BlockM(Sistema):
     """Clase para arreglos rectangulares de objetos.
@@ -2855,6 +3001,8 @@ class Homogenea:
         
         y muestra los pasos para encontrarlo"""
         try:
+            if any(isinstance(e, Polinomio) for e in sistema):
+                raise TypeError('los polinomios no se sustituyen por sus coeficientes')
             A = Matrix(sistema).subs(sust)
         except Exception:
             A = BlockM([sistema]).subs(sust)
@@ -2908,7 +3056,8 @@ class SEL:
         
         Parámetros:
             sistema (Sistema): Matrix de coeficientes; o, en general, Sistema 
-                de objetos del mismo tipo y tamaño (por ejemplo de matrices)
+                de objetos del mismo tipo y tamaño (por ejemplo de matrices),
+                o Sistema de polinomios (clase Polinomio)
             b (Vector, Matrix,...): lado derecho de la ecuación. Del mismo tipo
                 y tamaño que los elementos del sistema
             rep (bool): si es cierto se muestran en Jupyter los pasos dados
@@ -2941,6 +3090,8 @@ class SEL:
         
         """
         try:
+            if any(isinstance(e, Polinomio) for e in sistema.amplia(-b)):
+                raise TypeError('los polinomios no se sustituyen por sus coeficientes')
             A = Matrix(sistema.amplia(-b)).subs(sust).csis({sistema.n})
         except Exception:
             A = BlockM([sistema.amplia(-b)]).subs(sust).csis({sistema.n})
@@ -3016,9 +3167,9 @@ class SEL:
         else:
             solucion = self.eafin.EcParametricas()
     
-        # si los elementos del sistema no son vectores de Rn (p.e. son matrices)
-        # se recuerda la ecuación de la que los vectores v son solución
-        if any(isinstance(e, Sistema) and not isinstance(e, Vector) for e in self.sistema):
+        # si los elementos del sistema no son vectores de Rn (p.e. son matrices
+        # o polinomios) se recuerda la ecuación de la que los vectores v son solución
+        if any(isinstance(e, Sistema) and (isinstance(e, Polinomio) or not isinstance(e, Vector)) for e in self.sistema):
             return self.EcCombinacion() + '\\; = \\;' + solucion
         else:
             return solucion
