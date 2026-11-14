@@ -47,7 +47,7 @@
 
 #+CALL: NombreEnChunksDeCodigo()
 
-#+macro: ver Versión:  0.2.2
+#+macro: ver Versión:  0.3.0
 
 #+name: __init__.py
 #+BEGIN_SRC python :tangle nacal/__init__.py
@@ -55,7 +55,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.2.2"
+__version__ = "0.3.0"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -178,7 +178,7 @@ Pendiente tras la revisión de noviembre de 2026:
 - [ ] Ejecutar automáticamente los ejemplos de los textos de ayuda (=doctest=); muchos muestran
   una salida aproximada que no coincide literalmente con la real
 
-- [ ] En =elim=, revisar los comentarios "hacia delante" / "hacia atrás" de la variante 100
+- [X] En =elim=, revisar los comentarios "hacia delante" / "hacia atrás" de la variante 100
   (parecen intercambiados)
 
 
