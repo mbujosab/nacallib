@@ -235,3 +235,26 @@ def test_desarrollo_abreviado_con_transformaciones():
     assert desarrollo(D, pasos=[1, 2, 3]) == D.tex
     with pytest.raises(ValueError):
         desarrollo(E, pasos=[], omitidos='nada')
+
+
+# --- idioma de los textos de salida
+def test_idioma():
+    A, b = Matrix([[1, 2], [2, 4]]), Vector([1, 2])
+    en_espanol = [repr(SEL(A, b)), repr(Homogenea(A)), repr(Determinante(I(2)))]
+    assert idioma() == 'es'
+    assert en_espanol[0] == 'Vector([1, 0]) + Combinaciones lineales de (Sistema([Vector([-2, 1]);]))'
+    assert en_espanol[2] == 'Valor del determinante: 1'
+    try:
+        idioma('en')
+        assert idioma() == 'en'
+        assert repr(SEL(A, b)) == 'Vector([1, 0]) + Linear combinations of (Sistema([Vector([-2, 1]);]))'
+        assert repr(Homogenea(A)) == 'Linear combinations of (Sistema([Vector([-2, 1]);]))'
+        assert repr(Determinante(I(2))) == 'Value of the determinant: 1'
+        assert SEL(A, b).tex == (idioma('es'), SEL(A, b).tex, idioma('en'))[1]
+        with pytest.raises(ValueError):
+            idioma('fr')
+        assert idioma() == 'en'
+    finally:
+        idioma('es')
+    assert [repr(SEL(A, b)), repr(Homogenea(A)), repr(Determinante(I(2)))] == en_espanol
+    assert set(TEXTOS_DE_SALIDA['es']) == set(TEXTOS_DE_SALIDA['en'])

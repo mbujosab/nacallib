@@ -151,6 +151,39 @@ def estructura(S):
 
     return c
 
+TEXTOS_DE_SALIDA = {
+    'es': { 'combinaciones':  'Combinaciones lineales de',
+            'determinante':   'Valor del determinante:',
+            'pares':          'Sistema inicial de pares (Dominio, Imagen):',
+            'no_autovalores': 'los valores de la siguiente lista no son autovalores de la matriz:' },
+    'en': { 'combinaciones':  'Linear combinations of',
+            'determinante':   'Value of the determinant:',
+            'pares':          'Initial system of pairs (Domain, Image):',
+            'no_autovalores': 'the values in the following list are not eigenvalues of the matrix:' },
+}
+
+idioma_en_uso = ['es']
+
+def idioma(codigo=None):
+    """Elige el idioma de los textos de salida ('es' o 'en')
+
+    Sin argumentos devuelve el idioma en uso. Solo afecta a las
+    representaciones de texto (no al código LaTeX, que no contiene
+    palabras, ni a los mensajes de error).
+
+    >>> idioma()
+    'es'
+    """
+    if codigo is None:
+        return idioma_en_uso[0]
+    if codigo not in TEXTOS_DE_SALIDA:
+        raise ValueError('Idiomas disponibles: ' + ', '.join(sorted(TEXTOS_DE_SALIDA)))
+    idioma_en_uso[0] = codigo
+
+def texto_de_salida(clave):
+    """Texto correspondiente a la clave en el idioma en uso"""
+    return TEXTOS_DE_SALIDA[idioma_en_uso[0]][clave]
+
 
 def filtradopasos(pasos):
     abv = pasos.abreviaturas if isinstance(pasos,T) else pasos
@@ -1870,7 +1903,7 @@ class Matrix(BlockM):
         def no_son_autovalores(A, L):
             no_son=[l for i,l in enumerate(L) if (D-l*I(D.n)).es_invertible()]
             if no_son:
-                print('los valores de la siguiente lista no son autovalores de la matriz:', no_son)
+                print(texto_de_salida('no_autovalores'), no_son)
                 return True
             else:
                 False
@@ -2053,7 +2086,7 @@ class Matrix(BlockM):
         def no_son_autovalores(A, L):
             no_son=[l for i,l in enumerate(L) if (D-l*I(D.n)).es_invertible()]
             if no_son:
-                print('los valores de la siguiente lista no son autovalores de la matriz:', no_son)
+                print(texto_de_salida('no_autovalores'), no_son)
                 return True
             else:
                 False
@@ -2850,7 +2883,7 @@ class Homogenea:
     
     def __repr__(self):
         """Muestra el Espacio Nulo de una matriz en su representación Python"""
-        return 'Combinaciones lineales de (' + repr(self.sgen) + ')'
+        return texto_de_salida('combinaciones') + ' (' + repr(self.sgen) + ')'
     
     def _repr_html_(self):
         """Construye la representación para el entorno Jupyter Notebook"""
@@ -2957,7 +2990,7 @@ class SEL:
     
     def __repr__(self):
         """Muestra el Espacio Nulo de una matriz en su representación Python"""
-        return repr(self.solP) + ' + Combinaciones lineales de (' + repr(self.sgen) + ')'
+        return repr(self.solP) + ' + ' + texto_de_salida('combinaciones') + ' (' + repr(self.sgen) + ')'
     
     def _repr_html_(self):
         """Construye la representación para el entorno Jupyter Notebook"""
@@ -3030,7 +3063,7 @@ class Determinante:
    
    def __repr__(self):
       """Muestra un Sistema en su representación Python"""
-      return 'Valor del determinante: ' + repr (self.valor)
+      return texto_de_salida('determinante') + ' ' + repr (self.valor)
    
    def _repr_html_(self):
       """Construye la representación para el entorno Jupyter Notebook"""
@@ -3426,7 +3459,7 @@ class FuncionLineal:
     
     def __repr__(self):
         """Muestra el Espacio Nulo de una matriz en su representación Python"""
-        return 'Sistema inicial de pares (Dominio, Imagen): ' + repr(self.pares)
+        return texto_de_salida('pares') + ' ' + repr(self.pares)
     
     def latex(self):
         """ Construye el comando LaTeX para la clase FuncionLineal"""
