@@ -91,6 +91,25 @@ make upload
 #+END_SRC
 
 
+* Instalación local de la versión de trabajo
+
+Para instalar en el ordenador la versión del repositorio (sin subirla a PyPI):
+
+1. Situar el repositorio en la rama que se quiere instalar (normalmente =master=). Si no se quiere
+   cambiar de rama, se puede extraer con =git archive master= a una carpeta temporal y copiar en
+   ella los ficheros =makefile= y =pyproject.toml= de este directorio (se generan a partir de este
+   documento y no están en git).
+2. Construir el paquete: =make -C empaquetadoPIP nacal= (borra y vuelve a crear =~/nacal=).
+3. Instalarlo. En Debian 12 =pip install --user= se niega a instalar fuera de un entorno virtual
+   (PEP 668), así que hay que indicarlo expresamente:
+
+#+BEGIN_EXAMPLE
+pip install --user --no-deps --break-system-packages ~/nacal/dist/nacal-X.Y.Z-py3-none-any.whl
+#+END_EXAMPLE
+
+La opción =--no-deps= evita que =pip= actualice =sympy= e =ipython=, que ya están instalados con
+los paquetes del sistema.
+
 \newpage
 
 * pyproject.toml
