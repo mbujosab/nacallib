@@ -3867,7 +3867,7 @@ def GS(self):
 ***** Rango de una Matrix
 
 El rango de una matriz es el número de columnas no nulas (el número de pivotes) de cualquiera de sus
-formas pre-escalonadas ({{{libro(section.5.2,Sección 5.2 del libro)}}}). Así que basta contar las columnas
+formas pre-escalonadas ({{{libro(target:RangoDeUnaMatriz,Sección 5.2 del libro)}}}). Así que basta contar las columnas
 no nulas de ~self.K()~.
 
 #+name: Rango de una Matrix
@@ -3902,7 +3902,7 @@ def es_invertible(self):
 ***** Cálculo de la matriz inversa
 
 El método ~inversa~ implementa el /Método para encontrar la inversa de una matriz/ de la
-{{{libro(subsection.5.1.4,Sección 5.1.4 del libro)}}}. Dicho método se apoya en que, al aplicar una secuencia
+{{{libro(target:InversaPorEliminacion,Sección 5.1.4 del libro)}}}. Dicho método se apoya en que, al aplicar una secuencia
 de transformaciones elementales a las columnas de la matriz que resulta de apilar \Mat{A} sobre la
 identidad, en la parte inferior queda registrada la matriz que ha realizado la transformación:
 \begin{displaymath}
@@ -3976,7 +3976,7 @@ de \Mat{A} es el producto $\Mat{C}\Mat{F}$.
 
 ***** Ejemplos de matrices inversas
 
-Usaremos la matriz de un ejemplo de la {{{libro(subsection.5.1.4,Sección 5.1.4 del libro)}}}.
+Usaremos la matriz de un ejemplo de la {{{libro(target:InversaPorEliminacion,Sección 5.1.4 del libro)}}}.
 
 #+BEGIN_SRC jupyter-python :exports code :results silent
 A = Matrix( [ [5,0], [2,-2] ] )
@@ -6189,7 +6189,7 @@ class EAfin:
 
 La clase ~Homogenea~ calcula el conjunto de soluciones de un sistema homogéneo \SEL{A}{x}{0}; es
 decir, el espacio nulo \nulls{A}. Implementa el procedimiento de la
-{{{libro(section.7.4,Sección 7.4 del libro)}}} (/Resolución de un Sistema Homogéneo por eliminación/).
+{{{libro(target:ResolucionSistemaHomogeneo,Sección 7.4 del libro)}}} (/Resolución de un Sistema Homogéneo por eliminación/).
 
 La idea es la misma que la del cálculo de la inversa: al pre-escalonar las columnas de la matriz que
 resulta de apilar \Mat{A} sobre la identidad se obtiene
@@ -6300,7 +6300,7 @@ def latex(self):
 
 *** Ejemplos de sistemas homogéneos
 
-Usaremos la matriz del ejemplo de la {{{libro(section.7.4,Sección 7.4 del libro)}}}.
+Usaremos la matriz del ejemplo de la {{{libro(target:ResolucionSistemaHomogeneo,Sección 7.4 del libro)}}}.
 
 #+BEGIN_SRC jupyter-python :exports code :results silent
 A = Matrix( [ [1,2,0,1], [0,1,1,0], [1,2,0,1] ] )
@@ -6377,7 +6377,7 @@ $$\left\{\ \begin{pmatrix}0\\ 0\end{pmatrix}\ \right\}$$
 ** Resolución de sistemas de ecuaciones lineales. La clase  ~SEL~ 
 
 La clase ~SEL~ resuelve el sistema \SEL{A}{x}{b} con el procedimiento de la
-{{{libro(section.8.1,Sección 8.1 del libro)}}} (/Eliminación sobre la matriz ampliada/), que reduce el
+{{{libro(target:EliminacionMatrizAmpliada,Sección 8.1 del libro)}}} (/Eliminación sobre la matriz ampliada/), que reduce el
 problema al caso homogéneo:
 \begin{displaymath}
   \Mat{A}\Vect{x}=\Vect{b}
@@ -6392,7 +6392,7 @@ columna del resultado:
 
 - Si su parte superior no es nula el sistema no tiene solución, pues la matriz ampliada tiene un
   pivote más que la matriz de coeficientes
-  ({{{libro(subsection.8.1.1,Teorema de Rouché-Frobenius)}}}).
+  ({{{libro(target:RoucheFrobenius,Teorema de Rouché-Frobenius)}}}).
 - Si su parte superior es nula, bajo ella hay un vector del espacio nulo de la matriz ampliada. Se
   divide la columna por su última componente para que esta sea un 1 (por eso el último paso es una
   transformación que normaliza la última columna), y el resto de componentes de la parte inferior
@@ -6569,7 +6569,7 @@ def latex(self):
 
 *** Ejemplos de sistemas de ecuaciones
 
-Usaremos el sistema de un ejemplo de la {{{libro(section.8.1,Sección 8.1 del libro)}}}.
+Usaremos el sistema de un ejemplo de la {{{libro(target:EliminacionMatrizAmpliada,Sección 8.1 del libro)}}}.
 
 #+BEGIN_SRC jupyter-python :exports code :results silent
 A = Matrix( [ [7,-2,0], [6,4,2] ] )
