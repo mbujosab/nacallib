@@ -16,6 +16,8 @@
 
 #+LATEX_CLASS: report
 #+LaTeX_HEADER: \usepackage{nacal}
+# Con LuaLaTeX o XeLaTeX (p.e. al exportar con scimax) hacen falta fuentes Unicode para « » ¡ ¿ º
+#+LaTeX_HEADER: \usepackage{iftex}\ifPDFTeX\else\usepackage{fontspec}\fi
 #+LATEX_HEADER: \usepackage[spanish]{babel}
 #+LaTeX_HEADER: \usepackage{pdfpages}
 #+LaTeX_HEADER: \usepackage{parskip}
