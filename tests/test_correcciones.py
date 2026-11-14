@@ -301,3 +301,15 @@ def test_extDiag_rechaza_lo_que_no_es_BlockM():
     with pytest.raises(ValueError):
         I(2).extDiag([3])
     assert I(1).extDiag(I(1)) == I(2)
+
+
+# --- regresión de la 0.3.0 detectada con el banco de pruebas del material (examen final de mayo de 2026)
+def test_SEL_con_sistemas_simbolicos():
+    u, h, p = (VectorSimbol(I(5)|i, n) for i, n in ((1, 'u'), (2, 'h'), (3, 'p')))
+    B = Sistema([u, h, p])
+    a = sympy.symbols(r'\alpha')
+    coordenadas = Matrix([Vector([1, 2, 0]), Vector([0, -1, 1]), Vector([1, a, 0])])
+    solucion = SEL(B*coordenadas, B*Vector([2, 1, 2]), sust=[(a, 1)])
+    assert solucion.solP == Vector([1, 2, 1])            # como con la versión 0.2.2
+    assert (u - u).es_nulo() and (2*u).no_es_nulo()
+    assert u.no_es_nulo() and not u.es_nulo() and u.no_es_nulo([(a, 1)])

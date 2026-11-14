@@ -2344,8 +2344,12 @@ class SistemaSimbol(BlockV):
         simbolo_latex = sympy.Symbol(r'\mathsf{0}', zero=True) if self.es_nulo() else  sympy.Symbol(r'\mathsf{'+str(letra)+'}')
         return letra, simbolo_latex
     
-    def es_nulo(self):
-        return self.sistema.es_nulo()
+    def es_nulo(self, sust=[]):
+        """Indica si es cierto que el sistema simbólico es nulo"""
+        # tras operar con el sistema simbólico, el sistema al que representa
+        # es el primer elemento de la lista (el atributo sistema no se actualiza)
+        sistema = self.lista[0] if hasattr(self, 'lista') else self.sistema
+        return CreaSistema(sistema).es_nulo(sust)
     
     def copy(self):
         """ Genera una copia de un SistemaSimbol """
