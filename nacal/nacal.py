@@ -420,7 +420,9 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='tra
         lineas = [''.join(eslabones[:por_linea+1])] + \
                  [''.join(eslabones[k:k+por_linea])
                   for k in range(por_linea+1, len(eslabones), por_linea)]
-        tex = '\\begin{aligned}' + '\\\\[1ex]'.join('&' + l for l in lineas) + '\\end{aligned}'
+        # el grupo vacío {} evita un error del paquete mathtools cuando
+        # tras \begin{aligned} van seguidos un & y un entorno array
+        tex = '\\begin{aligned}{}' + '\\\\[1ex]'.join('&' + l for l in lineas) + '\\end{aligned}'
     else:
         tex = ''.join(eslabones)
 

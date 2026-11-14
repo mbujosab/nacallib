@@ -24,6 +24,8 @@
 
 #+macro: URL [[https://github.com/mbujosab/nacallib]]
 # Enlace a una parte del libro: {{{libro(ancla del pdf,texto del enlace)}}}
+# Las anclas son los nombres de los \hypertarget del libro (no cambian al renumerar las secciones);
+# tests/test_enlaces_al_libro.py comprueba que existen.
 #+macro: libro [[https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf#$1][$2]]
 
 # +TOC: headlines 4
@@ -1526,7 +1528,7 @@ determinante o las diagonalizaciones) consisten en aplicar el método ~elim~ y l
 propio libro lo advierte al enunciar el teorema de /Eliminación/: «¡Prácticamente el resto del curso
 descansa sobre este teorema!».
 
-El método implementa las demostraciones de la {{{libro(section.4.2,Sección 4.2 del libro)}}}
+El método implementa las demostraciones de la {{{libro(target:EliminacionPorColumnas,Sección 4.2 del libro)}}}
 (/Eliminación por columnas/). Recordemos sus definiciones:
 
 - El /pivote/ de una columna no nula es su primer componente no nulo, y su /posición de pivote/ es
@@ -1542,22 +1544,22 @@ mediante una secuencia de transformaciones elementales de sus columnas:
 
 | Resultado del libro                 | Sección                                          | Matriz que se obtiene |
 |-------------------------------------+--------------------------------------------------+-----------------------|
-| Teorema de /Eliminación/            | {{{libro(subsection.4.2.1,4.2.1)}}} | pre-escalonada        |
-| Corolario /Eliminación gaussiana/   | {{{libro(subsection.4.2.2,4.2.2)}}} | escalonada            |
-| Corolario /Eliminación Gauss-Jordan/ | {{{libro(subsection.4.2.3,4.2.3)}}} | escalonada reducida   |
+| Teorema de /Eliminación/            | {{{libro(target:ElimIzdaDcha,4.2.1)}}} | pre-escalonada        |
+| Corolario /Eliminación gaussiana/   | {{{libro(target:EliminacionGaussiana,4.2.2)}}} | escalonada            |
+| Corolario /Eliminación Gauss-Jordan/ | {{{libro(targ:EliminacionGaussJordan,4.2.3)}}} | escalonada reducida   |
 
 Las tres demostraciones son constructivas (indican qué transformaciones hay que aplicar), así que
 programarlas es traducirlas a Python.
 
 El método ~elim~ pertenece a la clase ~Sistema~, y no a la subclase ~Matrix~, porque las
 transformaciones elementales actúan sobre cualquier sistema de vectores
-({{{libro(section.9.3,Sección 9.3)}}}). Basta generalizar la idea de pivote: el pivote de un
+({{{libro(target:TransfElementalesSistemas,Sección 9.3)}}}). Basta generalizar la idea de pivote: el pivote de un
 elemento del sistema es su primer componente no nulo, y si dicho componente es a su vez un
 ~Sistema~, se busca dentro de él su primer componente no nulo, y así sucesivamente (por eso los
 métodos ~primer_no_nulo~ y ~ultimo_no_nulo~ devuelven una lista de índices). De este modo el mismo
 código pre-escalona las columnas de una ~Matrix~, un ~Sistema~ de matrices (véase el ejemplo de la
 clase ~SEL~) o los sistemas «acoplados» de vectores de la
-{{{libro(subsection.9.5.1,Sección 9.5.1)}}}.
+{{{libro(target:SistemasAcoplados,Sección 9.5.1)}}}.
 
 **** El método ~elim~
 
@@ -1720,7 +1722,7 @@ es de derecha a izquierda, se usa el /último/ componente no nulo y se elimina e
 anteriores. Con la opción +2 se elimina en todos los elementos distintos del visitado.
 
 La eliminación por filas (opción +4) no necesita código propio. La
-{{{libro(section.alph3.4.Alph1,Sección 4.A del libro)}}} muestra que transformar las filas de
+{{{libro(target:TransfElementalesFilas,Sección 4.A del libro)}}} muestra que transformar las filas de
 una matriz es transformar las columnas de su transpuesta y volver a transponer, y eso es
 literalmente lo que se hace: se opera sobre la transpuesta =~self= y al final se deshace la
 transposición. Por eso esta opción exige que el sistema sea un arreglo rectangular.
@@ -1919,12 +1921,12 @@ lo mismo (se definen más adelante): ~Elim(A)~ es lo mismo que ~A.K()~.
 
 | Método | Variante     | Clase     | Resultado                               | Libro                                                |
 |--------+--------------+-----------+-----------------------------------------+------------------------------------------------------|
-| ~K()~  | ~elim(0)~    | ~Elim~    | una forma pre-escalonada                | {{{libro(subsection.4.2.1,4.2.1)}}}     |
-| ~L()~  | ~elim(20)~   | ~ElimG~   | una forma escalonada                    | {{{libro(subsection.4.2.2,4.2.2)}}}     |
-| ~R()~  | ~elim(32)~   | ~ElimGJ~  | la forma escalonada reducida            | {{{libro(subsection.4.2.3,4.2.3)}}}     |
-|        | ~elim(4)~    | ~ElimF~   | una forma pre-escalonada por filas      | {{{libro(section.alph3.4.Alph1,4.A)}}}  |
-| ~U()~  | ~elim(24)~   | ~ElimGF~  | una forma escalonada por filas          | {{{libro(subsection.alph3.4.Alph1.1,4.A.1)}}} |
-| ~UR()~ | ~elim(36)~   | ~ElimGJF~ | la forma escalonada reducida por filas  | {{{libro(subsection.alph3.4.Alph1.1,4.A.1)}}} |
+| ~K()~  | ~elim(0)~    | ~Elim~    | una forma pre-escalonada                | {{{libro(target:ElimIzdaDcha,4.2.1)}}}     |
+| ~L()~  | ~elim(20)~   | ~ElimG~   | una forma escalonada                    | {{{libro(target:EliminacionGaussiana,4.2.2)}}}     |
+| ~R()~  | ~elim(32)~   | ~ElimGJ~  | la forma escalonada reducida            | {{{libro(targ:EliminacionGaussJordan,4.2.3)}}}     |
+|        | ~elim(4)~    | ~ElimF~   | una forma pre-escalonada por filas      | {{{libro(target:TransfElementalesFilas,4.A)}}}  |
+| ~U()~  | ~elim(24)~   | ~ElimGF~  | una forma escalonada por filas          | {{{libro(target:MatrizEscalonadaPorFilas,4.A.1)}}} |
+| ~UR()~ | ~elim(36)~   | ~ElimGJF~ | la forma escalonada reducida por filas  | {{{libro(target:MatrizEscalonadaPorFilas,4.A.1)}}} |
 
 #+name: formas escalonadas
 #+BEGIN_SRC python
@@ -1953,7 +1955,7 @@ def UR(self,rep=0, sust=[], repsust=0):
 
 **** Ejemplos de eliminación
 
-Usaremos la matriz del ejemplo de la {{{libro(subsection.4.2.1,Sección 4.2.1 del libro)}}}.
+Usaremos la matriz del ejemplo de la {{{libro(target:ElimIzdaDcha,Sección 4.2.1 del libro)}}}.
 
 #+BEGIN_SRC jupyter-python :exports code :results silent
 A = Matrix( [ [0,2,2], [1,-2,-8], [1,1,1] ] )
@@ -2395,7 +2397,9 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='tra
         lineas = [''.join(eslabones[:por_linea+1])] + \
                  [''.join(eslabones[k:k+por_linea])
                   for k in range(por_linea+1, len(eslabones), por_linea)]
-        tex = '\\begin{aligned}' + '\\\\[1ex]'.join('&' + l for l in lineas) + '\\end{aligned}'
+        # el grupo vacío {} evita un error del paquete mathtools cuando
+        # tras \begin{aligned} van seguidos un & y un entorno array
+        tex = '\\begin{aligned}{}' + '\\\\[1ex]'.join('&' + l for l in lineas) + '\\end{aligned}'
     else:
         tex = ''.join(eslabones)
 

@@ -199,7 +199,7 @@ def test_desarrollo_por_lineas():
     for por_linea, lineas in [(1, 5), (2, 3), (3, 2), (5, 1), (9, 1)]:
         tex = desarrollo(E, por_linea=por_linea)
         assert tex.count('\\\\[1ex]') == lineas - 1
-        assert tex.replace('\\begin{aligned}&', '').replace('\\\\[1ex]&', '').replace('\\end{aligned}', '') == E.tex
+        assert tex.replace('\\begin{aligned}{}&', '').replace('\\\\[1ex]&', '').replace('\\end{aligned}', '') == E.tex
     with pytest.raises(ValueError):
         desarrollo(E, por_linea=0)
 
@@ -258,3 +258,22 @@ def test_idioma():
         idioma('es')
     assert [repr(SEL(A, b)), repr(Homogenea(A)), repr(Determinante(I(2)))] == en_espanol
     assert set(TEXTOS_DE_SALIDA['es']) == set(TEXTOS_DE_SALIDA['en'])
+
+
+def test_desarrollo_compila_con_mathtools(tmp_path):
+    """Con mathtools, \\begin{aligned}& seguido de un array no compila"""
+    import shutil, subprocess
+    if not shutil.which('pdflatex'):
+        pytest.skip('no hay pdflatex')
+    a, b, c, d = sympy.symbols('a b c d')
+    A = Matrix([[a, b], [c, d]])
+    S = SEL(Sistema([A**0, A]), A**2)
+    E = ElimGJ(Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]]))
+    formulas = [desarrollo(S, por_linea=1, compacto=1.5), desarrollo(E, por_linea=2),
+                desarrollo(E, por_linea=1, pasos=[2]), desarrollo(E, pasos=[], omitidos='puntos', compacto=True)]
+    for paquete in ('mathtools', 'amsmath'):
+        fuente = tmp_path / (paquete + '.tex')
+        fuente.write_text('\\documentclass{book}\\usepackage{' + paquete + '}\\begin{document}\\footnotesize\n'
+                          + '\n'.join('\\[' + f + '\\]' for f in formulas) + '\n\\end{document}\n', encoding='utf-8')
+        orden = ['pdflatex', '-interaction=batchmode', '-halt-on-error', fuente.name]
+        assert subprocess.run(orden, cwd=tmp_path, capture_output=True).returncode == 0, paquete
