@@ -7043,6 +7043,35 @@ print(dprint( H.sgen ))
 
 * La clase ~Determinante~. Cálculo del determinante por eliminación
 
+El determinante de una matriz triangular es el producto de los
+elementos de su diagonal principal. Por eso se puede calcular por
+eliminación: basta escalonar la matriz y multiplicar los elementos de
+la diagonal. Pero las transformaciones elementales que multiplican una
+columna por un número (y los intercambios de columnas) cambian el valor
+del determinante. Para no perder la cuenta se trabaja con la matriz
+extendida, que tiene una fila y una columna más con un 1 en la
+diagonal: cada vez que una transformación de las $n$ primeras columnas
+multiplica el determinante por un número, se divide la última fila por
+ese mismo número. Así el determinante de la matriz extendida no cambia
+y, al terminar, es el producto de los elementos de la diagonal. Es el
+procedimiento de la sección «Cálculo del determinante por eliminación
+Gaussiana» del libro.
+
+| Argumento | Significado                                                              |
+|-----------+--------------------------------------------------------------------------|
+| =data=    | matriz cuadrada                                                          |
+| =rep=     | si no es nulo, muestra el proceso en Jupyter (también se admite =disp=)  |
+| =sust=    | lista de sustituciones de símbolos que se aplican antes de calcular      |
+
+| Atributo | Contenido                                                                     |
+|----------+-------------------------------------------------------------------------------|
+| =valor=  | valor del determinante                                                        |
+| =tex=    | código \LaTeX{} del proceso sobre la matriz extendida                          |
+| =pasos=  | transformaciones aplicadas: =[de las filas, de las columnas]=                 |
+
+El método =determinante= de una =Matrix= devuelve directamente el
+valor: ~A.determinante()~ es lo mismo que ~Determinante(A).valor~.
+
 **** Método de inicialización
 
 #+name: Definición de la clase Determinante
@@ -7114,6 +7143,102 @@ def latex(self):
    return latex(self.valor)
 
 #+END_SRC
+
+
+*** Ejemplos de determinantes
+
+Usaremos la matriz del segundo ejemplo de la sección del libro citada
+más arriba.
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [0,2,1], [9,6,3], [0,1,1] ] )
+#+END_SRC
+
+El atributo ~tex~ muestra el proceso sobre la matriz extendida. Bajo
+cada flecha aparece la transformación de la última fila que compensa
+las de las columnas, que aparecen sobre la flecha:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( Determinante(A).tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc|c}0&2&1&0\\9&6&3&0\\0&1&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{9}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(3\right)\mathbf{2}\right]\\\left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(3\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&3&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{9}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&0&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{18}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}6&0&0&0\\0&9&0&0\\3&0&3&0\\ \hline 0&0&0&- \frac{1}{18}\\ \end{array} \right]$$
+
+El determinante es el producto de los elementos de la diagonal de la
+última matriz, y se guarda en el atributo ~valor~:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Determinante(A).valor ))
+#+END_SRC
+
+#+RESULTS:
+=-9=
+
+Con el método ~determinante~ se obtiene solo el valor:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( A.determinante() ))
+#+END_SRC
+
+#+RESULTS:
+=-9=
+
+En modo texto el objeto indica qué es (el rótulo depende del idioma de
+los textos de salida):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Determinante(A) ))
+#+END_SRC
+
+#+RESULTS:
+=Valor del determinante: -9=
+
+Si el desarrollo no cabe en una línea se puede partir con la función
+~desarrollo~, como cualquier otro proceso de eliminación:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( desarrollo(Determinante(A), por_linea=2) ))
+#+END_SRC
+
+#+RESULTS:
+$$\begin{aligned}{}&\left[ \begin{array}{ccc|c}0&2&1&0\\9&6&3&0\\0&1&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{9}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(3\right)\mathbf{2}\right]\\\left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(3\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&3&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{9}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&0&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{18}\\ \end{array} \right]\\[1ex]&\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}6&0&0&0\\0&9&0&0\\3&0&3&0\\ \hline 0&0&0&- \frac{1}{18}\\ \end{array} \right]\end{aligned}$$
+
+La matriz puede contener símbolos. El resultado es entonces una
+expresión
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+a = sympy.symbols('a')
+B = Matrix( [ [1,a], [a,4] ] )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Determinante(B).valor ))
+#+END_SRC
+
+#+RESULTS:
+=4 - a**2=
+
+y con ~sust~ se calcula para valores concretos de los símbolos:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Determinante(B, sust=[(a,2)]).valor ))
+#+END_SRC
+
+#+RESULTS:
+=0=
+
+Si la matriz no es cuadrada se produce un error:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+try:
+    Determinante( Matrix( [ [1,2,3], [4,5,6] ] ) )
+except ValueError as error:
+    print(dprint( error ))
+#+END_SRC
+
+#+RESULTS:
+=Matrix no cuadrada=
 
 
 * La clase ~FuncionLineal~
