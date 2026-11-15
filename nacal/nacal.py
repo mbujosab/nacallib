@@ -2864,6 +2864,11 @@ class SubEspacio:
         return self.cart*other.vec() == V0(self.cart.m)
             
     
+    def __repr__(self):
+        """Muestra el subespacio en su representación Python: la expresión
+        que lo crea a partir de un sistema generador"""
+        return 'SubEspacio(Sistema([' + ', '.join(repr(v) for v in self.sgen) + ']))'
+    
     def _repr_html_(self):
         """Construye la representación para el entorno Jupyter Notebook"""
         return html(self.latex())
@@ -2966,6 +2971,11 @@ class EAfin:
         """Devuelve el mayor SubEspacio perpendicular a self"""
         return SubEspacio( Sistema([v.reshape(self.Rn) for v in ~(self.S.cart)]))
     
+    
+    def __repr__(self):
+        """Muestra el espacio afín en su representación Python: la expresión
+        que lo crea a partir de un sistema generador del subespacio y un vector"""
+        return 'EAfin(Sistema([' + ', '.join(repr(v) for v in self.S.sgen) + ']), ' + repr(self.v) + ', 1)'
     
     def _repr_html_(self):
         """Construye la representación para el entorno Jupyter Notebook"""

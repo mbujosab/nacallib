@@ -6165,6 +6165,11 @@ def __contains__(self, other):
 #+name: Métodos de representación de la clase ~SubEspacio~
 #+BEGIN_SRC python :noweb no-export
 
+def __repr__(self):
+    """Muestra el subespacio en su representación Python: la expresión
+    que lo crea a partir de un sistema generador"""
+    return 'SubEspacio(Sistema([' + ', '.join(repr(v) for v in self.sgen) + ']))'
+
 def _repr_html_(self):
     """Construye la representación para el entorno Jupyter Notebook"""
     return html(self.latex())
@@ -6367,6 +6372,11 @@ def __invert__(self):
 
 #+name: Métodos de representación de la clase ~EAfin~
 #+BEGIN_SRC python
+
+def __repr__(self):
+    """Muestra el espacio afín en su representación Python: la expresión
+    que lo crea a partir de un sistema generador del subespacio y un vector"""
+    return 'EAfin(Sistema([' + ', '.join(repr(v) for v in self.S.sgen) + ']), ' + repr(self.v) + ', 1)'
 
 def _repr_html_(self):
     """Construye la representación para el entorno Jupyter Notebook"""
