@@ -4985,6 +4985,209 @@ class InvMatFC(Sistema):
 #+END_SRC
 # A.C * A.F es la inversa de A
 
+*** Diagonalización de matrices: resumen de los tres métodos
+
+El módulo diagonaliza matrices cuadradas de tres maneras. Las tres
+devuelven una ~Matrix~ (la matriz diagonal) que guarda en un atributo
+la matriz con la que se ha logrado.
+
+| Método                        | Matriz        | Resultado =D=                                 | Atributo | Relación                       |
+|-------------------------------+---------------+-----------------------------------------------+----------+--------------------------------|
+| =A.diagonalizaS(espectro)=    | cuadrada      | diagonal (o triangular por bloques) semejante | =S=      | $\Mat{S}^{-1}\Mat{A}\Mat{S}=\Mat{D}$ |
+| =A.diagonalizaO(espectro)=    | simétrica     | diagonal semejante                            | =Q=      | $\MatT{Q}\Mat{A}\Mat{Q}=\Mat{D}$, con \Mat{Q} ortogonal |
+| =A.diagonalizaC()=            | simétrica     | diagonal congruente                           | =B=      | $\MatT{B}\Mat{A}\Mat{B}=\Mat{D}$ |
+
+- *Por semejanza* (=diagonalizaS=). Hay que indicar el espectro: una
+  lista con los autovalores, cada uno repetido tantas veces como su
+  multiplicidad algebraica. Para cada autovalor $\lambda$ se resta
+  $\lambda\Mat{I}$, se anulan componentes con transformaciones
+  elementales de las columnas, se aplican a las filas las
+  transformaciones inversas «espejo» (para que la matriz siga siendo
+  semejante a la inicial) y se vuelve a sumar $\lambda\Mat{I}$. Las
+  columnas de =S= son autovectores. Si la matriz no es diagonalizable,
+  el resultado es triangular inferior por bloques, con un bloque por
+  cada autovalor.
+- *Ortogonalmente* (=diagonalizaO=). Solo para matrices simétricas, y
+  también requiere el espectro. Las columnas de =Q= son autovectores
+  de norma uno y perpendiculares entre sí. No guarda el desarrollo
+  (no tiene atributo =tex=).
+- *Por congruencia* (=diagonalizaC=). Solo para matrices simétricas.
+  No usa los autovalores: aplica a las filas las mismas
+  transformaciones que a las columnas. Los números de la diagonal no
+  son, en general, los autovalores, pero hay tantos positivos,
+  negativos y nulos como autovalores positivos, negativos y nulos. Por
+  defecto evita las fracciones; con ~variante=1~ no lo hace.
+
+En los dos métodos que usan el espectro, los autovalores aparecen en
+la diagonal en orden inverso al de la lista indicada, y el atributo
+=espectro= del resultado los guarda en el orden en que aparecen.
+
+| Argumento  | Métodos                          | Significado                                              |
+|------------+----------------------------------+----------------------------------------------------------|
+| =espectro= | =diagonalizaS=, =diagonalizaO=   | lista de autovalores (con sus multiplicidades)           |
+| =rep=      | =diagonalizaS=, =diagonalizaC=   | si no es nulo, muestra el proceso en Jupyter             |
+| =sust=     | los tres                         | lista de sustituciones de símbolos                       |
+| =variante= | =diagonalizaC=                   | si es 1 no evita las fracciones                          |
+
+Como con la eliminación, =diagonalizaS= y =diagonalizaC= guardan el
+proceso en el atributo =tex= y las transformaciones en =pasos=, =TrF=
+(filas) y =TrC= (columnas). Las clases =DiagonalizaS=, =DiagonalizaO=
+y =DiagonalizaC= (descritas más abajo) son otra manera de llamar a
+estos métodos: ~DiagonalizaS(A, espectro)~ es lo mismo que
+~A.diagonalizaS(espectro)~.
+
+Si la lista no contiene los autovalores de la matriz con sus
+multiplicidades, se produce un error que indica el motivo.
+
+**** Ejemplos de diagonalización
+
+Una matriz simétrica con autovalores 1 y 3:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [2,1], [1,2] ] )
+#+END_SRC
+
+Por semejanza, la matriz diagonal y la matriz de autovectores son
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+D = A.diagonalizaS( [1,3] )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( D ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}3&0\\0&1\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( D.S ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}\frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]$$
+
+y se verifica que $\Mat{S}^{-1}\Mat{A}\Mat{S}=\Mat{D}$:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( D.S.inversa() * A * D.S == D ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+El atributo ~tex~ muestra el proceso. Las flechas rotuladas con
+$(-)$ y $(+)$ indican que se resta o se suma el múltiplo de la
+identidad que aparece recuadrado; bajo la matriz se va formando =S=:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( desarrollo(D, por_linea=3) ))
+#+END_SRC
+
+#+RESULTS:
+$$\begin{aligned}{}&\left[ \begin{array}{cc}2&1\\1&2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow[\boxed{1\mathbf{I}}]{(-)}\left[ \begin{array}{cc}1&1\\1&1\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}2&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\boxed{1\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\1&1\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(-)}\left[ \begin{array}{cc}0&0\\1&-2\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}0&0\\0&-2\\ \hline \frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}0&0\\0&-2\\ \hline \frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\0&1\\ \hline \frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]\end{aligned}$$
+
+Ortogonalmente se obtiene la misma matriz diagonal, pero con una
+matriz ortogonal:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+O = A.diagonalizaO( [1,3] )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( O.Q ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}\frac{\sqrt{2}}{2}&- \frac{\sqrt{2}}{2}\\\frac{\sqrt{2}}{2}&\frac{\sqrt{2}}{2}\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( ~O.Q * A * O.Q == O ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+Por congruencia no hace falta conocer los autovalores. Los números de
+la diagonal no son los autovalores, pero ambos son positivos, como los
+autovalores:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+C = A.diagonalizaC()
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( C.tex ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}2&1\\1&2\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{2}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}2&0\\1&3\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(2\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}2&0\\0&6\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( C.B ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}1&-1\\0&2\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( ~C.B * A * C.B == C ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+Con ~variante=1~ no se evitan las fracciones:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( A.diagonalizaC(variante=1) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}2&0\\0&\frac{3}{2}\\ \end{array} \right]$$
+
+Una matriz que no es diagonalizable: el autovalor 2 tiene
+multiplicidad algebraica dos, pero solo una dirección de autovectores.
+El resultado es triangular por bloques:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+N = Matrix( [ [2,1,0], [0,2,0], [0,0,3] ] )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( N.diagonalizaS( [2,2,3] ) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}3&0&0\\0&2&0\\0&1&2\\ \end{array} \right]$$
+
+Si algún número de la lista no es un autovalor, se indica cuál y se
+produce un error:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+try:
+    A.diagonalizaS( [1,2] )
+except ValueError as error:
+    print(dprint( error ))
+#+END_SRC
+
+#+RESULTS:
+los valores de la siguiente lista no son autovalores de la matriz: [2]
+=quite de la lista los valores que no son autovalores=
+
+Y los métodos para matrices simétricas rechazan las que no lo son:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+try:
+    Matrix( [ [1,2], [3,4] ] ).diagonalizaC()
+except ValueError as error:
+    print(dprint( error ))
+#+END_SRC
+
+#+RESULTS:
+=La matriz no es simétrica=
+
+
 *** Subclases de ~Matrix~: ~DiagonalizaS~, ~DiagonalizaO~ y  ~DiagonalizaC~
        :PROPERTIES:
        :header-args+: :noweb-ref Definición de las subclases DiagonalizaX

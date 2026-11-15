@@ -25,6 +25,7 @@ SECCIONES = [
     '*** Ejemplos de subespacios',
     '*** Ejemplos de espacios afines',
     '**** Ejemplos de presentación de las fracciones',
+    '**** Ejemplos de diagonalización',
 ]
 
 PREAMBULO = '''
