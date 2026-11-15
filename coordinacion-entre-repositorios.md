@@ -1,4 +1,4 @@
-# Coordinación entre el libro, NAcAL, el material de clase y los vídeos
+# Coordinación entre el libro, NAcAL, el material de clase, los vídeos y los Notebooks
 
 Acordado con Marcos el 2026-11-14 y ampliado el 2026-11-15. Este
 fichero está copiado, con el mismo texto, en la raíz de estos
@@ -9,15 +9,16 @@ repositorios:
 - `MatematicasII-SRC`: las transparencias, los problemas y los
   exámenes de la asignatura.
 - `VideosMates2`: los vídeos, con sus guiones, subtítulos y fichas.
+- `NAcAL-Jupyter-Notebooks-SRC`: los Notebooks de Jupyter de cada
+  lección, en español y en inglés.
 
 Se revisan en paralelo, en sesiones distintas que no comparten
 memoria. Estas reglas sirven para que lo que dice uno sea coherente
 con lo que dicen los otros. Si se cambia este fichero, hay que cambiar
 todas las copias.
 
-Habrá un quinto actor: el repositorio de los Notebooks de Jupyter
-(`NAcAL-Jupyter-Notebooks-SRC`). Todavía no tiene sesión ni copia de
-este fichero. Cuando la tenga, su papel será mirar a todos los demás.
+Los Notebooks son el quinto actor, desde el 2026-11-15. Su papel es
+mirar a todos los demás.
 
 ## Regla 1: cada sesión solo edita su repositorio
 
@@ -53,8 +54,9 @@ Cuando dos repositorios no coinciden, esto decide cuál cambia:
   muestra. Un vídeo publicado no se puede cambiar; sí sus subtítulos y
   su ficha. Por eso, si el libro cambia algo que un vídeo publicado ya
   dice, hay que avisarlo antes de cambiar el libro.
-- **Los Notebooks, cuando entren, no mandan sobre nadie.** Siguen al
-  libro, a NAcAL, al material de clase y a los vídeos.
+- **Los Notebooks no mandan sobre nadie.** Siguen al libro, a NAcAL,
+  al material de clase y a los vídeos. Deciden lo suyo: qué ejemplos
+  y ejercicios se proponen para trabajar con el ordenador.
 - **Ante la duda, decide Marcos.**
 
 Una asimetría: el libro lo leen los alumnos y los vídeos enlazan a sus
@@ -69,7 +71,7 @@ libro y NAcAL y no hay error en el libro, se adapta NAcAL.
 - **Los vídeos miran al libro y a NAcAL.** El libro, al revisar una
   lección, mira los guiones de los vídeos publicados de esa lección,
   porque ya no se pueden cambiar.
-- **Los Notebooks, cuando entren, miran a todos los demás.**
+- **Los Notebooks miran a todos los demás.**
 
 Pero la información vuelve en los dos sentidos. Si al revisar una
 clase o al preparar un vídeo aparece un error del libro o de NAcAL, o
@@ -95,6 +97,9 @@ trabajo que ya se hace:
 - **Desde el material de clase:** al revisar una lección, comprobar
   sus transparencias, problemas y exámenes contra la lección del libro
   y contra la versión instalada de NAcAL.
+- **Desde los Notebooks:** al revisar los de una lección,
+  compararlos con la lección del libro, con sus vídeos y con la
+  versión de NAcAL que reciben los alumnos.
 - **Desde los vídeos:** al escribir un guion, comprobarlo contra la
   sección del libro que desarrolla y contra la versión de NAcAL con la
   que se genera el vídeo.
@@ -126,3 +131,30 @@ trabajo que ya se hace:
   `pythontex --rerun always --interpreter python:python3 <documento>.tex`
   o borrando antes esa carpeta. Vale para el libro y para el material
   de clase. (Añadido el 2026-11-15.)
+- **El libro enlaza con Notebooks concretos.** Los enlaces están en la
+  Lección 1 y apuntan a las carpetas `Esp/` y `Eng/` del repositorio
+  público de los Notebooks. No se renombran ni se mueven Notebooks sin
+  anotar antes el cambio para el libro. Ya ocurrió una vez y los
+  enlaces del libro dejaron de funcionar. (Añadido el 2026-11-15.)
+- **La versión de NAcAL que reciben los alumnos es la de PyPI**, que
+  es la que instalan `pip install nacal` y mybinder. Puede ser más
+  antigua que la instalada en el equipo de Marcos, con la que se
+  compilan el libro y el material de clase. El 2026-11-15 PyPI tenía
+  la 0.2.2 y el equipo de Marcos la 0.4.1. Lo que se enseñe a los
+  alumnos tiene que funcionar con la versión de PyPI. (Añadido el
+  2026-11-15.)
+- **Calendario para que la versión de PyPI y la del equipo de Marcos
+  coincidan al empezar el curso** (finales de enero de 2027). Acordado
+  con Marcos el 2026-11-15:
+  1. Noviembre: se cierra NAcAL 0.5.0 y se instala en el equipo de
+     Marcos.
+  2. Diciembre: el libro y el material de clase se compilan con ella;
+     lo que falle se anota como encargo en `nacallib`.
+  3. Primera quincena de enero: Marcos publica en PyPI esa versión ya
+     probada (o la que la corrija). Durante el curso no se cambia la
+     de PyPI salvo fallo grave.
+
+  Hasta que se publique, lo añadido después de la 0.2.2 (`desarrollo`,
+  `idioma`, `Polinomio`, `fracciones`, argumentos nuevos) puede usarse
+  en lo que compila Marcos (libro, transparencias, exámenes), pero no
+  en código que ejecuten los alumnos. (Añadido el 2026-11-15.)

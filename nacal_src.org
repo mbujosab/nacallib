@@ -47,7 +47,7 @@
 
 #+CALL: NombreEnChunksDeCodigo()
 
-#+macro: ver Versión:  0.4.1
+#+macro: ver Versión:  0.5.0
 
 #+name: __init__.py
 #+BEGIN_SRC python :tangle nacal/__init__.py
@@ -55,7 +55,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -7291,8 +7291,8 @@ diagonal: cada vez que una transformación de las $n$ primeras columnas
 multiplica el determinante por un número, se divide la última fila por
 ese mismo número. Así el determinante de la matriz extendida no cambia
 y, al terminar, es el producto de los elementos de la diagonal. Es el
-procedimiento de la sección «Cálculo del determinante por eliminación
-Gaussiana» del libro.
+procedimiento de la
+{{{libro(target:CalculoDeterminantePorEliminacion,sección «Cálculo del determinante por eliminación Gaussiana» del libro)}}}.
 
 | Argumento | Significado                                                              |
 |-----------+--------------------------------------------------------------------------|
