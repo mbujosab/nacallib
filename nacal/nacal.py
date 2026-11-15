@@ -29,14 +29,24 @@ def es_cero(x):
     return bool(simplificada == 0 or simplificada.is_zero)
 
 def racional(x):
-    """Convierte los números en coma flotante en racionales exactos
-    leyendo su escritura decimal (0.1 se convierte en 1/10). Cualquier 
-    otro objeto se devuelve sin cambios"""
+    """Convierte los números en coma flotante en racionales exactos:
+    en la fracción sencilla que coincide con el número (0.1 se convierte
+    en 1/10 y 1/3 en un tercio) o, si no la hay, leyendo su escritura
+    decimal. Cualquier otro objeto se devuelve sin cambios"""
+    def exacto(valor, escritura):
+        # una fracción sencilla que sea exactamente ese número en coma
+        # flotante (1/3 es Rational(1,3)); si no la hay, su escritura decimal
+        from fractions import Fraction
+        sencilla = Fraction(valor).limit_denominator(10**6)
+        if float(sencilla) == valor:
+            return sympy.Rational(sencilla.numerator, sencilla.denominator)
+        return sympy.Rational(escritura)
+
     if isinstance(x, float):
-        return sympy.Rational(repr(x)) if x == x and abs(x) != float('inf') else x
+        return exacto(x, repr(x)) if x == x and abs(x) != float('inf') else x
     elif isinstance(x, sympy.Basic) and not x.is_Rational and not x.is_Symbol:
         flotantes = x.atoms(sympy.Float)
-        return x.xreplace({f: sympy.Rational(str(f)) for f in flotantes}) if flotantes else x
+        return x.xreplace({f: exacto(float(f), str(f)) for f in flotantes}) if flotantes else x
     else:
         return x
         

@@ -314,3 +314,18 @@ def test_SEL_con_sistemas_simbolicos():
     assert solucion.solP == Vector([1, 2, 1])            # como con la versión 0.2.2
     assert (u - u).es_nulo() and (2*u).no_es_nulo()
     assert u.no_es_nulo() and not u.es_nulo() and u.no_es_nulo([(a, 1)])
+
+
+def test_fracciones_escritas_como_division_de_python():
+    """1/3 en Python es un float; se convierte en un tercio, no en su escritura decimal"""
+    R = sympy.Rational
+    assert Vector([1/3, 2/3, 1/7]).lista == [R(1, 3), R(2, 3), R(1, 7)]
+    assert (1/3) * Vector([3, 6]) == Vector([1, 2])
+    assert Matrix([[1/3, 1], [1, 3]]).rango() == 1
+    assert racional(sympy.Float(1/3) * sympy.Symbol('a')) == sympy.Symbol('a') / 3
+    # los decimales exactos siguen igual
+    assert Vector([0.1, 0.999, 2.25, 0.75]).lista == [R(1, 10), R(999, 1000), R(9, 4), R(3, 4)]
+    assert racional(0.1234567) == R(1234567, 10**7)
+    # sin fracción sencilla se lee la escritura decimal, como antes
+    assert racional(2**0.5) == R('1.4142135623730951')
+    assert racional(0.1 + 0.2) == R('0.30000000000000004')
