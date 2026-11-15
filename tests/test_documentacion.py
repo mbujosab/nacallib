@@ -22,6 +22,8 @@ SECCIONES = [
     '*** Ejemplo: combinaciones lineales de matrices',
     '*** Ejemplo: combinaciones lineales de polinomios',
     '*** Ejemplos de determinantes',
+    '*** Ejemplos de subespacios',
+    '*** Ejemplos de espacios afines',
 ]
 
 PREAMBULO = '''

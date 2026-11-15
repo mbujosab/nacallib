@@ -5850,75 +5850,178 @@ El conjunto de vectores \Vect{x} que resuelven el sistema
 \SEL{A}{x}{0} es un subespacio de \R[n]; y el conjunto de vectores
 \Vect{x} que resuelven el sistema \SEL{A}{x}{b} con
 $\Vect{b}\ne\Vect{0}$ es un espacio afín de \R[n]. En este capítulo
-vamos a definir objetos que representen estos subconjuntos de \R[n].
+vamos a definir objetos que representen estos subconjuntos de \R[n]
+(véase la {{{libro(SubEspacio,definición de subespacio en el libro)}}}).
 
-\section{La clase ~SubEspacio~ (de \R[m])} La clase ~SubEspacio~ se
-puede instanciar tanto con un ~Sistema~ de ~Vectores~ como con una
-~Matrix~.
+Un subespacio se puede describir de dos maneras, y la clase
+~SubEspacio~ se puede instanciar con cualquiera de ellas:
 
-En el primer caso, dado un ~Sistema~ de vectores, por ejemplo
-\begin{displaymath}
-  S=
-  \left[
-    \begin{pmatrix}0\\1\\0\end{pmatrix};\;
-    \begin{pmatrix}2\\1\\3\end{pmatrix};\;
-    \begin{pmatrix}2\\10\\3\end{pmatrix}
-  \right],
-\end{displaymath}
-=SubEspacio( S )= corresponde al conjunto de combinaciones lineales de
-los ~Vectores~ de dicho ~Sistema~, representado por las siguientes
-ecuaciones /paramétricas/:
-\begin{displaymath}
-  \left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{bmatrix}0&2\\1&0\\0&3\end{bmatrix}\boldsymbol{p}\right. \right\}\; 
-\end{displaymath}
-donde el vector \Vect{p} es el vector de parámetros.  En el segundo
-caso, dada una ~Matrix~, por ejemplo
-\begin{displaymath}
-  \;\Mat{M}=\begin{bmatrix}-3&0&2\\6&0&-4\end{bmatrix},\;
-\end{displaymath}
-=SubEspacio( M )= corresponde al conjunto de ~Vectores~ que son
-solución al sistema de ecuaciones
-\begin{math}
-  \;\MV{M}{v}=\Vect{0};\;
-\end{math}
-y que se puede representar con el sistema de ecuaciones /cartesianas/:
-\begin{displaymath}
-  \left\{
-    \boldsymbol{v}\in\mathbb{R}^3\
-    \left|
-      \ \begin{bmatrix}-3&0&2\end{bmatrix}\boldsymbol{v}=\boldsymbol{0}
-    \right\}
-  \right.
-\end{displaymath}
-En ambos ejemplos corresponden al mismo subespacio de \R[3]; y, de
-hecho, la librería muestra ambos tipos de representación para cada
-~SubEspacio~: las ecuaciones paramétricas a la izquierda y las
-cartesianas a la derecha.
-\begin{displaymath}
-  \left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{bmatrix}0&2\\1&0\\0&3\end{bmatrix}\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \begin{bmatrix}-3&0&2\end{bmatrix}\boldsymbol{v}=\boldsymbol{0}\right.\right\}
-\end{displaymath}
-~SubEspacio~ tiene varios atributos.
-- ~dim~: dimensión del subespacio. En el ejemplo =dim=2=.
-- ~Rn~: indica el espacio vectorial \R[n] al que pertenece
-  =SubEspacio(S)=. En el ejemplo anterior =Rn=3= puesto que es un
-  subespacio de \R[3].
-- ~base~: una base del subespacio (un ~Sistema~ de ~Vectores~ de
-  ~Rn~). Cuando ~dim==0~ base es un ~Sistema~ vacío.
-- ~sgen~: Un ~Sistema~ de ~Vectores~ generador del subespacio. En
-  particular será el sistema de vectores correspondiente a la ~Matrix~
-  de coeficientes empleada en la representación con ecuaciones
-  paramétricas. En el ejemplo Cuando ~dim==0~, ~sgen~ contiene un
-  vector nulo de ~Rm~ componentes.
-  \begin{displaymath}
-    \left[\begin{pmatrix}0\\1\\0\end{pmatrix};\;\begin{pmatrix}2\\0\\3\end{pmatrix};\right]
-  \end{displaymath}
-- ~cart~: ~Matrix~ de coeficientes empleada en la representación con
-  las ecuaciones cartesianas. En el ejemplo
-  \begin{displaymath}
-    \begin{bmatrix}
-      -3 & 0 & 2
-    \end{bmatrix}.
-  \end{displaymath}
+- con un ~Sistema~ de ~Vectores~: =SubEspacio(S)= es el conjunto de
+  las combinaciones lineales de los vectores de =S= (ecuaciones
+  /paramétricas/);
+- con una ~Matrix~: =SubEspacio(M)= es el conjunto de las soluciones
+  del sistema homogéneo \SEL{M}{v}{0} (ecuaciones /cartesianas/).
+
+Sea cual sea la manera de crearlo, el objeto guarda las dos
+descripciones, y su representación muestra las ecuaciones paramétricas
+a la izquierda y las cartesianas a la derecha. Los métodos ~span~ y
+~espacio_nulo~ de un ~Sistema~ devuelven estos mismos objetos:
+=S.span()= es =SubEspacio(S)= y =M.espacio_nulo()= es =SubEspacio(M)=.
+
+| Atributo | Contenido                                                                              |
+|----------+----------------------------------------------------------------------------------------|
+| =dim=    | dimensión del subespacio                                                               |
+| =Rn=     | número de componentes de sus vectores (es un subespacio de \R[n])                      |
+| =base=   | una base (~Sistema~ de ~Vectores~); es un ~Sistema~ vacío si la dimensión es cero       |
+| =sgen=   | sistema generador de las ecuaciones paramétricas; si la dimensión es cero, el vector nulo |
+| =cart=   | ~Matrix~ de coeficientes de las ecuaciones cartesianas                                 |
+
+| Expresión             | Resultado                                                    |
+|-----------------------+--------------------------------------------------------------|
+| =v in A=              | indica si el vector =v= pertenece al subespacio =A=          |
+| =A == B=, =A != B=    | indica si son (o no son) el mismo subespacio                 |
+| =A.contenido_en(B)=   | indica si =A= es un subconjunto de =B=                       |
+| =A + B=               | suma de subespacios                                          |
+| =A & B=               | intersección                                                 |
+| =~A=                  | complemento ortogonal (el mayor subespacio perpendicular)    |
+| =A.EcParametricas()=  | código \LaTeX{} de las ecuaciones paramétricas               |
+| =A.EcCartesianas()=   | código \LaTeX{} de las ecuaciones cartesianas                |
+
+*** Ejemplos de subespacios
+
+El subespacio generado por un sistema de tres vectores de \R[3]:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+S = Sistema( [ Vector([0,1,0]), Vector([2,1,3]), Vector([2,10,3]) ] )
+A = SubEspacio(S)
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( A ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \left[ \begin{array}{cc}0&2\\1&1\\0&3\\ \end{array} \right]\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}-3&0&2\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}0,\end{pmatrix}\right.\right\}$$
+
+El tercer vector de =S= es combinación lineal de los otros dos, así
+que la dimensión es dos y el sistema generador que guarda el objeto
+solo tiene dos vectores:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( A.dim ))
+#+END_SRC
+
+#+RESULTS:
+=2=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( A.sgen ))
+#+END_SRC
+
+#+RESULTS:
+=[(0, 1, 0,); (2, 1, 3,);]=
+
+La matriz de las ecuaciones cartesianas es
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( A.cart ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}-3&0&2\\ \end{array} \right]$$
+
+El mismo subespacio se obtiene como conjunto de soluciones de un
+sistema homogéneo, es decir, a partir de una matriz:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+M = Matrix( [ [-3,0,2], [6,0,-4] ] )
+B = SubEspacio(M)
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( A == B ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+En modo texto se muestra la expresión que crea el subespacio a partir
+de su sistema generador:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( B ))
+#+END_SRC
+
+#+RESULTS:
+=SubEspacio(Sistema([Vector([0, 1, 0]), Vector([2, 0, 3])]))=
+
+Para saber si un vector pertenece al subespacio se usa ~in~:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Vector([2,5,3]) in A ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Vector([1,0,0]) in A ))
+#+END_SRC
+
+#+RESULTS:
+=False=
+
+El complemento ortogonal de =A= es la recta generada por la fila de la
+matriz de las ecuaciones cartesianas:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( ~A ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^1,\; \boldsymbol{v}= \left[ \begin{array}{c}-3\\0\\2\\ \end{array} \right]\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}0&1&0\\2&0&3\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}0\\ 0\end{pmatrix}\right.\right\}$$
+
+Con otro subespacio =C= (una recta que no está contenida en =A=)
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+C = SubEspacio( Sistema( [ Vector([1,0,0]) ] ) )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( C.contenido_en(A) ))
+#+END_SRC
+
+#+RESULTS:
+=False=
+
+la intersección solo contiene el vector nulo
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( A & C ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{\ \begin{pmatrix}0\\ 0\\ 0\end{pmatrix}\ \right\}$$
+
+y la suma es todo \R[3]:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( (A + C).dim ))
+#+END_SRC
+
+#+RESULTS:
+=3=
+
+Las ecuaciones paramétricas o las cartesianas se pueden obtener por
+separado:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(displaymath( A.EcCartesianas() ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}-3&0&2\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}0,\end{pmatrix}\right.\right\}$$
+
 
 *** Implementación de ~SubEspacio~
 
@@ -6210,6 +6313,138 @@ El conjunto de soluciones de un sistema de ecuaciones homogéneo
 \SEL{A}{x}{0} forma un subespacio (que llamamos espacio nulo
 \nulls{A}), pero el conjunto de soluciones de \SEL{A}{x}{b} cuando
 $\Vect{b}\ne\Vect{0}$ es un \emph{espacio afín}.
+
+Un espacio afín es el conjunto de vectores que se obtienen sumando un
+vector fijo a cada vector de un subespacio. =EAfin(S, v)= es el
+espacio afín que resulta de sumar el vector =v= a los vectores del
+subespacio generado por el ~Sistema~ =S= (el primer argumento también
+puede ser un ~SubEspacio~). El atributo ~eafin~ del resultado de ~SEL~
+es el espacio afín de las soluciones del sistema de ecuaciones.
+
+| Atributo | Contenido                                                                  |
+|----------+----------------------------------------------------------------------------|
+| =S=      | el ~SubEspacio~ cuyos vectores se suman al vector fijo                     |
+| =v=      | un vector del espacio afín                                                 |
+| =Rn=     | número de componentes de sus vectores                                      |
+
+Hay muchos vectores que sirven como vector fijo. Para que dos
+descripciones del mismo espacio afín den el mismo objeto, el atributo
+=v= no es el vector indicado al crearlo, sino uno elegido por
+eliminación. Si se quiere conservar el vector indicado hay que añadir
+un tercer argumento no nulo: =EAfin(S, v, 1)=.
+
+| Expresión             | Resultado                                                          |
+|-----------------------+--------------------------------------------------------------------|
+| =v in E=              | indica si el vector =v= pertenece al espacio afín =E=              |
+| =E == F=, =E != F=    | indica si son (o no son) el mismo espacio afín                     |
+| =E.contenido_en(F)=   | indica si =E= es un subconjunto de =F=                             |
+| =E & F=               | intersección (con otro espacio afín o con un subespacio)           |
+| =~E=                  | complemento ortogonal del subespacio =E.S=                         |
+| =E.EcParametricas()=  | código \LaTeX{} de las ecuaciones paramétricas                     |
+| =E.EcCartesianas()=   | código \LaTeX{} de las ecuaciones cartesianas                      |
+
+*** Ejemplos de espacios afines
+
+Sumamos un vector al subespacio de los ejemplos anteriores:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+S = Sistema( [ Vector([0,1,0]), Vector([2,1,3]) ] )
+E = EAfin( S, Vector([1,1,1]) )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( E ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{pmatrix}0\\ 0\\ - \frac{1}{2}\end{pmatrix}+\left[ \begin{array}{cc}0&2\\1&1\\0&3\\ \end{array} \right]\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}-3&0&2\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}-1,\end{pmatrix}\right.\right\}$$
+
+El vector que aparece en las ecuaciones paramétricas no es el que
+hemos indicado, pero ambos pertenecen al espacio afín:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( E.v ))
+#+END_SRC
+
+#+RESULTS:
+=(0, 0, -1/2,)=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Vector([1,1,1]) in E ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+Por eso, al crear el mismo espacio afín con otro de sus vectores se
+obtiene un objeto igual:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( E == EAfin( S, Vector([1,5,1]) ) ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+En modo texto se muestra la expresión que crea el espacio afín (con el
+tercer argumento que conserva el vector):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( E ))
+#+END_SRC
+
+#+RESULTS:
+=EAfin(Sistema([Vector([0, 1, 0]), Vector([2, 1, 3])]), Vector([0, 0, -1/2]), 1)=
+
+Un espacio afín que no es un subespacio no contiene el vector nulo:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( V0(3) in E ))
+#+END_SRC
+
+#+RESULTS:
+=False=
+
+La intersección con una recta que no es paralela a =E= es un punto:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+F = EAfin( Sistema( [ Vector([1,0,0]) ] ), Vector([0,0,1]) )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( E & F ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{\ \begin{pmatrix}1\\ 0\\ 1\end{pmatrix}\ \right\}$$
+
+y la intersección con un espacio afín paralelo y distinto es el
+conjunto vacío:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+G = EAfin( S, Vector([2,0,1]) )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( E & G ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{\right\}$$
+
+El conjunto de soluciones de un sistema de ecuaciones es un espacio
+afín, que se guarda en el atributo ~eafin~ del resultado de ~SEL~:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+M = Matrix( [ [-3,0,2], [6,0,-4] ] )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( SEL( M, Vector([3,-6]) ).eafin ))
+#+END_SRC
+
+#+RESULTS:
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{pmatrix}-1\\ 0\\ 0\end{pmatrix}+\left[ \begin{array}{cc}0&2\\1&0\\0&3\\ \end{array} \right]\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}-3&0&2\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}3,\end{pmatrix}\right.\right\}$$
 
 
 *** Implementación de ~EAfin~
