@@ -1,17 +1,23 @@
-# Coordinación entre el libro, NAcAL y el material de clase
+# Coordinación entre el libro, NAcAL, el material de clase y los vídeos
 
-Acordado con Marcos el 2026-11-14. Este fichero está copiado, con el
-mismo texto, en la raíz de los tres repositorios:
+Acordado con Marcos el 2026-11-14 y ampliado el 2026-11-15. Este
+fichero está copiado, con el mismo texto, en la raíz de estos
+repositorios:
 
 - `CursoDeAlgebraLineal-SRC`: el libro.
 - `nacallib`: el módulo NAcAL de Python y su documentación.
 - `MatematicasII-SRC`: las transparencias, los problemas y los
   exámenes de la asignatura.
+- `VideosMates2`: los vídeos, con sus guiones, subtítulos y fichas.
 
-Los tres se revisan en paralelo, en sesiones distintas que no
-comparten memoria. Estas reglas sirven para que lo que dice uno sea
-coherente con lo que dicen los otros. Si se cambia este fichero, hay
-que cambiar las tres copias.
+Se revisan en paralelo, en sesiones distintas que no comparten
+memoria. Estas reglas sirven para que lo que dice uno sea coherente
+con lo que dicen los otros. Si se cambia este fichero, hay que cambiar
+todas las copias.
+
+Habrá un quinto actor: el repositorio de los Notebooks de Jupyter
+(`NAcAL-Jupyter-Notebooks-SRC`). Todavía no tiene sesión ni copia de
+este fichero. Cuando la tenga, su papel será mirar a todos los demás.
 
 ## Regla 1: cada sesión solo edita su repositorio
 
@@ -41,6 +47,14 @@ Cuando dos repositorios no coinciden, esto decide cuál cambia:
   suyo: qué cabe en una hora de exposición, en qué orden se cuenta en
   el aula y qué ejercicios se proponen. Una diferencia de orden con el
   libro justificada por el tiempo de clase no es una incoherencia.
+- **Los vídeos tampoco mandan sobre el libro ni sobre NAcAL.** Siguen
+  al libro en notación, términos y numeración de secciones, y a NAcAL
+  en el código. Deciden lo suyo: el guion, el ritmo y lo que se
+  muestra. Un vídeo publicado no se puede cambiar; sí sus subtítulos y
+  su ficha. Por eso, si el libro cambia algo que un vídeo publicado ya
+  dice, hay que avisarlo antes de cambiar el libro.
+- **Los Notebooks, cuando entren, no mandan sobre nadie.** Siguen al
+  libro, a NAcAL, al material de clase y a los vídeos.
 - **Ante la duda, decide Marcos.**
 
 Una asimetría: el libro lo leen los alumnos y los vídeos enlazan a sus
@@ -52,13 +66,20 @@ libro y NAcAL y no hay error en el libro, se adapta NAcAL.
 - **El libro y NAcAL se miran el uno al otro.**
 - **El material de clase mira a los dos**, y ellos no tienen el
   encargo de mirarlo a él.
+- **Los vídeos miran al libro y a NAcAL.** El libro, al revisar una
+  lección, mira los guiones de los vídeos publicados de esa lección,
+  porque ya no se pueden cambiar.
+- **Los Notebooks, cuando entren, miran a todos los demás.**
 
 Pero la información vuelve en los dos sentidos. Si al revisar una
-clase aparece un error del libro o de NAcAL, o una explicación de
-clase que funciona mejor que la del libro, se anota:
+clase o al preparar un vídeo aparece un error del libro o de NAcAL, o
+una explicación que funciona mejor que la del libro, se anota:
 
 - para el libro, en
-  `CursoDeAlgebraLineal-SRC/PendientesDesdeLasClases.org`;
+  `CursoDeAlgebraLineal-SRC/PendientesDesdeLasClases.org` si viene de
+  las clases y en
+  `CursoDeAlgebraLineal-SRC/PendientesDesdeLosVideos.org` si viene de
+  los vídeos;
 - para NAcAL, en un fichero de encargo en `nacallib`.
 
 ## Cuándo mirar
@@ -74,6 +95,9 @@ trabajo que ya se hace:
 - **Desde el material de clase:** al revisar una lección, comprobar
   sus transparencias, problemas y exámenes contra la lección del libro
   y contra la versión instalada de NAcAL.
+- **Desde los vídeos:** al escribir un guion, comprobarlo contra la
+  sección del libro que desarrolla y contra la versión de NAcAL con la
+  que se genera el vídeo.
 
 ## Comprobaciones que no dependen de la memoria de nadie
 
@@ -93,3 +117,12 @@ trabajo que ya se hace:
 - La instalación de NAcAL en el equipo de Marcos la usan el libro y el
   material de clase. Se instala una versión cerrada, no una copia de
   trabajo.
+- **PythonTeX guarda los resultados y no vuelve a ejecutar el código
+  si su texto no ha cambiado.** Los guarda en la carpeta auxiliar
+  `pythontex-files-<documento>`. Por eso, tras cambiar de versión de
+  NAcAL, una compilación normal no comprueba nada: reutiliza las
+  salidas de la versión anterior. Para comprobar un documento con una
+  versión nueva hay que forzar la ejecución, con
+  `pythontex --rerun always --interpreter python:python3 <documento>.tex`
+  o borrando antes esa carpeta. Vale para el libro y para el material
+  de clase. (Añadido el 2026-11-15.)
