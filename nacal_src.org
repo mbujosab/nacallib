@@ -1631,7 +1631,6 @@ def elim(self, variante=0, rep=False, sust=[], repsust=False):
     >>> A.elim().TrC  # transformaciones aplicadas a las columnas
     T([(2, 1, 2), (8, 1, 3), (-1, 2, 3)])
     """
-    <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
     <<Métodos auxiliares de la variante de eliminación>>
     <<Reducción con un pivote>>
     <<Normalización de los pivotes>>
@@ -2153,31 +2152,65 @@ vacío, la escritura comienza con la representación de =data=. A la
 hora de representar los pasos hay que tener en cuenta si se dan sobre
 las filas (~l==0~) o sobre las columnas (~l==1~). 
 
+Las funciones que escriben un desarrollo no devuelven una cadena
+corriente, sino un =TexDesarrollo=: una cadena (se usa exactamente
+igual que cualquier otra y su contenido es el código \LaTeX{} de
+siempre) que además recuerda de qué eslabones está hecha, es decir, la
+lista =[sistema, flecha, sistema, ..., flecha, sistema]=. Así, la
+función =desarrollo= puede recomponer el código sin tener que
+analizarlo. Si el desarrollo continúa un código previo que es una
+cadena corriente (por ejemplo, uno escrito a mano), sus eslabones se
+obtienen analizándolo, y solo cuando se piden.
+
+#+name: Cadena con el código de un desarrollo que recuerda sus eslabones
+#+BEGIN_SRC python
+
+class TexDesarrollo(str):
+    """Código LaTeX de un desarrollo que recuerda sus eslabones
+
+    Es una cadena formada por un código previo seguido de nuevos
+    eslabones [flecha, sistema, flecha, sistema, ...]. El atributo
+    trozos es la lista [sistema, flecha, sistema, ..., flecha, sistema]
+    de todo el desarrollo."""
+    def __new__(cls, previo, eslabones=()):
+        eslabones = list(eslabones)
+        self = super().__new__(cls, previo + ''.join(eslabones))
+        self._previo, self._eslabones = previo, eslabones
+        return self
+
+    @property
+    def trozos(self):
+        previo = self._previo
+        return (previo.trozos if isinstance(previo, TexDesarrollo)
+                else trozos_del_desarrollo(previo)) + self._eslabones
+
+#+END_SRC
+
 #+name: Representación de un proceso de eliminación rprElim
 #+BEGIN_SRC python
 
 def rprElim(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos sistemas"""
     A     = data.fullcopy().subs(sust)
-    tex   = latex(A) if not TexPasosPrev else TexPasosPrev
+    previo, nuevos = (latex(A) if not TexPasosPrev else TexPasosPrev), []
 
     simplifica = lambda metodo,expresion: metodo(expresion) 
     
     # transformaciones por la izquierda
     for  _,pasoDeEliminacion in enumerate(pasos[0][::-1]):
         if data.es_arreglo_rectangular(): # entonces transforman las filas
-            tex += '\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}' 
-            tex += latex( simplifica(metodo, ((pasoDeEliminacion & A).subs(sust)) ) )
+            nuevos.append('\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}')
+            nuevos.append(latex( simplifica(metodo, ((pasoDeEliminacion & A).subs(sust)) ) ))
         else:  # hacen lo mismo que por la derecha
-            tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-            tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
+            nuevos.append('\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}')
+            nuevos.append(latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) ))
         
     # transformaciones por la derecha
     for  _,pasoDeEliminacion in enumerate(pasos[1]):
-        tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-        tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
+        nuevos.append('\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}')
+        nuevos.append(latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) ))
                 
-    return tex
+    return TexDesarrollo(previo, nuevos)
 
 #+END_SRC
 
@@ -2192,17 +2225,17 @@ def rprElimCF(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
         raise ValueError('Esta representación requiere el mismo número de pasos por la izquierda y la derecha')
     
     A = data.fullcopy().subs(sust)                                                               
-    tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    previo, nuevos = (latex(data) if not TexPasosPrev else TexPasosPrev), []
 
     simplifica = lambda metodo,expresion: metodo(expresion)
     
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
-        tex += '\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}'
-        tex += latex( simplifica(metodo, ((A & pasos[1][i]).subs(sust))) )
-        tex += '\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}' 
-        tex += latex( simplifica(metodo, ((pasoDeEliminacionFilas & A).subs(sust))) )
+        nuevos.append('\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}')
+        nuevos.append(latex( simplifica(metodo, ((A & pasos[1][i]).subs(sust))) ))
+        nuevos.append('\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}')
+        nuevos.append(latex( simplifica(metodo, ((pasoDeEliminacionFilas & A).subs(sust))) ))
                                                                
-    return tex
+    return TexDesarrollo(previo, nuevos)
 
 #+END_SRC
 
@@ -2217,17 +2250,17 @@ def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
         raise ValueError('Esta representación requiere el mismo número de pasos por la izquierda y la derecha')
     
     A = data.fullcopy().subs(sust)
-    tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    previo, nuevos = (latex(data) if not TexPasosPrev else TexPasosPrev), []
 
     simplifica = lambda metodo,expresion: metodo(expresion) 
     
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
-        tex += '\\xrightarrow' \
+        nuevos.append('\\xrightarrow' \
                 + '[' + latex( (filtradopasos(pasoDeEliminacionFilas)).subs(sust) ) + ']' \
-                + '{' + latex( (pasos[1][i]).subs(sust)                           ) + '}'
-        tex += latex( simplifica(metodo, (( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust)) )
+                + '{' + latex( (pasos[1][i]).subs(sust)                           ) + '}')
+        nuevos.append(latex( simplifica(metodo, (( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust)) ))
                                                                
-    return tex
+    return TexDesarrollo(previo, nuevos)
 
 #+END_SRC
 
@@ -2373,7 +2406,7 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='tra
     1
     """
     tex    = objeto if isinstance(objeto, str) else objeto.tex
-    trozos = trozos_del_desarrollo(tex)
+    trozos = tex.trozos if isinstance(tex, TexDesarrollo) else trozos_del_desarrollo(tex)
     sistemas, flechas = trozos[0::2], trozos[1::2]
 
     if pasos is not None:
@@ -4878,7 +4911,6 @@ class InvMat(Sistema):
            muestran en Jupyter los pasos dados
 
         """
-        <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
         A = sistema.subs(sust).inversa()
         A.tex, A.pasos = texYpasos(sistema.apila(I(sistema.n),1), A.pasos, rep, sust, repsust)
         A.TrF = A.pasos[0]
@@ -4898,7 +4930,6 @@ class InvMatF(Sistema):
            muestran en Jupyter los pasos dados
 
         """
-        <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
 
         if not sistema.es_cuadrada():
             raise ValueError('Matrix no cuadrada')
@@ -4925,7 +4956,6 @@ class InvMatFC(Sistema):
            muestran en Jupyter los pasos dados
 
         """
-        <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
 
         if not sistema.es_cuadrada():
             raise ValueError('Matrix no cuadrada')
@@ -4959,7 +4989,6 @@ Es una forma alternativa de llamar al método ~.diagonalizaS()~,
 class DiagonalizaS(Matrix):
     def __init__(self, sistema, espectro, rep=0, repType=0):
         <<Texto de ayuda para la clase DiagonalizaS>>
-        <<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
         A = Matrix(sistema)
         D = A.diagonalizaS(espectro)
         
@@ -7294,9 +7323,11 @@ from os.path import join
 <<Idioma de los textos de salida>>
 <<Cribado de secuencias de transformaciones>>
 <<Simplificación de expresiones simbólicas>>
+<<Cadena con el código de un desarrollo que recuerda sus eslabones>>
 <<Representación de un proceso de eliminación rprElim>>
 <<Representación de un proceso de eliminación rprElimFyC>>
 <<Representación de un proceso de eliminación rprElimCF>>
+<<Método que define los atributos .tex y .pasos y representa los pasos si se pide>>
 <<Representación de un proceso de eliminación dispElim, dispElimFyC y dispElimCF>>
 <<Separación de un desarrollo en sistemas y flechas>>
 <<Recomposición de un desarrollo>>
@@ -7346,7 +7377,7 @@ matriz identidad =I= oculta la unidad imaginaria de Sympy, que sigue disponible 
 No se exportan (aunque siguen disponibles escribiendo, por ejemplo, ~nacal.nacal.es_ristra~) el
 módulo =tempfile= ni los siguientes nombres de uso interno: =NumberTypes=, =RistraTypes=,
 =CreaLista=, =es_ristra=, =es_ristra_de_numeros=, =es_funcion_racional=, =elementoPivote=,
-=elementoAntiPivote=, =fin_del_argumento=, =trozos_del_desarrollo=, =flecha_resumen=,
+=elementoAntiPivote=, =fin_del_argumento=, =trozos_del_desarrollo=, =flecha_resumen=, =TexDesarrollo=, =texYpasos=,
 =TEXTOS_DE_SALIDA=, =idioma_en_uso= y =texto_de_salida=.
 
 Una prueba (=tests/test_exportaciones.py=) comprueba que todo nombre nuevo del módulo está en una

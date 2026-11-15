@@ -241,28 +241,48 @@ def expand(self):
         return sympy.expand(self)
 
 
+class TexDesarrollo(str):
+    """Código LaTeX de un desarrollo que recuerda sus eslabones
+
+    Es una cadena formada por un código previo seguido de nuevos
+    eslabones [flecha, sistema, flecha, sistema, ...]. El atributo
+    trozos es la lista [sistema, flecha, sistema, ..., flecha, sistema]
+    de todo el desarrollo."""
+    def __new__(cls, previo, eslabones=()):
+        eslabones = list(eslabones)
+        self = super().__new__(cls, previo + ''.join(eslabones))
+        self._previo, self._eslabones = previo, eslabones
+        return self
+
+    @property
+    def trozos(self):
+        previo = self._previo
+        return (previo.trozos if isinstance(previo, TexDesarrollo)
+                else trozos_del_desarrollo(previo)) + self._eslabones
+
+
 def rprElim(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
     """Escribe en LaTeX los pasos efectivos y los sucesivos sistemas"""
     A     = data.fullcopy().subs(sust)
-    tex   = latex(A) if not TexPasosPrev else TexPasosPrev
+    previo, nuevos = (latex(A) if not TexPasosPrev else TexPasosPrev), []
 
     simplifica = lambda metodo,expresion: metodo(expresion) 
     
     # transformaciones por la izquierda
     for  _,pasoDeEliminacion in enumerate(pasos[0][::-1]):
         if data.es_arreglo_rectangular(): # entonces transforman las filas
-            tex += '\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}' 
-            tex += latex( simplifica(metodo, ((pasoDeEliminacion & A).subs(sust)) ) )
+            nuevos.append('\\xrightarrow[' + latex( pasoDeEliminacion.subs(sust) ) + ']{}')
+            nuevos.append(latex( simplifica(metodo, ((pasoDeEliminacion & A).subs(sust)) ) ))
         else:  # hacen lo mismo que por la derecha
-            tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-            tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
+            nuevos.append('\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}')
+            nuevos.append(latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) ))
         
     # transformaciones por la derecha
     for  _,pasoDeEliminacion in enumerate(pasos[1]):
-        tex += '\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}'
-        tex += latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) )
+        nuevos.append('\\xrightarrow{' + latex( pasoDeEliminacion.subs(sust) ) + '}')
+        nuevos.append(latex( simplifica(metodo, ((A & pasoDeEliminacion).subs(sust)) ) ))
                 
-    return tex
+    return TexDesarrollo(previo, nuevos)
 
 
 def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
@@ -273,17 +293,17 @@ def rprElimFyC(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
         raise ValueError('Esta representación requiere el mismo número de pasos por la izquierda y la derecha')
     
     A = data.fullcopy().subs(sust)
-    tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    previo, nuevos = (latex(data) if not TexPasosPrev else TexPasosPrev), []
 
     simplifica = lambda metodo,expresion: metodo(expresion) 
     
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
-        tex += '\\xrightarrow' \
+        nuevos.append('\\xrightarrow' \
                 + '[' + latex( (filtradopasos(pasoDeEliminacionFilas)).subs(sust) ) + ']' \
-                + '{' + latex( (pasos[1][i]).subs(sust)                           ) + '}'
-        tex += latex( simplifica(metodo, (( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust)) )
+                + '{' + latex( (pasos[1][i]).subs(sust)                           ) + '}')
+        nuevos.append(latex( simplifica(metodo, (( pasoDeEliminacionFilas & A & pasos[1][i] )).subs(sust)) ))
                                                                
-    return tex
+    return TexDesarrollo(previo, nuevos)
 
 
 def rprElimCF(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
@@ -294,17 +314,33 @@ def rprElimCF(data, pasos, TexPasosPrev=[], sust=[], metodo=factor):
         raise ValueError('Esta representación requiere el mismo número de pasos por la izquierda y la derecha')
     
     A = data.fullcopy().subs(sust)                                                               
-    tex = latex(data) if not TexPasosPrev else TexPasosPrev
+    previo, nuevos = (latex(data) if not TexPasosPrev else TexPasosPrev), []
 
     simplifica = lambda metodo,expresion: metodo(expresion)
     
     for  i,pasoDeEliminacionFilas in enumerate(pasos[0][::-1]):
-        tex += '\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}'
-        tex += latex( simplifica(metodo, ((A & pasos[1][i]).subs(sust))) )
-        tex += '\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}' 
-        tex += latex( simplifica(metodo, ((pasoDeEliminacionFilas & A).subs(sust))) )
+        nuevos.append('\\xrightarrow{' + latex( (pasos[1][i]).subs(sust) ) + '}')
+        nuevos.append(latex( simplifica(metodo, ((A & pasos[1][i]).subs(sust))) ))
+        nuevos.append('\\xrightarrow[' + latex( (pasoDeEliminacionFilas).subs(sust) ) + ']{}')
+        nuevos.append(latex( simplifica(metodo, ((pasoDeEliminacionFilas & A).subs(sust))) ))
                                                                
-    return tex
+    return TexDesarrollo(previo, nuevos)
+
+
+def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
+    pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
+    TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
+    if repsust:
+        tex = rprElim(data, pasos, TexPasosPrev, sust)
+    else:
+        tex = rprElim(data, pasos, TexPasosPrev)
+    pasos[0] = pasos[0] + pasosPrevios[0] 
+    pasos[1] = pasosPrevios[1] + pasos[1]
+    
+    if rep:
+        display(Math(tex))
+    
+    return tex, pasos
 
 
 def dispElim(self, pasos, TexPasosPrev=[], sust=[], metodo=factor):
@@ -395,7 +431,7 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='tra
     1
     """
     tex    = objeto if isinstance(objeto, str) else objeto.tex
-    trozos = trozos_del_desarrollo(tex)
+    trozos = tex.trozos if isinstance(tex, TexDesarrollo) else trozos_del_desarrollo(tex)
     sistemas, flechas = trozos[0::2], trozos[1::2]
 
     if pasos is not None:
@@ -1014,22 +1050,6 @@ class Sistema:
         >>> A.elim().TrC  # transformaciones aplicadas a las columnas
         T([(2, 1, 2), (8, 1, 3), (-1, 2, 3)])
         """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
         def metodos_auxiliares_de_la(variante):
             """Define los métodos auxiliares y el modo de actuación sobre el sistema
             en función de la variante de eliminación elegida.
@@ -3318,22 +3338,6 @@ class InvMat(Sistema):
            muestran en Jupyter los pasos dados
 
         """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
         A = sistema.subs(sust).inversa()
         A.tex, A.pasos = texYpasos(sistema.apila(I(sistema.n),1), A.pasos, rep, sust, repsust)
         A.TrF = A.pasos[0]
@@ -3350,22 +3354,6 @@ class InvMatF(Sistema):
            muestran en Jupyter los pasos dados
 
         """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
 
         if not sistema.es_cuadrada():
             raise ValueError('Matrix no cuadrada')
@@ -3389,22 +3377,6 @@ class InvMatFC(Sistema):
            muestran en Jupyter los pasos dados
 
         """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
 
         if not sistema.es_cuadrada():
             raise ValueError('Matrix no cuadrada')
@@ -3437,22 +3409,6 @@ class DiagonalizaS(Matrix):
         principal de la matriz diagonal. El atributo S de dicha matriz
         diagonal es una matriz cuyas columnas son autovectores de los
         correspondientes autovalores.  """
-        
-        def texYpasos(data, pasos, rep=0, sust=[], repsust=0):
-            pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-            TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-            if repsust:
-                tex = rprElim(data, pasos, TexPasosPrev, sust)
-            else:
-                tex = rprElim(data, pasos, TexPasosPrev)
-            pasos[0] = pasos[0] + pasosPrevios[0] 
-            pasos[1] = pasosPrevios[1] + pasos[1]
-            
-            if rep:
-                display(Math(tex))
-            
-            return tex, pasos
-        
         A = Matrix(sistema)
         D = A.diagonalizaS(espectro)
         
