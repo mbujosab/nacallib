@@ -74,6 +74,8 @@ def latex(a):
     """Método latex general"""
     if hasattr(a, 'latex'):
         return a.latex()
+    elif fracciones_en_uso[0] == 'inclinadas':
+        return sympy.latex(a, fold_short_frac=True)
     else:
         return sympy.latex(a)
     
@@ -183,6 +185,38 @@ def idioma(codigo=None):
 def texto_de_salida(clave):
     """Texto correspondiente a la clave en el idioma en uso"""
     return TEXTOS_DE_SALIDA[idioma_en_uso[0]][clave]
+
+
+fracciones_en_uso = ['normal', '0.6ex']
+
+def fracciones(modo=None, separacion=None):
+    """Elige cómo se escriben en LaTeX las fracciones
+
+    Modos:
+        'normal':     la presentación de siempre (por defecto)
+        'separadas':  añade espacio entre las filas de las matrices y
+                      vectores que contienen alguna fracción
+        'inclinadas': fracciones con barra inclinada, como 1/2
+
+    separacion es la longitud LaTeX que se añade entre filas en el modo
+    'separadas' (por defecto '0.6ex'). Sin argumentos devuelve el modo
+    en uso.
+
+    >>> fracciones()
+    'normal'
+    """
+    if modo is None:
+        return fracciones_en_uso[0]
+    if modo not in ('normal', 'separadas', 'inclinadas'):
+        raise ValueError("Modos disponibles: 'normal', 'separadas' e 'inclinadas'")
+    fracciones_en_uso[0] = modo
+    fracciones_en_uso[1] = '0.6ex' if separacion is None else str(separacion)
+
+def salto_de_fila(elementos):
+    """Código LaTeX del salto de fila de un arreglo con dichos elementos"""
+    if fracciones_en_uso[0] == 'separadas' and any('\\frac' in latex(e) for e in elementos):
+        return '\\\\[' + fracciones_en_uso[1] + ']'
+    return '\\\\'
 
 
 def filtradopasos(pasos):
@@ -1351,9 +1385,10 @@ class BlockV(Sistema):
                     r',& '.join([latex(e) for e in self]) + pc + \
                     r'\\ \end{array} \right)'
             else:
+                salto = salto_de_fila(self)
                 return \
                     r'\left( \begin{array}{c}' + \
-                    r'\\ \hline '.join([r'\\'.join([latex(c) for c in e]) \
+                    (salto + r' \hline ').join([salto.join([latex(c) for c in e]) \
                         for e in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
                     r'\\ \end{array} \right)'
         else:
@@ -1366,7 +1401,7 @@ class BlockV(Sistema):
                     r',\end{pmatrix}'
             else:
                 return r'\begin{pmatrix}' + \
-                    r'\\ '.join([latex(e) for e in self]) + \
+                    (salto_de_fila(self) + ' ').join([latex(e) for e in self]) + \
                     r'\end{pmatrix}'
     
 class Vector(BlockV):
@@ -1835,9 +1870,10 @@ class BlockM(Sistema):
                 return self.sis().latex()
     
         ln = [len(n) for n in particion(self.corteSistema, self.n)]                                                           
+        salto = salto_de_fila(e for f in (~self).lista for e in f.lista)
         return \
             '\\left[ \\begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
-            '\\\\ \\hline '.join(['\\\\'.join(['&'.join([latex(e) for e in f.lista]) \
+            (salto + ' \\hline ').join([salto.join(['&'.join([latex(e) for e in f.lista]) \
                                                for f in (~M).lista]) \
                for M in [ i|self for i in particion(self.corteElementos,self.m)]]) + \
              '\\\\ \\end{array} \\right]'
@@ -3624,7 +3660,7 @@ __all__ = [
     # subespacios, sistemas de ecuaciones, determinantes y funciones lineales
     'SubEspacio', 'EAfin', 'Homogenea', 'SEL', 'Determinante', 'FuncionLineal',
     # representación
-    'latex', 'html', 'pinta', 'desarrollo', 'idioma',
+    'latex', 'html', 'pinta', 'desarrollo', 'idioma', 'fracciones',
     'rprElim', 'rprElimFyC', 'rprElimCF', 'dispElim', 'dispElimFyC', 'dispElimCF',
     # números y expresiones simbólicas
     'es_numero', 'es_cero', 'racional', 'fracc', 'numer', 'denom',

@@ -2915,9 +2915,10 @@ def latex(self):
                 r',& '.join([latex(e) for e in self]) + pc + \
                 r'\\ \end{array} \right)'
         else:
+            salto = salto_de_fila(self)
             return \
                 r'\left( \begin{array}{c}' + \
-                r'\\ \hline '.join([r'\\'.join([latex(c) for c in e]) \
+                (salto + r' \hline ').join([salto.join([latex(c) for c in e]) \
                     for e in [ self|i for i in particion(self.corteSistema, self.n)]]) + \
                 r'\\ \end{array} \right)'
     else:
@@ -2930,7 +2931,7 @@ def latex(self):
                 r',\end{pmatrix}'
         else:
             return r'\begin{pmatrix}' + \
-                r'\\ '.join([latex(e) for e in self]) + \
+                (salto_de_fila(self) + ' ').join([latex(e) for e in self]) + \
                 r'\end{pmatrix}'
 
 #+END_SRC
@@ -3821,9 +3822,10 @@ def latex(self):
             return self.sis().latex()
 
     ln = [len(n) for n in particion(self.corteSistema, self.n)]                                                           
+    salto = salto_de_fila(e for f in (~self).lista for e in f.lista)
     return \
         '\\left[ \\begin{array}{' + '|'.join([n*'c' for n in ln])  + '}' + \
-        '\\\\ \\hline '.join(['\\\\'.join(['&'.join([latex(e) for e in f.lista]) \
+        (salto + ' \\hline ').join([salto.join(['&'.join([latex(e) for e in f.lista]) \
                                            for f in (~M).lista]) \
            for M in [ i|self for i in particion(self.corteElementos,self.m)]]) + \
          '\\\\ \\end{array} \\right]'
@@ -7703,6 +7705,7 @@ from os.path import join
 <<Métodos primer_no_nulo y ultimo_no_nulo de un Sistema>>
 <<Otros métodos auxilares>>
 <<Idioma de los textos de salida>>
+<<Presentación de las fracciones>>
 <<Cribado de secuencias de transformaciones>>
 <<Simplificación de expresiones simbólicas>>
 <<Cadena con el código de un desarrollo que recuerda sus eslabones>>
@@ -7760,7 +7763,7 @@ No se exportan (aunque siguen disponibles escribiendo, por ejemplo, ~nacal.nacal
 módulo =tempfile= ni los siguientes nombres de uso interno: =NumberTypes=, =RistraTypes=,
 =CreaLista=, =es_ristra=, =es_ristra_de_numeros=, =es_funcion_racional=, =elementoPivote=,
 =elementoAntiPivote=, =fin_del_argumento=, =trozos_del_desarrollo=, =flecha_resumen=, =TexDesarrollo=, =texYpasos=,
-=TEXTOS_DE_SALIDA=, =idioma_en_uso= y =texto_de_salida=.
+=TEXTOS_DE_SALIDA=, =idioma_en_uso=, =texto_de_salida=, =fracciones_en_uso= y =salto_de_fila=.
 
 Una prueba (=tests/test_exportaciones.py=) comprueba que todo nombre nuevo del módulo está en una
 de las dos listas, de modo que al añadir una función hay que decidir si se exporta.
@@ -7779,7 +7782,7 @@ __all__ = [
     # subespacios, sistemas de ecuaciones, determinantes y funciones lineales
     'SubEspacio', 'EAfin', 'Homogenea', 'SEL', 'Determinante', 'FuncionLineal',
     # representación
-    'latex', 'html', 'pinta', 'desarrollo', 'idioma',
+    'latex', 'html', 'pinta', 'desarrollo', 'idioma', 'fracciones',
     'rprElim', 'rprElimFyC', 'rprElimCF', 'dispElim', 'dispElimFyC', 'dispElimCF',
     # números y expresiones simbólicas
     'es_numero', 'es_cero', 'racional', 'fracc', 'numer', 'denom',
@@ -7955,6 +7958,8 @@ def latex(a):
     """Método latex general"""
     if hasattr(a, 'latex'):
         return a.latex()
+    elif fracciones_en_uso[0] == 'inclinadas':
+        return sympy.latex(a, fold_short_frac=True)
     else:
         return sympy.latex(a)
     
@@ -8170,6 +8175,100 @@ def texto_de_salida(clave):
     return TEXTOS_DE_SALIDA[idioma_en_uso[0]][clave]
 
 #+END_SRC
+
+*** Presentación de las fracciones
+
+En una matriz con fracciones en filas contiguas, el denominador de una
+fila queda muy cerca del numerador de la fila siguiente. La función
+=fracciones= permite elegir otra presentación para todo lo que se
+escriba a continuación. Sin argumentos indica el modo en uso.
+
+| Modo           | Presentación                                                                      |
+|----------------+-----------------------------------------------------------------------------------|
+| ='normal'=     | la de siempre (modo por defecto)                                                  |
+| ='separadas'=  | más espacio entre las filas de las matrices y vectores que contienen fracciones   |
+| ='inclinadas'= | fracciones con barra inclinada, como $1/2$                                        |
+
+En el modo ='separadas'= el espacio añadido es de =0.6ex=; con un
+segundo argumento se indica otra longitud de \LaTeX{}, por ejemplo
+~fracciones('separadas', '1ex')~. Las matrices y vectores sin fracciones
+no cambian. El modo ='inclinadas'= afecta a todas las fracciones,
+también a las de los rótulos de las transformaciones.
+
+#+name: Presentación de las fracciones
+#+BEGIN_SRC python
+
+fracciones_en_uso = ['normal', '0.6ex']
+
+def fracciones(modo=None, separacion=None):
+    """Elige cómo se escriben en LaTeX las fracciones
+
+    Modos:
+        'normal':     la presentación de siempre (por defecto)
+        'separadas':  añade espacio entre las filas de las matrices y
+                      vectores que contienen alguna fracción
+        'inclinadas': fracciones con barra inclinada, como 1/2
+
+    separacion es la longitud LaTeX que se añade entre filas en el modo
+    'separadas' (por defecto '0.6ex'). Sin argumentos devuelve el modo
+    en uso.
+
+    >>> fracciones()
+    'normal'
+    """
+    if modo is None:
+        return fracciones_en_uso[0]
+    if modo not in ('normal', 'separadas', 'inclinadas'):
+        raise ValueError("Modos disponibles: 'normal', 'separadas' e 'inclinadas'")
+    fracciones_en_uso[0] = modo
+    fracciones_en_uso[1] = '0.6ex' if separacion is None else str(separacion)
+
+def salto_de_fila(elementos):
+    """Código LaTeX del salto de fila de un arreglo con dichos elementos"""
+    if fracciones_en_uso[0] == 'separadas' and any('\\frac' in latex(e) for e in elementos):
+        return '\\\\[' + fracciones_en_uso[1] + ']'
+    return '\\\\'
+
+#+END_SRC
+
+**** Ejemplos de presentación de las fracciones
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [fracc(1,2), 0], [fracc(1,2), fracc(9,10)] ] )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( A ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}\frac{1}{2}&0\\\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+fracciones('separadas')
+print(dmath( A ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}\frac{1}{2}&0\\[0.6ex]\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]$$
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+fracciones('inclinadas')
+print(dmath( A ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{cc}1 / 2&0\\1 / 2&9 / 10\\ \end{array} \right]$$
+
+Para volver a la presentación por defecto:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+fracciones('normal')
+print(dprint( fracciones() ))
+#+END_SRC
+
+#+RESULTS:
+=normal=
 
 *** Simplificación de expresiones simbólicas
 
