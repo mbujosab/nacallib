@@ -2025,8 +2025,13 @@ class Matrix(BlockM):
         return self.rango()==self.n
       
     
-    def inversa(self, rep=0):                                                               
-        """Inversa de Matrix"""
+    def inversa(self, rep=0, sust=[], repsust=0):
+        """Inversa de Matrix
+    
+        Con una lista de sustituciones (sust) hace lo mismo que
+        InvMat(self, rep, sust, repsust)"""
+        if sust:
+            return InvMat(self, rep, sust, repsust)
         if not self.es_cuadrada():
             raise ValueError('Matrix no cuadrada')
         
@@ -2041,12 +2046,12 @@ class Matrix(BlockM):
         if self.es_singular():
             raise ValueError('Matrix es singular')
     
-        InvMat = I(self.n) & T(TrC)
-        InvMat.pasos = pasos
-        InvMat.TrF   = TrF
-        InvMat.TrC   = TrC
-        InvMat.tex   = tex
-        return InvMat
+        Inversa = I(self.n) & T(TrC)
+        Inversa.pasos = pasos
+        Inversa.TrF   = TrF
+        Inversa.TrC   = TrC
+        Inversa.tex   = tex
+        return Inversa
     
     
     def determinante(self, rep = False, sust = []):
@@ -3206,7 +3211,10 @@ class Determinante:
    La representación muestra los pasos dados
    
    """
-   def __init__(self, data, disp=0, sust=[]):
+   def __init__(self, data, disp=0, sust=[], rep=None):
+      # rep es otro nombre para disp (el que usan las demás clases)
+      if rep is not None:
+          disp = rep
       
       def calculoDet(A, sust=[]):
           
@@ -3398,7 +3406,7 @@ class InvMatFC(Sistema):
 
 
 class DiagonalizaS(Matrix):
-    def __init__(self, sistema, espectro, rep=0, repType=0):
+    def __init__(self, sistema, espectro, rep=0, repType=0, sust=[]):
         """Diagonaliza por bloques triangulares una Matrix cuadrada
         
         Encuentra una matriz diagonal semejante mediante trasformaciones de
@@ -3410,7 +3418,11 @@ class DiagonalizaS(Matrix):
         diagonal es una matriz cuyas columnas son autovectores de los
         correspondientes autovalores.  """
         A = Matrix(sistema)
-        D = A.diagonalizaS(espectro)
+        if sust:
+            A = A.fullcopy().subs(sust)
+            D = A.diagonalizaS(espectro, sust=sust)
+        else:
+            D = A.diagonalizaS(espectro)
         
         if rep:
             nan   = sympy.symbols(r'\ ')
