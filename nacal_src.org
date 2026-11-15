@@ -5451,6 +5451,198 @@ de abreviaturas). El siguiente código inicializa la clase. El atributo =t= alma
 instanciar ~T~ o bien creará la lista de abreviaturas a partir de
 otra  ~T~ (o lista de objetos ~T~) empleada para instanciar.
 
+*** Resumen de uso de la clase ~T~
+
+Una transformación elemental se crea con su /abreviatura/, y una
+secuencia de transformaciones con la lista de sus abreviaturas:
+
+| Expresión               | Transformación                                                    |
+|-------------------------+-------------------------------------------------------------------|
+| =T( (a,i,j) )=          | Tipo I: suma =a= veces el elemento =i= al elemento =j=            |
+| =T( (a,i) )=            | Tipo II: multiplica el elemento =i= por =a= (no nulo)             |
+| =T( {i,j} )=            | intercambio de los elementos =i= y =j=                            |
+| =T( [t1, t2, ..., tk] )= | secuencia: primero =t1=, luego =t2=, etc.                         |
+
+Se aplican con el operador =&=: a la derecha del sistema actúan sobre
+sus elementos (las columnas, si es una matriz) y a la izquierda de una
+matriz actúan sobre sus filas.
+
+| Expresión        | Resultado                                                                 |
+|------------------+---------------------------------------------------------------------------|
+| =A & t=          | transforma los elementos (columnas) de =A=                                |
+| =t & A=          | transforma las filas de =A=                                               |
+| =t1 & t2=        | composición: la secuencia formada por =t1= seguida de =t2=                |
+| =~t=             | transpuesta: las mismas transformaciones en orden inverso                 |
+| =t**-1=          | inversa: la secuencia que deshace =t=                                     |
+| =t**n=           | =t= repetida =n= veces                                                    |
+| =t.espejo()=     | transformación «espejo»: intercambia los papeles de los índices en las de Tipo I |
+| =t.subs(reglas)= | sustituye símbolos en los coeficientes                                    |
+| =t.abreviaturas= | lista de las abreviaturas de la secuencia                                 |
+
+*Aviso importante.* Aplicar una transformación *modifica el propio
+objeto*: tras ejecutar ~A & t~, la matriz =A= ha cambiado (el resultado
+de la expresión es la misma =A=, ya transformada). Para conservar la
+matriz original hay que transformar una copia: ~Matrix(A) & t~ o
+~A.fullcopy() & t~.
+
+El módulo comprueba que las abreviaturas corresponden a
+transformaciones elementales: ni =T( (a,i,i) )= ni =T( (0,i) )= lo son
+y producen un error.
+
+**** Ejemplos de transformaciones elementales
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+A = Matrix( [ [1,2,3], [4,5,6] ] )
+#+END_SRC
+
+Sumamos a la tercera columna el doble de la primera (sobre una copia,
+para no modificar =A=):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( Matrix(A) & T( (2,1,3) ) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}1&2&5\\4&5&14\\ \end{array} \right]$$
+
+La misma abreviatura a la izquierda actúa sobre las filas. Aquí
+multiplicamos por 2 la primera fila:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( T( (2,1) ) & Matrix(A) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}2&4&6\\4&5&6\\ \end{array} \right]$$
+
+Un intercambio de columnas y otro de filas:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( T( {1,2} ) & Matrix(A) & T( {1,3} ) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}6&5&4\\3&2&1\\ \end{array} \right]$$
+
+Una secuencia de transformaciones se escribe con una lista, o
+componiendo transformaciones con =&=:
+
+#+BEGIN_SRC jupyter-python :exports code :results silent
+t = T( [ (2,1,3), (5,2) ] )
+#+END_SRC
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( t == T( (2,1,3) ) & T( (5,2) ) ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( Matrix(A) & t ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}1&10&5\\4&25&14\\ \end{array} \right]$$
+
+En \LaTeX{} una transformación se representa con la letra $\tau$ y,
+debajo, las abreviaturas en el orden en que se aplican:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( t ))
+#+END_SRC
+
+#+RESULTS:
+$$\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(5\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}$$
+
+La inversa deshace la secuencia (las inversas de cada transformación,
+en orden inverso):
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( t**-1 ))
+#+END_SRC
+
+#+RESULTS:
+=T([(1/5, 2), (-2, 1, 3)])=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( Matrix(A) & t & t**-1 == A ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+La transpuesta invierte el orden de la secuencia. Sirve para
+transponer un producto: la transpuesta de =A & t= es =~t & ~A=.
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( ~t ))
+#+END_SRC
+
+#+RESULTS:
+=T([(5, 2), (2, 1, 3)])=
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( ~(Matrix(A) & t) == ~t & ~A ))
+#+END_SRC
+
+#+RESULTS:
+=True=
+
+La transformación espejo de =(a,i,j)= es =(a,j,i)=. Junto con la
+inversa permite las diagonalizaciones por semejanza:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dprint( T( (2,1,3) ).espejo() ))
+#+END_SRC
+
+#+RESULTS:
+=T([(2, 3, 1)])=
+
+Aplicar una transformación a la matriz identidad da la matriz
+elemental correspondiente:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( I(3) & T( (2,1,3) ) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}1&0&2\\0&1&0\\0&0&1\\ \end{array} \right]$$
+
+Las transformaciones también se aplican a vectores y a sistemas
+cualesquiera cuyos elementos se puedan sumar y multiplicar por números:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+print(dmath( Sistema( [ Vector([1,0]), Vector([0,1]), Vector([1,1]) ] ) & T( (2,1,3) ) ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}\begin{pmatrix}1\\ 0\end{pmatrix};& \begin{pmatrix}0\\ 1\end{pmatrix};& \begin{pmatrix}3\\ 1\end{pmatrix};\end{array} \right]$$
+
+Sin copia, la transformación modifica la matriz:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+A & T( {1,3} )
+print(dmath( A ))
+#+END_SRC
+
+#+RESULTS:
+$$\left[ \begin{array}{ccc}3&2&1\\6&5&4\\ \end{array} \right]$$
+
+Una abreviatura que no corresponde a una transformación elemental
+produce un error:
+
+#+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
+try:
+    T( (0,2) )
+except ValueError as error:
+    print(dprint( error ))
+#+END_SRC
+
+#+RESULTS:
+=T( (0, i) ) no es una trasformación elemental=
+
+
 *** Implementación de las transformaciones elementales
 
 **** Texto de ayuda
