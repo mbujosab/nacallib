@@ -12,6 +12,7 @@ INTERNOS = {
     'flecha_resumen', 'TEXTOS_DE_SALIDA', 'idioma_en_uso', 'texto_de_salida',
     'TexDesarrollo', 'texYpasos',
     'fracciones_en_uso', 'salto_de_fila',
+    'AVISO_DE_PRECEDENCIA',
 }
 
 

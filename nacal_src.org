@@ -47,7 +47,7 @@
 
 #+CALL: NombreEnChunksDeCodigo()
 
-#+macro: ver Versión:  0.5.1
+#+macro: ver Versión:  0.5.2
 
 #+name: __init__.py
 #+BEGIN_SRC python :tangle nacal/__init__.py
@@ -55,7 +55,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -1193,6 +1193,14 @@ def __sub__(self, other):
     diferencia.lista = [ (self|i) - (other|i) for i in range(1,len(self)+1) ]
     diferencia.corteSistema.update(other.corteSistema)
     return factor(diferencia)
+
+def __radd__(self, other):
+    """Suma con algo que no es un Sistema a la izquierda (no está definida)"""
+    raise ValueError ('Solo se suman Sistemas del mismo tipo y misma longitud. ' + AVISO_DE_PRECEDENCIA)
+
+def __rsub__(self, other):
+    """Resta con algo que no es un Sistema a la izquierda (no está definida)"""
+    raise ValueError ('Solo se restan Sistemas del mismo tipo y misma longitud. ' + AVISO_DE_PRECEDENCIA)
             
 #+END_SRC
 
@@ -3696,6 +3704,23 @@ def __ror__(self,i):
         
 #+END_SRC
 
+***** Aviso sobre el orden en que Python calcula los operadores
+
+El selector se escribe con el operador =|= de Python, y Python decide
+en qué orden se calculan los operadores sin tener en cuenta lo que
+significan aquí. Dos consecuencias que conviene conocer:
+
+- *Dos selectores seguidos por la izquierda.* En ~2|3|A~ Python
+  calcula primero ~2|3~, que es una operación entre números enteros
+  cuyo resultado es 3. Así que ~2|3|A~ es ~3|A~: la fila 3, sin ningún
+  aviso. Para seleccionar la componente 2 de la fila 3 hay que escribir
+  ~2|(3|A)~, o bien ~3|A|2~.
+- *Sumas y restas.* Python calcula las sumas y las restas antes que el
+  selector: ~a|1 + b|1~ se calcula como ~a|(1 + b)|1~, que intenta
+  sumar un número y un vector y produce un error. Hay que escribir
+  ~(a|1) + (b|1)~. Lo mismo ocurre con el producto por un número, que
+  también se calcula antes: ~2*A|1~ es ~(2*A)|1~.
+
 *** Otros métodos de la clase ~BlockM~
 **** Extiende una ~BlockM~ a lo largo de la diagonal con una lista de ~BlockMs~
 
@@ -3989,6 +4014,11 @@ def es_cuadrada(self):
 def es_simetrica(self):
     """Indica si es cierto que la Matrix es simétrica"""
     return self == ~self
+    
+def es_antisimetrica(self):
+    """Indica si es cierto que la Matrix es antisimétrica (igual a la
+    opuesta de su transpuesta)"""
+    return self == -(~self)
     
 def es_triangularSup(self):
     """Indica si es cierto que la Matrix es triangular superior"""
@@ -8158,7 +8188,7 @@ No se exportan (aunque siguen disponibles escribiendo, por ejemplo, ~nacal.nacal
 módulo =tempfile= ni los siguientes nombres de uso interno: =NumberTypes=, =RistraTypes=,
 =CreaLista=, =es_ristra=, =es_ristra_de_numeros=, =es_funcion_racional=, =elementoPivote=,
 =elementoAntiPivote=, =fin_del_argumento=, =trozos_del_desarrollo=, =flecha_resumen=, =TexDesarrollo=, =texYpasos=,
-=TEXTOS_DE_SALIDA=, =idioma_en_uso=, =texto_de_salida=, =fracciones_en_uso= y =salto_de_fila=.
+=TEXTOS_DE_SALIDA=, =idioma_en_uso=, =texto_de_salida=, =fracciones_en_uso=, =salto_de_fila= y =AVISO_DE_PRECEDENCIA=.
 
 Una prueba (=tests/test_exportaciones.py=) comprueba que todo nombre nuevo del módulo está en una
 de las dos listas, de modo que al añadir una función hay que decidir si se exporta.
@@ -8561,6 +8591,10 @@ TEXTOS_DE_SALIDA = {
 }
 
 idioma_en_uso = ['es']
+
+# Python calcula las sumas y las restas antes que el selector |
+AVISO_DE_PRECEDENCIA = ('Si quería operar con componentes, use paréntesis: '
+                        '(a|1) + (b|1), pues Python calcula a|1 + b|1 como a|(1 + b)|1')
 
 def idioma(codigo=None):
     """Elige el idioma de los textos de salida ('es' o 'en')

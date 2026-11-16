@@ -329,3 +329,26 @@ def test_fracciones_escritas_como_division_de_python():
     # sin fracción sencilla se lee la escritura decimal, como antes
     assert racional(2**0.5) == R('1.4142135623730951')
     assert racional(0.1 + 0.2) == R('0.30000000000000004')
+
+
+def test_es_antisimetrica():
+    assert Matrix([[0, 2], [-2, 0]]).es_antisimetrica()
+    assert not Matrix([[1, 2], [-2, 0]]).es_antisimetrica()      # diagonal no nula
+    assert not Matrix([[0, 2], [2, 0]]).es_antisimetrica()       # simétrica
+    assert not Matrix([[0, 1, 2], [-1, 0, 3]]).es_antisimetrica()  # no cuadrada
+    assert M0(3).es_antisimetrica() and M0(3).es_simetrica()
+
+def test_suma_con_un_numero_a_la_izquierda_da_un_mensaje_en_castellano():
+    import pytest
+    a, b = Vector([1, 2, 3]), Vector([4, 5, 6])
+    for expresion in (lambda: 3 + a, lambda: 3 - a, lambda: a|3 + b|3, lambda: 3 + Matrix([[1]])):
+        with pytest.raises(ValueError, match='Solo se (suman|restan) Sistemas'):
+            expresion()
+    with pytest.raises(ValueError, match='use paréntesis'):
+        a|3 + b|3
+    assert (a|3) + (b|3) == 9
+    # lo que ya funcionaba sigue igual
+    assert a + b == Vector([5, 7, 9]) and a - b == Vector([-3, -3, -3])
+    assert sum([a, b], V0(3)) == Vector([5, 7, 9])
+    x = sympy.Symbol('x')
+    assert x * a == Vector([x, 2*x, 3*x])

@@ -176,6 +176,10 @@ TEXTOS_DE_SALIDA = {
 
 idioma_en_uso = ['es']
 
+# Python calcula las sumas y las restas antes que el selector |
+AVISO_DE_PRECEDENCIA = ('Si quería operar con componentes, use paréntesis: '
+                        '(a|1) + (b|1), pues Python calcula a|1 + b|1 como a|(1 + b)|1')
+
 def idioma(codigo=None):
     """Elige el idioma de los textos de salida ('es' o 'en')
 
@@ -926,6 +930,14 @@ class Sistema:
         diferencia.lista = [ (self|i) - (other|i) for i in range(1,len(self)+1) ]
         diferencia.corteSistema.update(other.corteSistema)
         return factor(diferencia)
+    
+    def __radd__(self, other):
+        """Suma con algo que no es un Sistema a la izquierda (no está definida)"""
+        raise ValueError ('Solo se suman Sistemas del mismo tipo y misma longitud. ' + AVISO_DE_PRECEDENCIA)
+    
+    def __rsub__(self, other):
+        """Resta con algo que no es un Sistema a la izquierda (no está definida)"""
+        raise ValueError ('Solo se restan Sistemas del mismo tipo y misma longitud. ' + AVISO_DE_PRECEDENCIA)
                 
     
     def __rmul__(self, x):
@@ -1977,6 +1989,11 @@ class Matrix(BlockM):
     def es_simetrica(self):
         """Indica si es cierto que la Matrix es simétrica"""
         return self == ~self
+        
+    def es_antisimetrica(self):
+        """Indica si es cierto que la Matrix es antisimétrica (igual a la
+        opuesta de su transpuesta)"""
+        return self == -(~self)
         
     def es_triangularSup(self):
         """Indica si es cierto que la Matrix es triangular superior"""
