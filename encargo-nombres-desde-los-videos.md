@@ -45,3 +45,8 @@ Tratado. Acordado con Marcos: `Vector`, `Matrix`, el operador `|` y el
 atributo `.n` no se tocarán en ninguna revisión de nombres. Anotado en
 `VideosMates2/encargo-desde-nacal.md`. El resto de nombres sigue sin
 decidir; cuando haya decisión se avisará allí.
+
+Añadido a la respuesta (2026-11-16, después): leídos los dos añadidos
+de los vídeos. El estado final (la escena 9 enseña las dos líneas con
+`Vector`, `Matrix`, `|` y `.n`) es compatible con lo acordado: esos
+cuatro nombres no cambian.

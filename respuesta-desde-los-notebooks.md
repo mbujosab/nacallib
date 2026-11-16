@@ -145,3 +145,13 @@ primero una fracción sencilla que coincida con el número). Los casos
 sin fracción sencilla (`2**0.5`) quedan como en la 0.5.0, que es lo
 documentado. Anotado en
 `NAcAL-Jupyter-Notebooks-SRC/encargo-desde-nacal.md`.
+
+Añadido a la respuesta (2026-11-16, después): leídos también los
+apartados posteriores (los Notebooks con la 0.5.1, el guion
+`ejecutar_notebooks.py` y lo visto al auditar la Lección 1). Quedan
+pendientes de decidir con Marcos, y no están hechos:
+
+- usar `ejecutar_notebooks.py` como comprobación de NAcAL antes de
+  publicar en PyPI;
+- el mensaje de error de `3 + Vector([1,2])`, que sale en inglés;
+- advertir en la documentación de que `2|3|A` no hace lo que parece.
