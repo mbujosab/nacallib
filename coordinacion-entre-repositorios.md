@@ -20,6 +20,16 @@ todas las copias.
 Los Notebooks son el quinto actor, desde el 2026-11-15. Su papel es
 mirar a todos los demás.
 
+El paquete de LaTeX `nacal.sty` es el sexto actor, desde el 2026-11-16.
+Su repositorio está en
+`~/SynologyDrive/Nextcloud/Docencia/Notacion/NAcALTex` y no tiene
+copia de este fichero: tiene sus propias reglas en su `CLAUDE.md`
+(banco de pruebas, versiones etiquetadas). El libro manda en qué
+notación se usa; el paquete manda en cómo se compone. Las sugerencias
+al paquete se le dejan en un fichero de encargo, como a los demás. El
+paquete no cambia lo que imprime una macro existente sin acordarlo con
+Marcos, porque todos los demás repositorios compilan con él.
+
 ## Regla 1: cada sesión solo edita su repositorio
 
 Lo que una sesión vea mal en otro repositorio lo deja como sugerencia
@@ -31,6 +41,24 @@ Los ficheros de encargo y de respuesta se nombran por su origen, como
 los ya existentes: `encargo-...-desde-el-libro.md`,
 `respuesta-al-encargo-del-libro.md`. Son ficheros de trabajo. Cada
 añadido lleva fecha y se pone al final.
+
+**Aviso automático de encargos (desde el 2026-11-16).** Para que Marcos
+no tenga que avisar en cada repositorio de que hay algo que leer:
+
+- El nombre del fichero empieza siempre por `encargo-` o por
+  `respuesta-`, está en la raíz del repositorio de destino y acaba en
+  `.md`. (El libro recibe además los `Pendientes*.org` que ya existen.)
+- Quien escribe un encargo en el repositorio de otro **no lo confirma
+  en git**. Lo confirma quien lo recibe, cuando lo ha tratado y ha
+  anotado su respuesta al final. Así, un fichero de encargo nuevo o con
+  cambios sin confirmar es un encargo sin tratar.
+- Cada repositorio tiene un hook en `.claude/settings.json` que ejecuta
+  `git status --short -- 'encargo-*.md' 'respuesta-*.md'` cada vez que
+  Marcos escribe, y una regla en su `CLAUDE.md`: si sale algo, la
+  sesión lo lee, dice en pantalla qué es y de dónde viene, lo resume y
+  pregunta a Marcos qué hacer. No cambia nada hasta que responda.
+- Un encargo ya tratado que siga sin confirmar hace saltar el aviso en
+  cada mensaje. Se arregla confirmándolo.
 
 ## Regla 2: quién manda en cada cosa
 

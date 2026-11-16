@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "out=$(git -C \"${CLAUDE_PROJECT_DIR:-.}\" status --short -- 'encargo-*.md' 'respuesta-*.md' 2>/dev/null); [ -n \"$out\" ] && printf 'ENCARGOS SIN TRATAR (ficheros de otras sesiones, nuevos o con cambios sin confirmar en git; ver la regla en CLAUDE.md):\\n%s\\n' \"$out\"; true",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
