@@ -9,7 +9,7 @@ INTERNOS = {
     'tempfile', 'NumberTypes', 'RistraTypes', 'CreaLista', 'es_ristra',
     'es_ristra_de_numeros', 'es_funcion_racional', 'elementoPivote',
     'elementoAntiPivote', 'fin_del_argumento', 'trozos_del_desarrollo',
-    'flecha_resumen', 'TEXTOS_DE_SALIDA', 'idioma_en_uso', 'texto_de_salida',
+    'flecha_resumen', 'TEXTOS_DE_SALIDA', 'idioma_en_uso', 'texto_de_salida', 'error_de_producto',
     'TexDesarrollo', 'texYpasos',
     'fracciones_en_uso', 'salto_de_fila',
     'AVISO_DE_PRECEDENCIA',

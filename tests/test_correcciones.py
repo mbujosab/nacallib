@@ -352,3 +352,36 @@ def test_suma_con_un_numero_a_la_izquierda_da_un_mensaje_en_castellano():
     assert sum([a, b], V0(3)) == Vector([5, 7, 9])
     x = sympy.Symbol('x')
     assert x * a == Vector([x, 2*x, 3*x])
+
+
+def test_error_de_producto_con_numeros_y_traducido():
+    """El mensaje dice qué se multiplica y los números que no coinciden"""
+    A = Matrix([[1, 2, 3], [4, 5, 6]])
+    casos = [
+        (lambda: Vector([1, 2, 3]) * Vector([1, 2]),
+         'No se pueden multiplicar: el vector de la izquierda tiene 3 componentes y el vector de la derecha tiene 2 componentes',
+         'Cannot multiply: the vector on the left has 3 components and the vector on the right has 2 components'),
+        (lambda: A * Vector([1, 2]),
+         'No se pueden multiplicar: la matriz de la izquierda tiene 3 columnas y el vector de la derecha tiene 2 componentes',
+         'Cannot multiply: the matrix on the left has 3 columns and the vector on the right has 2 components'),
+        (lambda: A * A,
+         'No se pueden multiplicar: la matriz de la izquierda tiene 3 columnas y la matriz de la derecha tiene 2 filas',
+         'Cannot multiply: the matrix on the left has 3 columns and the matrix on the right has 2 rows'),
+        (lambda: Vector([1]) * A,
+         'No se pueden multiplicar: el vector de la izquierda tiene 1 componente y la matriz de la derecha tiene 2 filas',
+         'Cannot multiply: the vector on the left has 1 component and the matrix on the right has 2 rows'),
+        (lambda: Sistema([A, A, A]) * Vector([1, 2]),
+         'No se pueden multiplicar: el sistema de la izquierda tiene 3 elementos y el vector de la derecha tiene 2 componentes',
+         'Cannot multiply: the system on the left has 3 elements and the vector on the right has 2 components'),
+    ]
+    try:
+        for codigo, columna in (('es', 1), ('en', 2)):
+            idioma(codigo)
+            for caso in casos:
+                with pytest.raises(ValueError) as error:
+                    caso[0]()
+                assert str(error.value) == caso[columna]
+    finally:
+        idioma('es')
+    assert Vector([1, 2, 3]) * Vector([1, 1, 1]) == 6
+    assert A * Vector([1, 1, 1]) == Vector([6, 15])

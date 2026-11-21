@@ -167,11 +167,27 @@ TEXTOS_DE_SALIDA = {
     'es': { 'combinaciones':  'Combinaciones lineales de',
             'determinante':   'Valor del determinante:',
             'pares':          'Sistema inicial de pares (Dominio, Imagen):',
-            'no_autovalores': 'los valores de la siguiente lista no son autovalores de la matriz:' },
+            'no_autovalores': 'los valores de la siguiente lista no son autovalores de la matriz:',
+            'producto_imposible': 'No se pueden multiplicar: {} de la izquierda tiene {} y {} de la derecha tiene {}',
+            'vector':         'el vector',
+            'matriz':         'la matriz',
+            'sistema':        'el sistema',
+            'componentes':    ('componente', 'componentes'),
+            'columnas':       ('columna', 'columnas'),
+            'filas':          ('fila', 'filas'),
+            'elementos':      ('elemento', 'elementos') },
     'en': { 'combinaciones':  'Linear combinations of',
             'determinante':   'Value of the determinant:',
             'pares':          'Initial system of pairs (Domain, Image):',
-            'no_autovalores': 'the values in the following list are not eigenvalues of the matrix:' },
+            'no_autovalores': 'the values in the following list are not eigenvalues of the matrix:',
+            'producto_imposible': 'Cannot multiply: {} on the left has {} and {} on the right has {}',
+            'vector':         'the vector',
+            'matriz':         'the matrix',
+            'sistema':        'the system',
+            'componentes':    ('component', 'components'),
+            'columnas':       ('column', 'columns'),
+            'filas':          ('row', 'rows'),
+            'elementos':      ('element', 'elements') },
 }
 
 idioma_en_uso = ['es']
@@ -184,8 +200,9 @@ def idioma(codigo=None):
     """Elige el idioma de los textos de salida ('es' o 'en')
 
     Sin argumentos devuelve el idioma en uso. Solo afecta a las
-    representaciones de texto (no al código LaTeX, que no contiene
-    palabras, ni a los mensajes de error).
+    representaciones de texto y al mensaje de error de un producto
+    imposible (no al código LaTeX, que no contiene palabras, ni a los
+    demás mensajes de error).
 
     >>> idioma()
     'es'
@@ -199,6 +216,33 @@ def idioma(codigo=None):
 def texto_de_salida(clave):
     """Texto correspondiente a la clave en el idioma en uso"""
     return TEXTOS_DE_SALIDA[idioma_en_uso[0]][clave]
+
+def error_de_producto(izda, dcha):
+    """Mensaje de error del producto de izda por dcha, en el idioma en uso
+
+    Indica la clase de cada operando y los dos números que deberían
+    coincidir: el número de elementos del Sistema de la izquierda y el
+    número de componentes del Vector (o de filas de la Matrix) de la
+    derecha.
+    """
+    def cuantos(numero, clave):
+        return str(numero) + ' ' + texto_de_salida(clave)[0 if numero == 1 else 1]
+
+    if isinstance(izda, Vector):
+        quien_izda, que_izda = 'vector', 'componentes'
+    elif isinstance(izda, Matrix):
+        quien_izda, que_izda = 'matriz', 'columnas'
+    else:
+        quien_izda, que_izda = 'sistema', 'elementos'
+
+    if isinstance(dcha, Vector):
+        quien_dcha, que_dcha, numero_dcha = 'vector', 'componentes', dcha.n
+    else:
+        quien_dcha, que_dcha, numero_dcha = 'matriz', 'filas', dcha.m
+
+    return texto_de_salida('producto_imposible').format(
+        texto_de_salida(quien_izda), cuantos(len(izda), que_izda),
+        texto_de_salida(quien_dcha), cuantos(numero_dcha, que_dcha))
 
 
 fracciones_en_uso = ['normal', '0.6ex']
@@ -1012,7 +1056,7 @@ class Sistema:
     
         elif isinstance(x, Vector):
             if len(self) != x.n:
-                raise ValueError('Sistema y Vector incompatibles')
+                raise ValueError(error_de_producto(self, x))
             if self.es_arreglo_rectangular():
                 if not all([f.es_de_composicion_y_longitud_uniforme() for f in ~BlockM([BlockV([i]) for i in self])]):
                     raise ValueError('El sistema de la derecha debe tener elementos de composicion y longitud uniforme')
@@ -1023,7 +1067,7 @@ class Sistema:
         
         elif isinstance(x, Matrix):
             if len(self) != x.m:
-                raise ValueError('Sistema y Matrix incompatibles')
+                raise ValueError(error_de_producto(self, x))
             if isinstance(self, BlockV):
                 return factor(BlockV( [ self*(x|j) for j in range(1,(x.n)+1)], rpr='h' ))
             elif isinstance(self, BlockM):
