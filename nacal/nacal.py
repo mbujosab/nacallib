@@ -297,8 +297,7 @@ def simplify(self):
         self.lista=[ simplify(e) for e in self ]
         return self
     elif isinstance(self, T):
-        self.abreviaturas=[ simplify(op) for op in self.abreviaturas ]
-        return self
+        return self.simplify()
     else:
         return (sympy.sympify(self)).simplify()
     
@@ -310,8 +309,7 @@ def factor(self):
         self.lista=[ factor(e) for e in self ]
         return self
     elif isinstance(self, T):
-        self.abreviaturas=[ factor(op) for op in self.abreviaturas ]
-        return self
+        return self.factor()
     else:
         factorizada = sympy.factor(self)
         if not isinstance(factorizada, sympy.Expr) or factorizada.is_Number or es_funcion_racional(factorizada):
@@ -326,8 +324,7 @@ def expand(self):
         self.lista=[ expand(e) for e in self ]
         return self
     elif isinstance(self, T):
-        self.abreviaturas=[ expand(op) for op in self.abreviaturas ]
-        return self
+        return self.expand()
     else:
         return sympy.expand(self)
 
@@ -712,16 +709,19 @@ class Sistema:
         
     
     def simplify(self):
-        """ Simplificación de expresiones simbólicas """
+        """Simplifica las expresiones simbólicas (modifica el Sistema y lo devuelve)"""
         self.lista = [simplify(elemento) for elemento in self.lista]
-                                                                   
+        return self
+    
     def factor(self):
-        """ Factorización de expresiones simbólicas """
+        """Factoriza las expresiones simbólicas (modifica el Sistema y lo devuelve)"""
         self.lista = [factor(elemento) for elemento in self.lista]
+        return self
     
     def expand(self):
-        """ Factorización de expresiones simbólicas """
+        """Desarrolla las expresiones simbólicas (modifica el Sistema y lo devuelve)"""
         self.lista = [expand(elemento) for elemento in self.lista]
+        return self
     
     
     
@@ -2006,27 +2006,27 @@ class Matrix(BlockM):
     
         """
     
-        super().__init__(data)
-        
+        super().__init__(data)   # BlockM construye la lista de columnas
+    
+        # Lo que sigue solo comprueba que el argumento es válido para una Matrix
         lista = Sistema(data).lista
     
         if all([(isinstance(elemento, Vector) and len(elemento)==len(lista[0])) for elemento in lista]):
-            self.lista   = lista.copy()
+            pass
     
         elif lista and not lista[0]:
-            lista = [Vector([])]
-            
+            pass
+    
         elif Sistema(lista).es_de_composicion_y_longitud_uniforme() and es_ristra(lista[0]) and es_numero(lista[0][0]):
-            self.lista = Matrix([ Vector([elemento[i] for elemento in lista]) for i in range(len(lista[0])) ]).lista
+            # las columnas deben poder ser Vectores (si no, Vector da un error)
+            [ Vector([elemento[i] for elemento in lista]) for i in range(len(lista[0])) ]
     
         elif isinstance(data,Matrix):
-            self.lista   = data.lista.copy()
+            pass
     
         else: 
             raise ValueError("""El argumento debe ser una lista de Vectores o una lista de listas o
             tuplas con el mismo número de elementos!""")
-        
-        super().__init__(data)
     
         for v in self.lista:
             v.rpr='columna'
@@ -2770,29 +2770,52 @@ class T:
         self = T([sustitucion(operacion, regla_de_sustitucion) for operacion in self.abreviaturas])
         return self
     
-    def simplify(arg):
-        if isinstance(arg,tuple) and (len(arg) == 2):
-            return (simplify(arg[0]), arg[1],)
-        elif isinstance(arg,tuple) and (len(arg) == 3):
-            return (simplify(arg[0]), arg[1], arg[2],)
-        else:
-            return arg
+    def con_coeficientes(self, funcion):
+        """Aplica la función al coeficiente de cada transformación elemental
     
-    def factor(arg):
-        if isinstance(arg,tuple) and (len(arg) == 2):
-            return (factor(arg[0]), arg[1],)
-        elif isinstance(arg,tuple) and (len(arg) == 3):
-            return (factor(arg[0]), arg[1], arg[2],)
-        else:
-            return arg
+        Solo cambia el número que multiplica (el primer elemento de las
+        abreviaturas de Tipo I y de Tipo II); los índices y los
+        intercambios quedan como están. Modifica la T y la devuelve.
+        """
+        def nueva(abrv):
+            if isinstance(abrv, tuple) and len(abrv) in (2, 3):
+                return (funcion(abrv[0]),) + tuple(abrv[1:])
+            elif isinstance(abrv, list):
+                return [nueva(item) for item in abrv]
+            elif isinstance(abrv, T):
+                return abrv.con_coeficientes(funcion)
+            else:
+                return abrv
     
-    def expand(arg):
-        if isinstance(arg,tuple) and (len(arg) == 2):
-            return (expand(arg[0]), arg[1],)
-        elif isinstance(arg,tuple) and (len(arg) == 3):
-            return (expand(arg[0]), arg[1], arg[2],)
-        else:
-            return arg
+        self.abreviaturas = [nueva(abrv) for abrv in self.abreviaturas]
+        return self
+    
+    def simplify(self):
+        """Simplifica los coeficientes de la transformación elemental
+    
+        >>> a = sympy.symbols('a')
+        >>> T([{1, 2}, (a*(a + 1) - a, 2)]).simplify()
+        T([{1, 2}, (a**2, 2)])
+        """
+        return self.con_coeficientes(simplify)
+    
+    def factor(self):
+        """Factoriza los coeficientes de la transformación elemental
+    
+        >>> a = sympy.symbols('a')
+        >>> T([{1, 2}, (a**2 - 1, 2)]).factor()
+        T([{1, 2}, ((a - 1)*(a + 1), 2)])
+        """
+        return self.con_coeficientes(factor)
+    
+    def expand(self):
+        """Desarrolla los coeficientes de la transformación elemental
+    
+        >>> a = sympy.symbols('a')
+        >>> T([{1, 2}, ((a - 1)*(a + 1), 2, 1)]).expand()
+        T([{1, 2}, (a**2 - 1, 2, 1)])
+        """
+        return self.con_coeficientes(expand)
     
     
     def __getitem__(self,i):

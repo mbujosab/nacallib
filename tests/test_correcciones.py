@@ -385,3 +385,35 @@ def test_error_de_producto_con_numeros_y_traducido():
         idioma('es')
     assert Vector([1, 2, 3]) * Vector([1, 1, 1]) == 6
     assert A * Vector([1, 1, 1]) == Vector([6, 15])
+
+
+def test_simplify_factor_expand_de_una_T():
+    """Solo cambian los coeficientes: los intercambios siguen siendo conjuntos"""
+    A = Matrix([[1, 2], [3, 4]])
+    for funcion in (simplify, factor, expand):
+        t = funcion(T([{1, 2}, (a*(a + 1) - a, 2), (2, 1, 2)]))
+        assert isinstance(t, T)
+        assert isinstance(t.abreviaturas[0], set)
+        assert [type(indice) for indice in t.abreviaturas[2][1:]] == [int, int]
+        # un intercambio simplificado sigue intercambiando
+        assert Matrix(A) & funcion(T({1, 2})) == Matrix([[2, 1], [4, 3]])
+    assert simplify(T((a*(a + 1) - a, 2))).abreviaturas == [(a**2, 2)]
+    assert factor(T((a**2 - 1, 2))).abreviaturas == [((a - 1)*(a + 1), 2)]
+    assert expand(T(((a - 1)*(a + 1), 2, 1))).abreviaturas == [(a**2 - 1, 2, 1)]
+    # como métodos hacen lo mismo que las funciones, y devuelven la T
+    assert T((a*(a + 1) - a, 2)).simplify().abreviaturas == [(a**2, 2)]
+    assert T((a**2 - 1, 2)).factor().abreviaturas == [((a - 1)*(a + 1), 2)]
+    assert T(((a - 1)*(a + 1), 2, 1)).expand().abreviaturas == [(a**2 - 1, 2, 1)]
+    t = T((a**2 - 1, 2))
+    assert t.factor() is t
+
+
+def test_metodos_simplify_factor_expand_de_un_Sistema_devuelven_el_Sistema():
+    """A.factor() modifica A y lo devuelve, igual que factor(A)"""
+    A = Matrix([[a**2 - 1, 1], [0, a*(a + 1) - a]])
+    assert A.factor() is A
+    assert (1|A|1) == (a - 1)*(a + 1)
+    assert A.expand() is A and (1|A|1) == a**2 - 1
+    assert A.simplify() is A
+    v = Vector([a*(a + 1) - a, 1])
+    assert v.simplify() is v and (v|1) == a**2
