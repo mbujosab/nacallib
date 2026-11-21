@@ -4083,8 +4083,8 @@ por si misma =n= veces.
 
 Si =n= es un entero negativo, entonces necesitamos calcular la inversa
 de la \texttt{n}-ésima potencia; para ello usará el método de
-eliminación Gaussiano que se describirá en el
-Capítulo~\ref{part:Algoritmos}.
+eliminación Gaussiano que se describe en el
+Capítulo\nbsp{}[[*~Sistemas~ obtenidos tras algunos procedimientos específicos de eliminación]].
 
 #+name: Potencia de una Matrix
 #+BEGIN_SRC python
@@ -6199,7 +6199,7 @@ la izquierda de la matriz
 Si las transfomaciones multiplican un vector por 1, y suman un vector
 nulo a otro vector, dichas transformaciones no cabian el sistema de
 vectores. Lo habitual es que si un paso no modifica nada, que no se
-represente, por ello se filtran los pasos con el procedimiento [[Cribado de secuencias de transformaciones][Cribado
+represente, por ello se filtran los pasos con el procedimiento [[*Cribado de secuencias de transformaciones][Cribado
 de secuencias de transformaciones]]; si, a resultas del filtrado, la
 lista de abreviaturas es vacía entonces la representación en \LaTeX{}
 es una cadena vacía (no se pinta ningún símbolo en Jupyter). Si el
