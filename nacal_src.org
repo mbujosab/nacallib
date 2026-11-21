@@ -659,13 +659,6 @@ def subs(self, reglasDeSustitucion=[]):
     
 #+END_SRC
 
-# def subs(self, reglasDeSustitucion=[]):
-#     """ Sustitución de variables simbólicas """
-#     reglas = CreaLista(reglasDeSustitucion)
-#     NuevoSistema = self.fullcopy()
-#     NuevoSistema.lista = [sympy.S(elemento).subs(CreaLista(reglas)) for elemento in NuevoSistema]
-#     return NuevoSistema
-
 
 El argumento es una lista de [[https://docs.sympy.org/latest/tutorials/intro-tutorial/basic_operations.html][reglas de sustitución]] formadas por pares
 =(símbolo, valor)=; por ejemplo ~[(a,2), (b,0), (c,a)]~.
@@ -856,13 +849,6 @@ def es_de_composicion_y_longitud_uniforme(self):
 #+END_SRC
 
 ***** Búsqueda del primer, o del último, elemento no nulo del ~Sistema~
-
-# #+BEGIN_SRC 
-# def primer_no_nulo(self, p = 0, sust=[]):
-#     """Devuelve o una lista con la posición del primer no nulo despues de
-#     la posición p o vacía si todos son nulos"""
-#     return next(([i] for i, x in enumerate(self.subs(sust),1) if CreaSistema(x).no_es_nulo() and i>p), [])
-# #+END_SRC
 
 #+BEGIN_SRC python
 
@@ -2507,10 +2493,6 @@ Definimos varios tipos de representación.
   segunda componente (véase la Sección [[Ejemplo de representación de un
   ~Sistema~]]).
 
-# f-strings https://realpython.com/python-f-strings/  necesito python 3.12 mínimo
-# l=[f"{((i,)|I(4))!s}" for i,e in enumerate(I(4)) ]
-# f"{'\n'.join(l)}"
-
 #+BEGIN_SRC python
 
 def __str__(self):
@@ -3017,42 +2999,6 @@ pinta( BV )
 #+RESULTS:
 $\displaystyle \begin{pmatrix}\left[ \begin{array}{ccc}1&2&3\\4&5&6\\ \end{array} \right],& 1,& 0,& 0,\end{pmatrix}$
 
-*********** COMMENT Ejemplo descartado                             :noexport:
-Repetimos aquí el último ejemplo de representación de la clase
-=Sistema= pero en este caso en forma de =BlockV=.  Fíjese que al
-disponer los elementos en vertical en la representación =latex=, es
-ligeramente más fácil entender la estructura del sistema.
-#+BEGIN_SRC jupyter-python :exports code :results silent
-vv = Vector([1,2,3])
-Z = Sistema( [ Vector([6,8,10],rpr='h').csis({2}), vv , 1492] )  
-ZZ = BlockV([ Z, 'Hola', Matrix([Vector([0,sympy.pi,fracc(a,2)]),Vector([0,0,0])])  ]).csis({1})
-print(ZZ)
-repr(ZZ)
-ZZ
-#+END_SRC
-
-#+BEGIN_SRC jupyter-python :exports results :results raw
-# :results output replace
-pinta( BV )
-#+END_SRC
-
-#+RESULTS:
-$\displaystyle \left( \begin{array}{c}\left[ \begin{array}{ccc}1&2&3\\4&5&6\\ \end{array} \right]\\1\\0\\0\\ \end{array} \right)$
-
-#+BEGIN_SRC jupyter-python :exports results :results raw :results output replace
-dprint( repr(ZZ) )
-#+END_SRC
-
-#+RESULTS:
-=BlockV([Sistema([Vector([6, 8, 10]); Vector([1, 2, 3]); 1492;]), 'Hola', Matrix([Vector([0, pi, a/2]), Vector([0, 0, 0])])])=
-
-#+BEGIN_SRC jupyter-python :exports results :results raw :results output replace
-pinta(ZZ)
-#+END_SRC
-
-#+RESULTS:
-$\displaystyle \left( \begin{array}{c}\left[ \begin{array}{ccc}\left( \begin{array}{cc|c}6,& 8,& 10,\\ \end{array} \right);& \left( \begin{array}{c}1\\2\\3\\ \end{array} \right);& 1492;\end{array} \right]\\ \hline \mathtt{\text{Hola}}\\\left[ \begin{array}{cc}0&0\\\pi&0\\\frac{a}{2}&0\\ \end{array} \right]\\ \end{array} \right)$
-
 *** La clase ~BlockV~ completa
 
 #+name: Definición de la subclase BlockV
@@ -3085,14 +3031,6 @@ números. Así solo necesitamos redefinir la representación =repr= para
 que indique específicamente que se trata de un =Vector=, ya que la
 subclase =Vector= hereda el resto de métodos y atributos de la clase
 =Sistema= y la subclase =BlockV=.
-
-# \begin{pycode}
-# v1, v2, v3 = sympy.symbols('v_1 v_2 v_3')
-# v = Vector( [v1, v2, v3,] )
-# \end{pycode}
-# \[\Vect{v}=\py{latex(Vector(v,'h'))},\]
-# o bien en forma de columna:
-# \[\Vect{v}=\py{latex(v)}.\]
 
 *** Implementación de los vectores de \R[n] en la subclase ~Vector~
 
@@ -3757,24 +3695,6 @@ def extDiag(self, lista, c=False):
     return ExtDiag([self]+lista)
 
 #+END_SRC
-
-**** COMMENT Vectoriza un ~BlockM~ apilando sus elementos para formar un ~BlockV~
-#+name: Vectoriza un BlockM apilando sus elementos para formar un BlockV
-#+BEGIN_SRC python
-   
-def vec(self):
-    "Vectoriza un BlockM apilando sus elementos para formar un BlockV"
-    return BlockV(Sistema([]).junta(self))
-
-#+END_SRC
-
-
-# def ExtiendeDiag(self, lista):
-#     if not all(isinstance(elemento, BlockM) for elemento in lista): 
-#         return ValueError('No es una lista de BlockMs')
-#     Ext_dos = lambda x, y: BlockM([[x,M0(x.m,y.n)],[M0(y.m,x.n),y] ])
-#     ExtDiag = lambda x: x[0] if len(x)==1 else Ext_dos( ExtDiag(x[0:-1]), x[-1] )
-#     return ExtDiag([self]+lista)
 
 *** Transformaciones elementales de las filas de un ~BlockM~
 
@@ -6729,19 +6649,6 @@ def __contains__(self, other):
         
 #+END_SRC
 
-# if isinstance(self.sgen|1, Vector):
-#     if not isinstance(other, Vector) or other.n != self.Rn:
-#         raise ValueError('El Vector no tiene el número adecuado de componentes')
-#     
-#     #return self.cart*other.vec() == V0(self.cart.m)
-#     return self.cart*other == V0(self.cart.m)
-# 
-# elif isinstance(self.sgen|1, Matrix):
-#     if not isinstance(other, Matrix) or (other.n,other.m) != self.Rn:
-#         raise ValueError('El Vector no tiene el número adecuado de componentes')
-#     
-#     return self.cart*other.vec() == V0(self.cart.m)
-
 *** Métodos de representación de la clase ~SubEspacio~
 
 #+name: Métodos de representación de la clase ~SubEspacio~
@@ -7063,14 +6970,6 @@ def __and__(self, other):
 
 #+END_SRC
 
-#    try:
-#        S=SEL(M,w)
-#    except:
-#        print('Intersección vacía')
-#        return Sistema([])
-#    else:
-#        return S
-
 Con =~A= obtendremos el mayor ~SubEspacio~ perpendicular a ~A~.
 
 #+BEGIN_SRC python
@@ -7250,13 +7149,6 @@ class Homogenea:
 
 La base la constituyen los vectores ~v~ de ~E~ que corresponden a los
 vectores nulos de ~K~.
-
-# #+name: Cálculo de una ~base~ del espacio nulo de ~A~
-# #+BEGIN_SRC python
-# K     = A.K(0, sust)  
-# E     = I(A.n) & T(K.pasos[1])
-# base  = [ v.subs(sust) for j, v in enumerate(E, 1) if (K|j).es_nulo(sust) ]
-# #+END_SRC
 
 *** Métodos de representación de la clase ~Homogenea~
 
@@ -8010,10 +7902,6 @@ def kernel(self):
 
 #+END_SRC
 
-# K = (self.pares|2).elim(0)
-# E = (self.pares|1).copy() & T(K.pasos[1])
-# sistema_generador = Sistema([v for j,v in enumerate(E,1) if (K|j).es_nulo()])
-
 
 *** Métodos la clase ~FuncionLineal~
 :PROPERTIES:
@@ -8273,50 +8161,6 @@ __all__ = [
 
 ** Métodos generales
 
-*** Números
-
-Consideraremos como números los enteros, los números de coma flotante,
-los números complejos, y toda la familia de objetos de tipo [[https://docs.sympy.org/latest/modules/core.html#sympy.core.basic.Basic][=Basic=]]
-del módulo [[https://docs.sympy.org/latest/index.html][Sympy]], lo que nos permite trabajar con números racionales,
-muchos números reales y con expresiones simbólicas.
-#+name: Consideracion de qué es un número
-#+BEGIN_SRC python
-NumberTypes = (int, float, complex, sympy.Basic)
-es_numero   = lambda x: isinstance(x, NumberTypes) and not isinstance(x, bool)
-#+END_SRC
-
-Para la eliminación es fundamental saber si un número es cero (pues los pivotes son números no
-nulos). Con expresiones simbólicas no basta comparar la expresión con =0=: por ejemplo, Sympy no
-simplifica automáticamente $\sin^2x+\cos^2x-1$, que es cero aunque no /se escriba/ como =0=. La
-función =es_cero= se ocupa de esta comprobación. Para no ralentizar los cálculos solo recurre a
-=sympy.simplify= cuando la expresión no es una función racional de sus símbolos con coeficientes
-racionales (caso en el que basta desarrollar el numerador; y si la expresión ya está factorizada, ni
-siquiera eso: basta compararla con =0=).
-#+name: Comprobación de que un número es cero
-#+BEGIN_SRC python
-def es_funcion_racional(x):
-    """Indica si la expresión x es una función racional de sus símbolos
-    con coeficientes racionales"""
-    return x.is_rational_function(*x.free_symbols)                      \
-        and all(a.is_Symbol or a.is_Rational for a in x.atoms())        \
-        and all(p.exp.is_Integer for p in x.atoms(sympy.Pow))
-
-def es_cero(x):
-    """Indica si es cierto que el número (o la expresión simbólica) x es cero"""
-    if not isinstance(x, sympy.Basic):
-        return x == 0
-    if x.is_Number:
-        return bool(x == 0)
-    if not isinstance(x, sympy.Expr):
-        return False
-    if es_funcion_racional(x):
-        return sympy.fraction(sympy.together(x))[0].expand() == 0
-    if x.is_zero is not None:
-        return bool(x.is_zero)
-    simplificada = sympy.simplify(x)
-    return bool(simplificada == 0 or simplificada.is_zero)
-#+END_SRC
-
 *** Números racionales
 
 Los números en coma flotante (=float=) no son exactos: =0.1+0.2-0.3= no es cero. Operando con
@@ -8381,22 +8225,6 @@ def denom(a,b):
 
 #+END_SRC
 
-*** Ristras
-
-Según el diccionario de la Real Academia Española una [[https://dle.rae.es/ristra][/ristra/]] es un
-/conjunto de ciertas cosas colocadas unas tras otras/; por ello,
-denominamos genéricamente ``ristra'' a cualquier objeto de tipo
-=list=, =tuple= o =Sistema=.
-
-#+name: Consideracion de qué es una secuencia
-#+BEGIN_SRC python
-RistraTypes = (tuple, list, Sistema)
-es_ristra  = lambda x: isinstance(x, RistraTypes) 
-
-def es_ristra_de_numeros(arg):
-    return all( [es_numero(elemento) for elemento in arg] ) if es_ristra(arg) else None
-
-#+END_SRC
 *** Métodos de representación para el entorno Jupyter
 
 El método =html=, escribe el inicio y el final de un párrafo en html y
@@ -8485,129 +8313,6 @@ print( Vector([sympy.sqrt(2), 0, fracc(3, 4) ]) )
 
 #+RESULTS:
 (sqrt(2), 0, 3/4,)
-
-*** Métodos ~CreaLista~ y ~CreaSistema~
-
-#+name: Método auxiliar CreaLista que devuelve listas
-#+BEGIN_SRC python
-
-def CreaLista(t):
-    """Devuelve t si t es una lista; si no devuelve la lista [t]"""
-    return t if isinstance(t, list) else [t]
-
-#+END_SRC
-
-#+name: Método auxiliar CreaSistema que devuelve sistemas
-#+BEGIN_SRC python
-
-def CreaSistema(t):
-    """Devuelve t si t es un Sistema; si no devuelve un Sistema que contiene t"""
-    return t if isinstance(t, Sistema) else Sistema(CreaLista(t))
-
-#+END_SRC
-
-*** Métodos ~primer_no_nulo~ y ~ultimo_no_nulo~ de un Sistema
-
-#+name: Métodos primer_no_nulo y ultimo_no_nulo de un Sistema
-#+BEGIN_SRC python
-
-def primer_no_nulo(s):
-    """Primer elemento no nulo en un sistema de sistemas de números"""
-    c = [] if es_numero(s) else s.primer_no_nulo()
-    return c + primer_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
-
-def ultimo_no_nulo(s):
-    """Último elemento no nulo en un sistema de sistemas de números"""
-    c = [] if es_numero(s) else s.ultimo_no_nulo()
-    return c + ultimo_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
-
-def elementoPivote(s):
-    """Primer elemento no nulo"""
-    if es_numero(s):
-        return s
-    elif CreaSistema(s).elementoPivote():
-        return elementoPivote(CreaSistema(s).extractor(CreaSistema(s).primer_no_nulo()))
-    else:
-        None
-
-def elementoAntiPivote(s):
-    """Último elemento no nulo"""
-    if es_numero(s):
-        return s
-    elif CreaSistema(s).elementoAntiPivote():
-        return elementoAntiPivote(CreaSistema(s).extractor(CreaSistema(s).ultimo_no_nulo()))
-    else:
-        None
-
-    #+END_SRC
-
-*** Otros métodos auxilares
-       :PROPERTIES:
-       :header-args+: :noweb-ref Otros métodos auxilares
-       :END:
-
-#+BEGIN_SRC python
-
-def particion(s,n):
-    """ genera la lista de particionamiento a partir de un conjunto y un número
-    >>> particion({1,3,5},7)
-    [[1], [2, 3], [4, 5], [6, 7]]
-    """
-    s = {e for e in s if e<=n}
-    p = sorted(list(s | set([0,n])))
-    return [ list(range(p[k]+1,p[k+1]+1)) for k in range(len(p)-1) ]
-    
-def estructura(S):
-    if isinstance(S, Sistema):
-        c = [type(S)]
-        for item in S:
-            if not isinstance(item, Sistema):
-                if es_numero(item):
-                    c = c + [('num',)]
-                else:
-                    c = c + [(type(item),)]
-            else:
-                c = c + [item.estructura()]
-    else:
-        if es_numero(S):
-            c = [('num',)]
-        else:
-            c = [(type(S),)]
-
-    return c
-
-#+END_SRC
-
-*** Cribado de secuencias de transformaciones
-
-En el proceso de eliminación, muchas trasformaciones elementales
-realmente son identidades (sumar 0 veces otro vector y multiplicar un
-vector por 1).
-
-A la hora de representar los pasos de eliminación, normalmente es
-mejor omitir estos pasos innecesarios. Definimos un procedimiento
-general que quita de una lista de abreviaturas aquellas que son
-innecesarias en la representación. Si como argumento se le da una
-lista de abreviaturas, devuelve una lista filtrada. Si como argumento
-se le da una \texttt{T}ransformación, devuelve una
-\texttt{T}ransformación cuya lista de abreviaturas está filtrada.
-
-#+name: Cribado de secuencias de transformaciones
-#+BEGIN_SRC python
-
-def filtradopasos(pasos):
-    abv = pasos.abreviaturas if isinstance(pasos,T) else pasos
-           
-    p = [T([j for j in T([abv[i]]).abreviaturas if (isinstance(j,set) and len(j)>1)\
-               or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
-               or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
-                                             for i in range(0,len(abv)) ]
-
-    abv = [ t for t in p if t.abreviaturas] # quitamos abreviaturas vacías de la lista
-    
-    return T(abv) if isinstance(pasos,T) else abv
-
-#+END_SRC
 
 *** Idioma de los textos de salida
 
@@ -8860,6 +8565,190 @@ def expand(self):
         return self.expand()
     else:
         return sympy.expand(self)
+
+#+END_SRC
+
+*** Números
+
+Consideraremos como números los enteros, los números de coma flotante,
+los números complejos, y toda la familia de objetos de tipo [[https://docs.sympy.org/latest/modules/core.html#sympy.core.basic.Basic][=Basic=]]
+del módulo [[https://docs.sympy.org/latest/index.html][Sympy]], lo que nos permite trabajar con números racionales,
+muchos números reales y con expresiones simbólicas.
+#+name: Consideracion de qué es un número
+#+BEGIN_SRC python
+NumberTypes = (int, float, complex, sympy.Basic)
+es_numero   = lambda x: isinstance(x, NumberTypes) and not isinstance(x, bool)
+#+END_SRC
+
+Para la eliminación es fundamental saber si un número es cero (pues los pivotes son números no
+nulos). Con expresiones simbólicas no basta comparar la expresión con =0=: por ejemplo, Sympy no
+simplifica automáticamente $\sin^2x+\cos^2x-1$, que es cero aunque no /se escriba/ como =0=. La
+función =es_cero= se ocupa de esta comprobación. Para no ralentizar los cálculos solo recurre a
+=sympy.simplify= cuando la expresión no es una función racional de sus símbolos con coeficientes
+racionales (caso en el que basta desarrollar el numerador; y si la expresión ya está factorizada, ni
+siquiera eso: basta compararla con =0=).
+#+name: Comprobación de que un número es cero
+#+BEGIN_SRC python
+def es_funcion_racional(x):
+    """Indica si la expresión x es una función racional de sus símbolos
+    con coeficientes racionales"""
+    return x.is_rational_function(*x.free_symbols)                      \
+        and all(a.is_Symbol or a.is_Rational for a in x.atoms())        \
+        and all(p.exp.is_Integer for p in x.atoms(sympy.Pow))
+
+def es_cero(x):
+    """Indica si es cierto que el número (o la expresión simbólica) x es cero"""
+    if not isinstance(x, sympy.Basic):
+        return x == 0
+    if x.is_Number:
+        return bool(x == 0)
+    if not isinstance(x, sympy.Expr):
+        return False
+    if es_funcion_racional(x):
+        return sympy.fraction(sympy.together(x))[0].expand() == 0
+    if x.is_zero is not None:
+        return bool(x.is_zero)
+    simplificada = sympy.simplify(x)
+    return bool(simplificada == 0 or simplificada.is_zero)
+#+END_SRC
+
+*** Ristras
+
+Según el diccionario de la Real Academia Española una [[https://dle.rae.es/ristra][/ristra/]] es un
+/conjunto de ciertas cosas colocadas unas tras otras/; por ello,
+denominamos genéricamente ``ristra'' a cualquier objeto de tipo
+=list=, =tuple= o =Sistema=.
+
+#+name: Consideracion de qué es una secuencia
+#+BEGIN_SRC python
+RistraTypes = (tuple, list, Sistema)
+es_ristra  = lambda x: isinstance(x, RistraTypes) 
+
+def es_ristra_de_numeros(arg):
+    return all( [es_numero(elemento) for elemento in arg] ) if es_ristra(arg) else None
+
+#+END_SRC
+
+*** Métodos ~CreaLista~ y ~CreaSistema~
+
+#+name: Método auxiliar CreaLista que devuelve listas
+#+BEGIN_SRC python
+
+def CreaLista(t):
+    """Devuelve t si t es una lista; si no devuelve la lista [t]"""
+    return t if isinstance(t, list) else [t]
+
+#+END_SRC
+
+#+name: Método auxiliar CreaSistema que devuelve sistemas
+#+BEGIN_SRC python
+
+def CreaSistema(t):
+    """Devuelve t si t es un Sistema; si no devuelve un Sistema que contiene t"""
+    return t if isinstance(t, Sistema) else Sistema(CreaLista(t))
+
+#+END_SRC
+
+*** Métodos ~primer_no_nulo~ y ~ultimo_no_nulo~ de un Sistema
+
+#+name: Métodos primer_no_nulo y ultimo_no_nulo de un Sistema
+#+BEGIN_SRC python
+
+def primer_no_nulo(s):
+    """Primer elemento no nulo en un sistema de sistemas de números"""
+    c = [] if es_numero(s) else s.primer_no_nulo()
+    return c + primer_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
+
+def ultimo_no_nulo(s):
+    """Último elemento no nulo en un sistema de sistemas de números"""
+    c = [] if es_numero(s) else s.ultimo_no_nulo()
+    return c + ultimo_no_nulo(CreaSistema(s)|c[0]) if c!=[] else []
+
+def elementoPivote(s):
+    """Primer elemento no nulo"""
+    if es_numero(s):
+        return s
+    elif CreaSistema(s).elementoPivote():
+        return elementoPivote(CreaSistema(s).extractor(CreaSistema(s).primer_no_nulo()))
+    else:
+        None
+
+def elementoAntiPivote(s):
+    """Último elemento no nulo"""
+    if es_numero(s):
+        return s
+    elif CreaSistema(s).elementoAntiPivote():
+        return elementoAntiPivote(CreaSistema(s).extractor(CreaSistema(s).ultimo_no_nulo()))
+    else:
+        None
+
+    #+END_SRC
+
+*** Otros métodos auxilares
+       :PROPERTIES:
+       :header-args+: :noweb-ref Otros métodos auxilares
+       :END:
+
+#+BEGIN_SRC python
+
+def particion(s,n):
+    """ genera la lista de particionamiento a partir de un conjunto y un número
+    >>> particion({1,3,5},7)
+    [[1], [2, 3], [4, 5], [6, 7]]
+    """
+    s = {e for e in s if e<=n}
+    p = sorted(list(s | set([0,n])))
+    return [ list(range(p[k]+1,p[k+1]+1)) for k in range(len(p)-1) ]
+    
+def estructura(S):
+    if isinstance(S, Sistema):
+        c = [type(S)]
+        for item in S:
+            if not isinstance(item, Sistema):
+                if es_numero(item):
+                    c = c + [('num',)]
+                else:
+                    c = c + [(type(item),)]
+            else:
+                c = c + [item.estructura()]
+    else:
+        if es_numero(S):
+            c = [('num',)]
+        else:
+            c = [(type(S),)]
+
+    return c
+
+#+END_SRC
+
+*** Cribado de secuencias de transformaciones
+
+En el proceso de eliminación, muchas trasformaciones elementales
+realmente son identidades (sumar 0 veces otro vector y multiplicar un
+vector por 1).
+
+A la hora de representar los pasos de eliminación, normalmente es
+mejor omitir estos pasos innecesarios. Definimos un procedimiento
+general que quita de una lista de abreviaturas aquellas que son
+innecesarias en la representación. Si como argumento se le da una
+lista de abreviaturas, devuelve una lista filtrada. Si como argumento
+se le da una \texttt{T}ransformación, devuelve una
+\texttt{T}ransformación cuya lista de abreviaturas está filtrada.
+
+#+name: Cribado de secuencias de transformaciones
+#+BEGIN_SRC python
+
+def filtradopasos(pasos):
+    abv = pasos.abreviaturas if isinstance(pasos,T) else pasos
+           
+    p = [T([j for j in T([abv[i]]).abreviaturas if (isinstance(j,set) and len(j)>1)\
+               or (isinstance(j,tuple) and len(j)==3 and j[0]!=0)       \
+               or (isinstance(j,tuple) and len(j)==2 and j[0]!=1) ])    \
+                                             for i in range(0,len(abv)) ]
+
+    abv = [ t for t in p if t.abreviaturas] # quitamos abreviaturas vacías de la lista
+    
+    return T(abv) if isinstance(pasos,T) else abv
 
 #+END_SRC
 
