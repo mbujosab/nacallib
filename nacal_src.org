@@ -158,7 +158,9 @@ Pendiente tras la revisión de noviembre de 2026:
   =A.factor()=, =A.simplify()= y =A.expand()= devolvían =None=. Ahora también devuelven =A=
 
 - [ ] Las subclases =Elim=, =InvMat=, =DiagonalizaS=, etc. cambian su propia clase al
-  inicializarse (=isinstance(x, Elim)= siempre es falso). Valorar sustituirlas por funciones
+  inicializarse (=isinstance(x, Elim)= siempre es falso). Valorar sustituirlas por funciones. Valorado en
+  noviembre de 2026: se deja como está (no causa fallos y el material no depende de ello). Si se
+  cambian los nombres del módulo, decidir entonces si son clases o funciones
 
 - [X] Definir =__all__= (sección /Nombres que exporta el módulo/)
 
