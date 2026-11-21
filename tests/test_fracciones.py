@@ -6,13 +6,26 @@ from nacal import *
 A = Matrix([[fracc(1, 2), 0], [fracc(1, 2), fracc(9, 10)]])
 E = Matrix([[1, 2], [3, 4]])
 
+def test_por_defecto_filas_separadas():
+    """Desde la 0.5.5 el modo por defecto es 'separadas' (va antes de la preparación de abajo)"""
+    import subprocess, sys
+    codigo = ("from nacal import *; print(fracciones()); "
+              "print(latex(Matrix([[fracc(1, 2), 0], [fracc(1, 2), fracc(9, 10)]]))); "
+              "print(latex(Matrix([[1, 2], [3, 4]])))")
+    salida = subprocess.run([sys.executable, '-c', codigo], capture_output=True, text=True, check=True,
+                            cwd=str(__import__('pathlib').Path(__file__).resolve().parent.parent)).stdout.split('\n')
+    assert salida[0] == 'separadas'
+    assert salida[1] == r'\left[ \begin{array}{cc}\frac{1}{2}&0\\[0.6ex]\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]'
+    assert salida[2] == r'\left[ \begin{array}{cc}1&2\\3&4\\ \end{array} \right]'
+
 @pytest.fixture(autouse=True)
 def modo_normal():
+    """Cada prueba empieza en modo 'normal' y al acabar se restaura el modo por defecto"""
     fracciones('normal')
     yield
-    fracciones('normal')
+    fracciones('separadas')
 
-def test_por_defecto_nada_cambia():
+def test_modo_normal():
     assert fracciones() == 'normal'
     assert latex(A) == r'\left[ \begin{array}{cc}\frac{1}{2}&0\\\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]'
 

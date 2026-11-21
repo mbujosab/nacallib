@@ -47,7 +47,7 @@
 
 #+CALL: NombreEnChunksDeCodigo()
 
-#+macro: ver Versión:  0.5.4
+#+macro: ver Versión:  0.5.5
 
 #+name: __init__.py
 #+BEGIN_SRC python :tangle nacal/__init__.py
@@ -55,7 +55,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.5.4"
+__version__ = "0.5.5"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -163,6 +163,10 @@ Pendiente tras la revisión de noviembre de 2026:
   cambian los nombres del módulo, decidir entonces si son clases o funciones
 
 - [X] Definir =__all__= (sección /Nombres que exporta el módulo/)
+
+- [X] Presentación de las fracciones: desde la 0.5.5 el modo por defecto de =fracciones= es
+  ='separadas'= (decidido tras verlo impreso y en Jupyter). Con =fracciones('normal')= se
+  recupera la presentación anterior
 
 - [X] Argumentos por defecto mutables (=sust=[]=, =TexPasosPrev=[]=). No causan fallos porque
   ninguna función los modifica ni los guarda (comprobado en noviembre de 2026). No se cambian las
@@ -2044,7 +2048,7 @@ print(displaymath( D.elim(1).tex ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{ccc}2&3&1\\1&1&1\\4&5&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(- \frac{3}{2}\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\1&- \frac{1}{2}&\frac{1}{2}\\4&-1&5\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\1&- \frac{1}{2}&0\\4&-1&4\\ \end{array} \right]$$
+$$\left[ \begin{array}{ccc}2&3&1\\1&1&1\\4&5&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(- \frac{3}{2}\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\[0.6ex]1&- \frac{1}{2}&\frac{1}{2}\\[0.6ex]4&-1&5\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc}2&0&0\\[0.6ex]1&- \frac{1}{2}&0\\[0.6ex]4&-1&4\\ \end{array} \right]$$
 
 ***** Eliminación gaussiana y Gauss-Jordan
 
@@ -4287,7 +4291,7 @@ print(displaymath( InvMat(A).tex ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc}5&0\\2&-2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}5&0\\0&-2\\ \hline 1&0\\1&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{5}\right)\mathbf{1}\right]\\\left[\left(- \frac{1}{2}\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\0&1\\ \hline \frac{1}{5}&0\\\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc}5&0\\2&-2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}5&0\\0&-2\\ \hline 1&0\\1&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{5}\right)\mathbf{1}\right]\\\left[\left(- \frac{1}{2}\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\[0.6ex]0&1\\[0.6ex] \hline \frac{1}{5}&0\\[0.6ex]\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
 
 La inversa es la matriz que ha quedado en la parte inferior
 
@@ -4296,7 +4300,7 @@ print(dmath( InvMat(A) ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc}\frac{1}{5}&0\\\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc}\frac{1}{5}&0\\[0.6ex]\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
 
 y, como con cualquier resultado de una eliminación, el atributo ~pasos~ guarda las transformaciones
 aplicadas (aquí todas son de las columnas):
@@ -4324,7 +4328,7 @@ print(displaymath( InvMatF(A).tex ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc|cc}5&0&1&0\\2&-2&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(5\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}5&0&1&0\\0&-10&-2&5\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{10}\right)\mathbf{2}\right]\\\left[\left(\frac{1}{5}\right)\mathbf{1}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}1&0&\frac{1}{5}&0\\0&1&\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc|cc}5&0&1&0\\2&-2&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(5\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}5&0&1&0\\0&-10&-2&5\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{10}\right)\mathbf{2}\right]\\\left[\left(\frac{1}{5}\right)\mathbf{1}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}1&0&\frac{1}{5}&0\\[0.6ex]0&1&\frac{1}{5}&- \frac{1}{2}\\ \end{array} \right]$$
 
 Y operando primero con las filas y después con las columnas, la inversa es el producto de la
 matriz de debajo por la matriz de la derecha (por ese orden):
@@ -4334,7 +4338,7 @@ print(displaymath( InvMatFC(A).tex ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc|cc}5&0&1&0\\2&-2&0&1\\ \hline 1&0& & \\0&1& & \\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(5\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}5&0&1&0\\0&-10&-2&5\\ \hline 1&0& & \\0&1& & \\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{5}\right)\mathbf{1}\right]\\\left[\left(- \frac{1}{10}\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc|cc}1&0&1&0\\0&1&-2&5\\ \hline \frac{1}{5}&0& & \\0&- \frac{1}{10}& & \\ \end{array} \right]$$
+$$\left[ \begin{array}{cc|cc}5&0&1&0\\2&-2&0&1\\ \hline 1&0& & \\0&1& & \\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(5\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc|cc}5&0&1&0\\0&-10&-2&5\\ \hline 1&0& & \\0&1& & \\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{5}\right)\mathbf{1}\right]\\\left[\left(- \frac{1}{10}\right)\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc|cc}1&0&1&0\\[0.6ex]0&1&-2&5\\[0.6ex] \hline \frac{1}{5}&0& & \\[0.6ex]0&- \frac{1}{10}& & \\ \end{array} \right]$$
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
 print(dprint( InvMatFC(A) == InvMat(A) ))
@@ -5109,7 +5113,7 @@ print(dmath( D.S ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc}\frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc}\frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]$$
 
 y se verifica que $\Mat{S}^{-1}\Mat{A}\Mat{S}=\Mat{D}$:
 
@@ -5129,7 +5133,7 @@ print(displaymath( desarrollo(D, por_linea=3) ))
 #+END_SRC
 
 #+RESULTS:
-$$\begin{aligned}{}&\left[ \begin{array}{cc}2&1\\1&2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow[\boxed{1\mathbf{I}}]{(-)}\left[ \begin{array}{cc}1&1\\1&1\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}2&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\boxed{1\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\1&1\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(-)}\left[ \begin{array}{cc}0&0\\1&-2\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}0&0\\0&-2\\ \hline \frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}0&0\\0&-2\\ \hline \frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\0&1\\ \hline \frac{1}{2}&-1\\\frac{1}{2}&1\\ \end{array} \right]\end{aligned}$$
+$$\begin{aligned}{}&\left[ \begin{array}{cc}2&1\\1&2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow[\boxed{1\mathbf{I}}]{(-)}\left[ \begin{array}{cc}1&1\\1&1\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}2&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\boxed{1\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\1&1\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(-)}\left[ \begin{array}{cc}0&0\\1&-2\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}0&0\\[0.6ex]0&-2\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}0&0\\[0.6ex]0&-2\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\[0.6ex]0&1\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\end{aligned}$$
 
 Ortogonalmente se obtiene la misma matriz diagonal, pero con una
 matriz ortogonal:
@@ -5143,7 +5147,7 @@ print(dmath( O.Q ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc}\frac{\sqrt{2}}{2}&- \frac{\sqrt{2}}{2}\\\frac{\sqrt{2}}{2}&\frac{\sqrt{2}}{2}\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc}\frac{\sqrt{2}}{2}&- \frac{\sqrt{2}}{2}\\[0.6ex]\frac{\sqrt{2}}{2}&\frac{\sqrt{2}}{2}\\ \end{array} \right]$$
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
 print(dprint( ~O.Q * A * O.Q == O ))
@@ -5188,7 +5192,7 @@ print(dmath( A.diagonalizaC(variante=1) ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc}2&0\\0&\frac{3}{2}\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc}2&0\\[0.6ex]0&\frac{3}{2}\\ \end{array} \right]$$
 
 Una matriz que no es diagonalizable: el autovalor 2 tiene
 multiplicidad algebraica dos, pero solo una dirección de autovectores.
@@ -6823,7 +6827,7 @@ print(dmath( E ))
 #+END_SRC
 
 #+RESULTS:
-$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{pmatrix}0\\ 0\\ - \frac{1}{2}\end{pmatrix}+\left[ \begin{array}{cc}0&2\\1&1\\0&3\\ \end{array} \right]\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}-3&0&2\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}-1,\end{pmatrix}\right.\right\}$$
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^2,\; \boldsymbol{v}= \begin{pmatrix}0\\[0.6ex] 0\\[0.6ex] - \frac{1}{2}\end{pmatrix}+\left[ \begin{array}{cc}0&2\\1&1\\0&3\\ \end{array} \right]\boldsymbol{p}\right. \right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \left[ \begin{array}{ccc}-3&0&2\\ \end{array} \right]\boldsymbol{v}=\begin{pmatrix}-1,\end{pmatrix}\right.\right\}$$
 
 El vector que aparece en las ecuaciones paramétricas no es el que
 hemos indicado, pero ambos pertenecen al espacio afín:
@@ -7555,7 +7559,7 @@ print(displaymath( S.tex ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{ccc|c}7&-2&0&-4\\6&4&2&-12\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(7\right)\mathbf{2}\right]\\\left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(7\right)\mathbf{4}\right]\\\left[\left(4\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&2&-60\\ \hline 1&2&0&4\\0&7&0&0\\0&0&1&0\\ \hline 0&0&0&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(20\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{4}\right]\\\left[\left(3\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&0&0\\ \hline 1&2&-2&14\\0&7&-7&21\\0&0&20&0\\ \hline 0&0&0&14\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{14}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&0&0\\ \hline 1&2&-2&1\\0&7&-7&\frac{3}{2}\\0&0&20&0\\ \hline 0&0&0&1\\ \end{array} \right]$$
+$$\left[ \begin{array}{ccc|c}7&-2&0&-4\\6&4&2&-12\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(7\right)\mathbf{2}\right]\\\left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(7\right)\mathbf{4}\right]\\\left[\left(4\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&2&-60\\ \hline 1&2&0&4\\0&7&0&0\\0&0&1&0\\ \hline 0&0&0&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(20\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{4}\right]\\\left[\left(3\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&0&0\\ \hline 1&2&-2&14\\0&7&-7&21\\0&0&20&0\\ \hline 0&0&0&14\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{14}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\[0.6ex]6&40&0&0\\[0.6ex] \hline 1&2&-2&1\\[0.6ex]0&7&-7&\frac{3}{2}\\[0.6ex]0&0&20&0\\[0.6ex] \hline 0&0&0&1\\ \end{array} \right]$$
 
 Sobre el 1 de la última columna se lee una solución, y bajo la columna nula de la matriz de
 coeficientes (la tercera) una solución especial del sistema homogéneo:
@@ -7574,7 +7578,7 @@ print(dmath( S ))
 #+END_SRC
 
 #+RESULTS:
-$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^1,\; \boldsymbol{v}= \begin{pmatrix}1\\ \frac{3}{2}\\ 0\end{pmatrix}+\left[ \begin{array}{c}-2\\-7\\20\\ \end{array} \right]\boldsymbol{p}\right. \right\}$$
+$$\left\{ \boldsymbol{v}\in\mathbb{R}^3\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^1,\; \boldsymbol{v}= \begin{pmatrix}1\\[0.6ex] \frac{3}{2}\\[0.6ex] 0\end{pmatrix}+\left[ \begin{array}{c}-2\\-7\\20\\ \end{array} \right]\boldsymbol{p}\right. \right\}$$
 
 El atributo ~eafin~ es dicho conjunto como objeto de la clase ~EAfin~. Podemos comprobar que
 ~solP~ es solución, y que también lo es al sumarle un múltiplo de la solución especial:
@@ -7601,7 +7605,7 @@ print(dmath( U ))
 #+END_SRC
 
 #+RESULTS:
-$$\left\{\ \begin{pmatrix}-4\\ \frac{9}{2}\end{pmatrix}\ \right\}$$
+$$\left\{\ \begin{pmatrix}-4\\[0.6ex] \frac{9}{2}\end{pmatrix}\ \right\}$$
 
 Y cuando tras la eliminación la parte superior de la última columna no es nula, el sistema no tiene
 solución. Los atributos ~solP~ y ~eafin~ son entonces el conjunto vacío:
@@ -7862,7 +7866,7 @@ print(displaymath( Determinante(A).tex ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{ccc|c}0&2&1&0\\9&6&3&0\\0&1&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{9}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(3\right)\mathbf{2}\right]\\\left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(3\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&3&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{9}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&0&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{18}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}6&0&0&0\\0&9&0&0\\3&0&3&0\\ \hline 0&0&0&- \frac{1}{18}\\ \end{array} \right]$$
+$$\left[ \begin{array}{ccc|c}0&2&1&0\\9&6&3&0\\0&1&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{9}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(3\right)\mathbf{2}\right]\\\left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(3\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&3&0\\[0.6ex]9&0&0&0\\[0.6ex]0&3&3&0\\[0.6ex] \hline 0&0&0&\frac{1}{9}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&0&0\\[0.6ex]9&0&0&0\\[0.6ex]0&3&3&0\\[0.6ex] \hline 0&0&0&\frac{1}{18}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}6&0&0&0\\[0.6ex]0&9&0&0\\[0.6ex]3&0&3&0\\[0.6ex] \hline 0&0&0&- \frac{1}{18}\\ \end{array} \right]$$
 
 El determinante es el producto de los elementos de la diagonal de la
 última matriz, y se guarda en el atributo ~valor~:
@@ -7901,7 +7905,7 @@ print(displaymath( desarrollo(Determinante(A), por_linea=2) ))
 #+END_SRC
 
 #+RESULTS:
-$$\begin{aligned}{}&\left[ \begin{array}{ccc|c}0&2&1&0\\9&6&3&0\\0&1&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{9}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(3\right)\mathbf{2}\right]\\\left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(3\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&3&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{9}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&0&0\\9&0&0&0\\0&3&3&0\\ \hline 0&0&0&\frac{1}{18}\\ \end{array} \right]\\[1ex]&\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}6&0&0&0\\0&9&0&0\\3&0&3&0\\ \hline 0&0&0&- \frac{1}{18}\\ \end{array} \right]\end{aligned}$$
+$$\begin{aligned}{}&\left[ \begin{array}{ccc|c}0&2&1&0\\9&6&3&0\\0&1&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{9}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(3\right)\mathbf{2}\right]\\\left[\left(-2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(3\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&3&0\\[0.6ex]9&0&0&0\\[0.6ex]0&3&3&0\\[0.6ex] \hline 0&0&0&\frac{1}{9}\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\left(2\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}0&6&0&0\\[0.6ex]9&0&0&0\\[0.6ex]0&3&3&0\\[0.6ex] \hline 0&0&0&\frac{1}{18}\\ \end{array} \right]\\[1ex]&\xrightarrow[\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}]{\underset{\begin{subarray}{c} \left[\mathbf{1}\rightleftharpoons\mathbf{2}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}6&0&0&0\\[0.6ex]0&9&0&0\\[0.6ex]3&0&3&0\\[0.6ex] \hline 0&0&0&- \frac{1}{18}\\ \end{array} \right]\end{aligned}$$
 
 La matriz puede contener símbolos. El resultado es entonces una
 expresión
@@ -8713,15 +8717,17 @@ def error_de_producto(izda, dcha):
 *** Presentación de las fracciones
 
 En una matriz con fracciones en filas contiguas, el denominador de una
-fila queda muy cerca del numerador de la fila siguiente. La función
+fila queda muy cerca del numerador de la fila siguiente. Por eso, desde
+la versión 0.5.5, el módulo añade un poco de espacio entre las filas de
+las matrices y vectores que contienen fracciones. La función
 =fracciones= permite elegir otra presentación para todo lo que se
 escriba a continuación. Sin argumentos indica el modo en uso.
 
-| Modo           | Presentación                                                                      |
-|----------------+-----------------------------------------------------------------------------------|
-| ='normal'=     | la de siempre (modo por defecto)                                                  |
-| ='separadas'=  | más espacio entre las filas de las matrices y vectores que contienen fracciones   |
-| ='inclinadas'= | fracciones con barra inclinada, como $1/2$                                        |
+| Modo           | Presentación                                                                                         |
+|----------------+------------------------------------------------------------------------------------------------------|
+| ='separadas'=  | más espacio entre las filas de las matrices y vectores que contienen fracciones (modo por defecto)   |
+| ='normal'=     | sin espacio añadido (la presentación de las versiones anteriores a la 0.5.5)                         |
+| ='inclinadas'= | fracciones con barra inclinada, como $1/2$                                                           |
 
 En el modo ='separadas'= el espacio añadido es de =0.6ex=; con un
 segundo argumento se indica otra longitud de \LaTeX{}, por ejemplo
@@ -8732,15 +8738,15 @@ también a las de los rótulos de las transformaciones.
 #+name: Presentación de las fracciones
 #+BEGIN_SRC python
 
-fracciones_en_uso = ['normal', '0.6ex']
+fracciones_en_uso = ['separadas', '0.6ex']
 
 def fracciones(modo=None, separacion=None):
     """Elige cómo se escriben en LaTeX las fracciones
 
     Modos:
-        'normal':     la presentación de siempre (por defecto)
         'separadas':  añade espacio entre las filas de las matrices y
-                      vectores que contienen alguna fracción
+                      vectores que contienen alguna fracción (por defecto)
+        'normal':     sin espacio añadido
         'inclinadas': fracciones con barra inclinada, como 1/2
 
     separacion es la longitud LaTeX que se añade entre filas en el modo
@@ -8748,7 +8754,7 @@ def fracciones(modo=None, separacion=None):
     en uso.
 
     >>> fracciones()
-    'normal'
+    'separadas'
     """
     if modo is None:
         return fracciones_en_uso[0]
@@ -8776,15 +8782,15 @@ print(dmath( A ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc}\frac{1}{2}&0\\\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc}\frac{1}{2}&0\\[0.6ex]\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]$$
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
-fracciones('separadas')
+fracciones('normal')
 print(dmath( A ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cc}\frac{1}{2}&0\\[0.6ex]\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]$$
+$$\left[ \begin{array}{cc}\frac{1}{2}&0\\\frac{1}{2}&\frac{9}{10}\\ \end{array} \right]$$
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
 fracciones('inclinadas')
@@ -8797,12 +8803,12 @@ $$\left[ \begin{array}{cc}1 / 2&0\\1 / 2&9 / 10\\ \end{array} \right]$$
 Para volver a la presentación por defecto:
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
-fracciones('normal')
+fracciones('separadas')
 print(dprint( fracciones() ))
 #+END_SRC
 
 #+RESULTS:
-=normal=
+=separadas=
 
 *** Simplificación de expresiones simbólicas
 

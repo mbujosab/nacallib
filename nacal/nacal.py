@@ -244,15 +244,15 @@ def error_de_producto(izda, dcha):
         texto_de_salida(quien_dcha), cuantos(numero_dcha, que_dcha))
 
 
-fracciones_en_uso = ['normal', '0.6ex']
+fracciones_en_uso = ['separadas', '0.6ex']
 
 def fracciones(modo=None, separacion=None):
     """Elige cómo se escriben en LaTeX las fracciones
 
     Modos:
-        'normal':     la presentación de siempre (por defecto)
         'separadas':  añade espacio entre las filas de las matrices y
-                      vectores que contienen alguna fracción
+                      vectores que contienen alguna fracción (por defecto)
+        'normal':     sin espacio añadido
         'inclinadas': fracciones con barra inclinada, como 1/2
 
     separacion es la longitud LaTeX que se añade entre filas en el modo
@@ -260,7 +260,7 @@ def fracciones(modo=None, separacion=None):
     en uso.
 
     >>> fracciones()
-    'normal'
+    'separadas'
     """
     if modo is None:
         return fracciones_en_uso[0]
