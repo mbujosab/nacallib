@@ -137,7 +137,6 @@ def elementoAntiPivote(s):
 def particion(s,n):
     """ genera la lista de particionamiento a partir de un conjunto y un número
     >>> particion({1,3,5},7)
-
     [[1], [2, 3], [4, 5], [6, 7]]
     """
     s = {e for e in s if e<=n}
@@ -578,10 +577,11 @@ class Sistema:
     Ejemplos:
     >>> # Crea un nuevo Sistema a partir de una lista, tupla o Sistema
     >>> Sistema( [ 10, 'hola', T({1,2}) ]  )           # con lista
+    Sistema([10; 'hola'; T([{1, 2}]);])
     >>> Sistema( ( 10, 'hola', T({1,2}) )  )           # con tupla
+    Sistema([10; 'hola'; T([{1, 2}]);])
     >>> Sistema( Sistema( [ 10, 'hola', T({1,2}) ] ) ) # con Sistema
-    
-    [10; 'hola'; T({1, 2});]
+    Sistema([10; 'hola'; T([{1, 2}]);])
     
     """
     
@@ -909,19 +909,17 @@ class Sistema:
         Ejemplos:
         >>> # Extrae el j-ésimo elemento del Sistema 
         >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) | 2
-        
         Vector([0, 2])
         
         >>> # Sistema formado por los elementos indicados en la lista (o tupla)
         >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) | [2,1]
+        Sistema([Vector([0, 2]); Vector([1, 0]);])
         >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) | (2,1)
-        
-        [Vector([0, 2]); Vector([1, 0])]
+        Sistema([Vector([0, 2]); Vector([1, 0]);])
         
         >>> # Sistema formado por los elementos indicados en el slice
         >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) | slice(1,3,2)
-        
-        [Vector([1, 0]), Vector([3, 0])]
+        Sistema([Vector([1, 0]); Vector([3, 0]);])
         
         """
         if isinstance(j, int):
@@ -959,14 +957,11 @@ class Sistema:
         
         Ejemplos:
         >>> Sistema([10, 20, 30]) - Sistema([1, 1, -1])
-        
-        Sistema([9, 19, 31])
+        Sistema([9; 19; 31;])
         >>> Vector([10, 20, 30]) - Vector([1, 1, -1])
-        
         Vector([9, 19, 31])
         >>> Matrix([[1,5],[5,1]]) - Matrix([[1,0],[0,1]]) 
-        
-        Matrix([Vector([0, 5]); Vector([5, 0])]) 
+        Matrix([Vector([0, 5]), Vector([5, 0])])
         """
         if not type(self)==type(other) or not len(self)==len(other):
             raise ValueError ('Solo se restan Sistemas del mismo tipo y misma longitud')
@@ -993,8 +988,7 @@ class Sistema:
             Sistema resultante de multiplicar cada componente por x
         Ejemplo:
         >>> 3 * Sistema([10, 20, 30]) 
-        
-        Sistema([30, 60, 90]) 
+        Sistema([30; 60; 90;])
         """
         if es_numero(x):
             x = racional(x)
@@ -1030,24 +1024,18 @@ class Sistema:
         Ejemplos:
         >>> # Producto por un número
         >>> Vector([10, 20, 30]) * 3
-        
         Vector([30, 60, 90])
         >>> Matrix([[1,2],[3,4]]) * 10
-        
-        Matrix([[10,20],[30,40]])
+        Matrix([Vector([10, 30]), Vector([20, 40])])
         >>> # Producto por un Vector
         >>> Vector([10, 20, 30]) * Vector([1, 1, 1])
-        
         60
         >>> Matrix([Vector([1, 3]), Vector([2, 4])]) * Vector([1, 1])
-        
         Vector([3, 7])
         >>> # Producto por una Matrix
         >>> Vector([1,1,1])*Matrix( ( [1,1,1], [2,4,8], [3,-1,0] ) )
-        
         Vector([6, 4, 9])
-        >>> Matrix([Vector([1, 3]), Vector([2, 4])]) * Matrix([Vector([1,1])]))
-        
+        >>> Matrix([Vector([1, 3]), Vector([2, 4])]) * Matrix([Vector([1,1])])
         Matrix([Vector([3, 7])])
         
         """
@@ -1083,11 +1071,22 @@ class Sistema:
         
             T(abreviaturas): transformaciones a aplicar sobre un Sistema S
         Ejemplos:
-        >>>  S & T({1,3})                # Intercambia los elementos 1º y 3º
-        >>>  S & T((5,1))                # Multiplica por 5 el primer elemento
-        >>>  S & T((5,2,1))              # Suma 5 veces el 2º elem al 1º
-        >>>  S & T([{1,3},(5,1),(5,2,1)])# Aplica la secuencia de transformac.
-                     # sobre los elementos de S y en el orden de la lista
+        >>> # Intercambia los elementos 1º y 3º
+        >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) & T({1,3})
+        Sistema([Vector([3, 0]); Vector([0, 2]); Vector([1, 0]);])
+        
+        >>> # Multiplica por 5 el primer elemento
+        >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) & T((5,1))
+        Sistema([Vector([5, 0]); Vector([0, 2]); Vector([3, 0]);])
+        
+        >>> # Suma 5 veces el 2º elemento al 1º
+        >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) & T((5,2,1))
+        Sistema([Vector([1, 10]); Vector([0, 2]); Vector([3, 0]);])
+        
+        >>> # Aplica la secuencia de transformaciones en el orden de la lista
+        >>> Sistema([Vector([1,0]), Vector([0,2]), Vector([3,0])]) & T([{1,3},(5,1),(5,2,1)])
+        Sistema([Vector([15, 10]); Vector([0, 2]); Vector([1, 0]);])
+        
         """
         def transformacionDelSistema(abrv):
             if isinstance(abrv,set):
@@ -1392,15 +1391,16 @@ class BlockV(Sistema):
     Ejemplos:
     >>> # Instanciación a partir de una lista, tupla o Sistema de números
     >>> BlockV( [1,'abc',(2,)] )            # con una lista
+    BlockV([1, 'abc', (2,)])
     >>> BlockV( (1,'abc',(2,)) )            # con una tupla
+    BlockV([1, 'abc', (2,)])
     >>> BlockV( Sistema( [1,'abc',(2,)] ) ) # con un Sistema
+    BlockV([1, 'abc', (2,)])
     >>> BlockV( BlockV ( [1,'abc',(2,)] ) ) # a partir de otro BlockV
+    BlockV([1, 'abc', (2,)])
     
-    BlockV( [1,'abc',(2,)] )
-    
-    >>> BlockV( [1,2,3)] )                  # con una lista de números
-    
-    Vector( [1,2,3] )
+    >>> BlockV( [1,2,3] )                   # con una lista de números
+    Vector([1, 2, 3])
     """
     
     def __init__(self, arg, rpr='columna'):
@@ -1498,11 +1498,13 @@ class Vector(BlockV):
     Ejemplos:
     >>> # Instanciación a partir de una lista, tupla o Sistema de números
     >>> Vector( [1,2,3] )           # con lista
+    Vector([1, 2, 3])
     >>> Vector( (1,2,3) )           # con tupla
+    Vector([1, 2, 3])
     >>> Vector( Sistema( [1,2,3] ) )# con Sistema
+    Vector([1, 2, 3])
     >>> Vector( Vector ( [1,2,3] ) )# a partir de otro Vector
-    
-    Vector([1,2,3])
+    Vector([1, 2, 3])
     """
     
     def __init__(self, arg, rpr='columna'):
@@ -1738,7 +1740,6 @@ class BlockM(Sistema):
     >>> # Crear un BlockM a partir de una lista de Vectores o BlockVs:
     >>> a = BlockV( ['Hola',2,3] ); b = Vector( [1,2,5] ); c = Vector( [1,2,7] )
     >>> BlockM( [a,b,c] )
-    
     BlockM([BlockV(['Hola', 2, 3]), Vector([1, 2, 5]), Vector([1, 2, 7])])
     >>> # Crear una BlockM a partir de una lista de listas, tuplas o Sistemas
     >>> A = BlockM([('Hola',1,1),[2,2,2],Vector([3,5,7])])
@@ -1798,8 +1799,7 @@ class BlockM(Sistema):
         
         Ejemplo:
         >>> ~BlockM([ [1,2,3], [2,4,6] ])
-        
-        Matrix([ Vector([1, 2, 3]), Vector([2, 4, 6]) ])
+        Matrix([Vector([1, 2, 3]), Vector([2, 4, 6])])
         """
         M = BlockM([ BlockV([v|f for v in self]) for f in range(1,self.m+1)])
         M.corteElementos, M.corteSistema = self.corteSistema, self.corteElementos
@@ -1844,17 +1844,15 @@ class BlockM(Sistema):
         Ejemplos:
         >>> # Extrae la j-ésima fila del BlockM 
         >>> 1 | BlockM([['Hola', 2, 3], [1, 2, 5], [1, 2, 7]])
-        
         BlockV(['Hola', 2, 3])
         >>> # Sistema formado por los elementos indicados en la lista (o tupla)
         >>> [2,1] | BlockM([['Hola', 2, 3], [1, 2, 5], [1, 2, 7]])
+        BlockM([BlockV([1, 'Hola']), Vector([2, 2]), Vector([5, 3])])
         >>> (2,1) | BlockM([['Hola', 2, 3], [1, 2, 5], [1, 2, 7]])
-        
         BlockM([BlockV([1, 'Hola']), Vector([2, 2]), Vector([5, 3])])
         
         >>> # Sistema formado por los elementos indicados en el slice
-        >>> slice(1,3,2) | BlockM([['Hola', 2, 3], [1, 2, 5], [1, 2, 7]]
-        
+        >>> slice(1,3,2) | BlockM([['Hola', 2, 3], [1, 2, 5], [1, 2, 7]])
         BlockM([BlockV(['Hola', 1]), Vector([2, 2]), Vector([3, 7])])
         
         """
@@ -1872,11 +1870,21 @@ class BlockM(Sistema):
             operaciones (T): transformaciones a aplicar sobre las filas
                              de un BlockM A
         Ejemplos:
-        >>>  T({1,3})   & A               # Intercambia las filas 1 y 3
-        >>>  T((5,1))   & A               # Multiplica por 5 la fila 1
-        >>>  T((5,2,1)) & A               # Suma 5 veces la fila 2 a la fila 1
-        >>>  T([(5,2,1),(5,1),{1,3}]) & A # Aplica la secuencia de transformac.
-                    # sobre las filas de A y en el orden inverso al de la lista
+        >>> # Intercambia las filas 1 y 3
+        >>> T({1,3}) & Matrix([[1,2],[3,4],[5,6]])
+        Matrix([Vector([5, 3, 1]), Vector([6, 4, 2])])
+        
+        >>> # Multiplica por 5 la fila 1
+        >>> T((5,1)) & Matrix([[1,2],[3,4],[5,6]])
+        Matrix([Vector([5, 3, 5]), Vector([10, 4, 6])])
+        
+        >>> # Suma 5 veces la fila 2 a la fila 1
+        >>> T((5,2,1)) & Matrix([[1,2],[3,4],[5,6]])
+        Matrix([Vector([16, 3, 5]), Vector([22, 4, 6])])
+        
+        >>> # Aplica la secuencia de transformaciones en el orden inverso al de la lista
+        >>> T([(5,2,1),(5,1),{1,3}]) & Matrix([[1,2],[3,4],[5,6]])
+        Matrix([Vector([40, 3, 1]), Vector([50, 4, 2])])
         
         """
         for item in reversed(operaciones.abreviaturas):
@@ -1974,16 +1982,14 @@ class Matrix(BlockM):
     >>> # Crear una Matrix a partir de una lista de Vectores:
     >>> a = Vector( [1,2] ); b = Vector( [1,0] ); c = Vector( [9,2] )
     >>> Matrix( [a,b,c] )
-    
-    Matrix([ Vector([1, 2]); Vector([1, 0]); Vector([9, 2]) ])
+    Matrix([Vector([1, 2]), Vector([1, 0]), Vector([9, 2])])
     >>> # Crear una Matrix a partir de una lista de listas de números
     >>> A = Matrix( [ [1,1,9], [2,0,2] ] )
     
     Matrix([ Vector([1, 2]); Vector([1, 0]); Vector([9, 2]) ])
     >>> # Crea una Matrix a partir de otra Matrix
     >>> Matrix( A )
-    
-    Matrix([ Vector([1, 2]); Vector([1, 0]); Vector([9, 2]) ])
+    Matrix([Vector([1, 2]), Vector([1, 0]), Vector([9, 2])])
     
     """
     
@@ -2615,25 +2621,27 @@ class T:
     Ejemplos:
     >>> # Intercambio entre elementoes
     >>> T( {1,2} )
+    T([{1, 2}])
     
     >>> # Trasformación Tipo II (multiplica por 5 el segundo elemento)
     >>> T( (5,2) )
+    T([(5, 2)])
     
     >>> # Trasformación Tipo I (resta el tercer elemento al primero)
     >>> T( (-1,3,1) )
+    T([(-1, 3, 1)])
     
     >>> # Secuencia de las tres transformaciones anteriores
     >>> T( [{1,2}, (5,2), (-1,3,1)] )
+    T([{1, 2}, (5, 2), (-1, 3, 1)])
     
     >>> # T de una T
     >>> T( T( (5,2) ) )
-    
-    T( (5,2) )
+    T([(5, 2)])
     
     >>> # T de una lista de T's
     >>> T( [T([(-8, 2), (2, 1, 2)]), T([(-8, 3), (3, 1, 3)]) ] )
-    
-    T( [(-8, 2), (2, 1, 2), (-8, 3), (3, 1, 3)] )
+    T([(-8, 2), (2, 1, 2), (-8, 3), (3, 1, 3)])
     
     """
     
@@ -2688,17 +2696,17 @@ class T:
         Ejemplos:
         >>> # Composición de dos Transformaciones elementales
         >>> T( {1, 2} ) & T( (2, 4) )
-        
-        T( [{1,2}, (2,4)] )
+        T([{1, 2}, (2, 4)])
         
         >>> # Composición de dos Transformaciones elementales
         >>> T( {1, 2} ) & T( [(2, 4), (2, 1), {3, 1}] )
-        
-        T( [{1, 2}, (2, 4), (2, 1), {3, 1}] )
+        T([{1, 2}, (2, 4), (2, 1), {1, 3}])
         
         >>> # Transformación de las filas de una Matrix
-        >>> T( [{1,2}, (4,2)] ) & A # multiplica por 4 la segunda fila de A y
-                                    # luego intercambia las dos primeras filas
+        >>> # Multiplica por 4 la segunda fila y luego intercambia las dos primeras filas
+        >>> T( [{1,2}, (4,2)] ) & Matrix([[1,2],[3,4]])
+        Matrix([Vector([12, 1]), Vector([16, 2])])
+        
         """        
         
         if isinstance(other, T):
@@ -3223,7 +3231,6 @@ class SEL:
         >>> # Combinaciones lineales de las columnas de A (vectores) iguales a b
         >>> A = Matrix([[1,2],[2,4]]);  b = Vector([1,2])
         >>> SEL(A, b)
-        
         Vector([1, 0]) + Combinaciones lineales de (Sistema([Vector([-2, 1]);]))
         
         >>> # Combinaciones lineales de las matrices de S iguales a la matriz B
@@ -3231,7 +3238,6 @@ class SEL:
         ...               Matrix([[1,1],[1,0]]), Matrix([[0,0],[0,1]]) ])
         >>> B = Matrix([[2,3],[3,5]])
         >>> SEL(S, B)
-        
         Vector([2, 3, 0, 5]) + Combinaciones lineales de (Sistema([Vector([-1, -1, 1, 0]);]))
         
         """

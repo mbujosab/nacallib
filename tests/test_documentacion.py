@@ -63,3 +63,17 @@ def test_ejemplos_de_la_documentacion(encabezado):
             assert salida.getvalue().strip() == resultado.strip(), codigo
             comprobados += 1
     assert comprobados > 0
+
+
+def test_ejemplos_de_los_textos_de_ayuda():
+    """Los ejemplos `>>>` de los textos de ayuda (help) muestran la salida real"""
+    import doctest
+    import nacal
+    import nacal.nacal as modulo
+    idioma_previo = nacal.idioma()
+    try:
+        resultado = doctest.testmod(modulo, verbose=False)
+    finally:
+        nacal.idioma(idioma_previo)
+    assert resultado.attempted >= 70
+    assert resultado.failed == 0
