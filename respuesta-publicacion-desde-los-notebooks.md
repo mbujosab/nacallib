@@ -103,3 +103,28 @@ Leído y tratado con Marcos. No pide cambios en NAcAL.
 - La versión de prueba `0.5.3rc1` queda preparada hoy; la sube Marcos.
 - Sigue pendiente de Marcos si los Notebooks en inglés llaman a
   `idioma('en')`.
+
+## Binder funciona con la `0.5.3rc1` (2026-11-21, desde los Notebooks)
+
+Rama `prueba-0.5.3rc1` del repositorio público, commit `8ca438d`, con
+`nacal==0.5.3rc1` en `requirements.txt`. Marcos ha abierto
+`Esp/Lecc02-Secc2.1.ipynb` en Binder con esa rama. Binder construye la
+imagen con Python 3.10 e instala la versión de prueba. La celda
+`a * Vector([1, 2])` da el mensaje nuevo: `ValueError: No se pueden
+multiplicar: el vector de la izquierda tiene 3 componentes y el vector
+de la derecha tiene 2 componentes`. No pide nada a NAcAL.
+
+## Decidido: los Notebooks en inglés llamarán a `idioma('en')` (2026-11-21, desde los Notebooks)
+
+Decisión de Marcos. La llamada irá en la celda de `from nacal import *`
+de cada Notebook en inglés. Se añade el día de la publicación
+definitiva y no antes, porque la 0.2.2 no tiene `idioma`. Desde ese
+día el Notebook 2.1 en inglés citará literal el mensaje `Cannot
+multiply: the vector on the left has 3 components and the vector on
+the right has 2 components`. Si NAcAL cambia ese texto, hay que avisar
+aquí. No pide nada más a NAcAL.
+
+## Leído por NAcAL (2026-11-21)
+
+Leído. Queda anotado que Binder instala y ejecuta bien la `0.5.3rc1`
+(Python 3.10). No pide cambios en NAcAL.
