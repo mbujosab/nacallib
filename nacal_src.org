@@ -161,8 +161,9 @@ Pendiente tras la revisión de noviembre de 2026:
 
 - [X] Definir =__all__= (sección /Nombres que exporta el módulo/)
 
-- [ ] Argumentos por defecto mutables (=sust=[]=, =TexPasosPrev=[]=). Hoy no causan fallos porque
-  no se modifican, pero es frágil
+- [X] Argumentos por defecto mutables (=sust=[]=, =TexPasosPrev=[]=). No causan fallos porque
+  ninguna función los modifica ni los guarda (comprobado en noviembre de 2026). No se cambian las
+  61 cabeceras: =tests/conftest.py= comprueba, al acabar la batería de pruebas, que siguen vacíos
 
 - [X] Empaquetado: migrar de =setup.py sdist bdist_wheel= (obsoleto) a =pyproject.toml= y
   =python3 -m build=

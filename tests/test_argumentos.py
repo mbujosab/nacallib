@@ -30,3 +30,11 @@ def test_DiagonalizaS_admite_sust():
     E = DiagonalizaS(Matrix([[2, 1], [1, 2]]), [1, 3])
     assert D == E and D.S == E.S
     assert D == B.diagonalizaS([1, 3], sust=[(a, 2)])
+
+
+def test_argumentos_por_defecto_mutables_vigilados():
+    """La comprobación de conftest.py encuentra los argumentos `sust=[]` y están vacíos"""
+    from conftest import argumentos_por_defecto_mutables
+    mutables = argumentos_por_defecto_mutables()
+    assert len(mutables) >= 50
+    assert all(not valor for nombre, valor in mutables)
