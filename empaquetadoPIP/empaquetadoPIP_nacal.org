@@ -155,7 +155,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/mbujosab/nacallib"
-Documentation = "https://github.com/mbujosab/nacallib/blob/master/nacal_src.pdf"
+Documentation = "https://mbujosab.github.io/nacallib/nacal_src.pdf"
 
 [tool.setuptools]
 packages = ["nacal"]
