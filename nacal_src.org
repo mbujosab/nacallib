@@ -189,10 +189,11 @@ Pendiente tras la revisión de noviembre de 2026:
   quedan una pregunta de examen (=2026-intermedio2-C=, ya escrita a mano con decimales) y el vector
   con =0.11= del vídeo V01, avisado a los vídeos
 
-- [ ] Enlaces al libro: los de la Lección 1 (=chapter.1=, =section.1.1=, =section.1.2= y
-  =section.1.5=) usan anclas numéricas, que cambian si se renumera el libro. Sustituirlas por
-  anclas con nombre cuando el libro las tenga (pedidas en noviembre de 2026). Faltan también
-  enlaces en la documentación de las diagonalizaciones
+- [X] Enlaces al libro: los de la Lección 1 usaban anclas numéricas, que cambian si se renumera
+  el libro. Desde noviembre de 2026 todos los enlaces usan anclas con nombre
+
+- [ ] Enlaces al libro en la documentación de las diagonalizaciones: el libro pondrá las anclas
+  cuando revise esas lecciones
 
 - [X] Ejecutar automáticamente los ejemplos de los textos de ayuda (=doctest=): lo hace
   =tests/test_documentacion.py=, y todos muestran la salida real
@@ -322,13 +323,13 @@ Los capítulos siguientes definen ciertas subclases (y subclases de subclases) d
 
 ** La clase ~Sistema~
 
-En el {{{libro(chapter.1,libro)}}} del curso se dice que
+En el {{{libro(target:LeccVectoresYMatrices,libro)}}} del curso se dice que
 \begin{center}
   Un \emph{sistema} es una lista ordenada de objetos.
 \end{center}
 Aunque Python posee de manera nativa las =list= (listas), ~NAcAL~ define una clase específica
 denominada =Sistema=. De esta manera ~NAcAL~ puede implementar tanto los métodos específicos
-descritos en el curso como la notación empleada en el {{{libro(chapter.1,libro)}}}, donde los sistemas genéricos se
+descritos en el curso como la notación empleada en el {{{libro(target:LeccVectoresYMatrices,libro)}}}, donde los sistemas genéricos se
 muestran entre /corchetes/ y con los elementos de la lista /seguidos de/ `` =;=''.[fn::~NAcAL~
 también replica la notación de otros sistemas particulares tales como los vectores de $\R[n]$ y las
 matrices.] No solo eso, cada uno de los elementos de un =Sistema= se muestra con su propia
@@ -357,7 +358,7 @@ algebraicas. Por ejemplo, las =listas= de Python se concatenan con ``+'', pero l
 concatenan con el método =concatena()=. Así ~NAcAL~ reserva el símbolo ``+'' para sumar =Sistemas=
 componente a componente como se hace en Álgebra Lineal. Con ello se logra que lo que veamos y
 escribamos en un Notebook de Jupyter sea lo más parecido posible a lo que vemos y escribimos en un
-{{{libro(chapter.1,curso de Álgebra Lineal)}}}.
+{{{libro(target:LeccVectoresYMatrices,curso de Álgebra Lineal)}}}.
 
 \newpage
 
@@ -448,7 +449,7 @@ el primer elemento del sistema ~A~ y con ~A[2] = 0~ sustituiremos su tercer elem
 ¡Recuerde que en Python los índices comienzan en =0=!  Aunque ~NAcAL~ incorpora este ``pythonesco''
 modo de indexar =Sistemas=, posteriormente (Sección [[Implementación del operador selector por la
 derecha para la clase ~Sistema~]]) se añade otro método adicional que implementa el operador selector
-`` =|= '' y que, tal como se hace en el {{{libro(chapter.1,libro)}}}, emplea el =1= como primer índice.]
+`` =|= '' y que, tal como se hace en el {{{libro(target:LeccVectoresYMatrices,libro)}}}, emplea el =1= como primer índice.]
 
 #+BEGIN_SRC python
 
@@ -982,6 +983,8 @@ def sel(self, v, rep=False, sust=[]):
 #+END_SRC
 
 *** Operaciones algebraicas sobre ~Sistemas~
+# Ancla con nombre del PDF: el material de clase enlaza con ella (no cambiar el nombre)
+#+LATEX: \noindent\raisebox{4\baselineskip}[0pt][0pt]{\hypertarget{target:OperacionesAlgebraicas}{}}\vspace{-\baselineskip}
 
 **** Implementación del operador selector por la derecha para la clase ~Sistema~
 
@@ -1102,13 +1105,13 @@ Con la definición de la clase =Sistema= y el operador selector =|= por
 la derecha, ya podemos definir las operaciones de suma de dos sistemas
 y de producto de un sistema por un escalar. Fíjese que las
 definiciones de las operaciones en Python (usando el operador =|=) son
-idénticas a las empleadas en el {{{libro(section.1.2,curso)}}}, donde hemos definido la suma de
+idénticas a las empleadas en el {{{libro(target:SumaVectoresYProductoPorEscalares,curso)}}}, donde hemos definido la suma de
 dos vectores de \R[n] como el vector tal que
 \begin{displaymath}
   \fbox{\begin{math} \elemR{(\Vect{a}+\Vect{b})}{i}=\eleVR{a}{i}+\eleVR{b}{i} \end{math}}
   \quad\text{para}\quad i=1:n
 \end{displaymath}
-y la {{{libro(section.1.5,suma de matrices)}}} como la matriz tal que
+y la {{{libro(target:SumaMatricesYProductoPorEscalares,suma de matrices)}}} como la matriz tal que
 \begin{displaymath}
   \fbox{\begin{math} \elemRP{\Mat{A}+\Mat{B}}{j}=\VectC{A}{j}+\VectC{B}{j} \vphantom{\Big(} \end{math}}
   \quad\text{para}\quad i=1:n.
@@ -3013,7 +3016,7 @@ class BlockV(Sistema):
 
 ** La subclase ~Vector~
 
-El {{{libro(section.1.1,curso)}}} de Álgebra Lineal define un vector de \R[n] del siguiente
+El {{{libro(target:VectoresRn,curso)}}} de Álgebra Lineal define un vector de \R[n] del siguiente
 modo
 \begin{center}
   Un \emph{vector} de \R[n] es un \emph{sistema} de $n$ números reales;
