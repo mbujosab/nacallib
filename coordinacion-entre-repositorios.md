@@ -167,27 +167,28 @@ trabajo que ya se hace:
 - **La versión de NAcAL que reciben los alumnos es la de PyPI**, que
   es la que instalan `pip install nacal` y mybinder. Puede ser más
   antigua que la instalada en el equipo de Marcos, con la que se
-  compilan el libro y el material de clase. El 2026-11-22 PyPI tiene
-  la 0.2.2 y el equipo de Marcos la 0.5.5. Lo que se enseñe a los
+  compilan el libro y el material de clase. El 2026-11-24 PyPI tiene
+  la 0.2.2 y el equipo de Marcos la 0.5.6. Lo que se enseñe a los
   alumnos tiene que funcionar con la versión de PyPI. (Añadido el
-  2026-11-15; versiones puestas al día el 2026-11-22.)
+  2026-11-15; versiones puestas al día el 2026-11-24.)
 - **Calendario para que la versión de PyPI y la del equipo de Marcos
   coincidan al empezar el curso** (finales de enero de 2027). Acordado
   con Marcos el 2026-11-15 y adelantado el 2026-11-21, tras consultar
   a los demás repositorios, porque nadie usa el módulo este
   cuatrimestre:
-  1. Noviembre: hecho. NAcAL 0.5.5 está cerrada e instalada en el
-     equipo de Marcos desde el 2026-11-21. PyPI tiene además una
-     versión de prueba, la `0.5.5rc1`. No la recibe `pip install
+  1. Noviembre: hecho. NAcAL 0.5.6 está cerrada e instalada en el
+     equipo de Marcos desde el 2026-11-24. PyPI tiene además una
+     versión de prueba anterior, la `0.5.5rc1` (en ella `por_linea`
+     todavía cuenta pasos y no matrices). No la recibe `pip install
      nacal`, que sigue instalando la 0.2.2; se instala pidiéndola por
      su número, `pip install nacal==0.5.5rc1`. Sirve para probar
      mybinder antes de la definitiva.
   2. Hasta mediados de diciembre: el libro y el material de clase se
-     compilan con la 0.5.5; lo que falle se anota como encargo en
+     compilan con la 0.5.6; lo que falle se anota como encargo en
      `nacallib`. El material de clase ya lo ha hecho (2026-11-22), sin
      errores.
   3. Semana del 14 de diciembre de 2026: Marcos publica en PyPI la
-     versión definitiva, la 0.5.5 o la que la corrija. El día exacto
+     versión definitiva, la 0.5.6 o la que la corrija. El día exacto
      se avisa a los Notebooks con uno o dos días de margen, porque
      tienen que publicar sus cambios el mismo día y después de NAcAL
      (mybinder no instala la versión nueva hasta que su repositorio
@@ -208,7 +209,7 @@ Propuesto por las clases y acordado con Marcos el 2026-11-24.
 
 | Repositorio público | Página web | Documento principal y anclas estables |
 |---|---|---|
-| `MatematicasII` (material de clase) | `https://mbujosab.github.io/MatematicasII/` | `Esp/Transparencias_y_ejercicios/P0N-MatematicasII-print.pdf`, ancla `#ProblemasLeccionN` |
+| `MatematicasII` (material de clase) | `https://mbujosab.github.io/MatematicasII/` | `Esp/Transparencias_y_ejercicios/P0N-MatematicasII-print.pdf` y, en inglés, `Eng/Slides_and_exercises/P0N-MatematicasII-printENG.pdf`; ancla `#ProblemasLeccionN` en los dos |
 | `CursoDeAlgebraLineal` (libro) | `https://mbujosab.github.io/CursoDeAlgebraLineal/` | `libro.pdf`, anclas `#target:…` y `#section.N.M` |
 | `nacallib` (NAcAL) | `https://mbujosab.github.io/nacallib/` | `nacal_src.pdf`, anclas `#target:…`. Instalación: `https://pypi.org/project/nacal/` |
 | `nacal-Jupyter-Notebooks` (Notebooks) | `https://mbujosab.github.io/nacal-Jupyter-Notebooks/` | Binder: `https://mybinder.org/v2/gh/mbujosab/nacal-jupyter-notebooks/master?urlpath=lab/tree/…` |

@@ -196,10 +196,14 @@ def test_desarrollo_por_defecto_no_cambia_nada():
         assert not any('xrightarrow' in s for s in trozos[0::2])
 
 def test_desarrollo_por_lineas():
-    E = ElimGJ(Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]]))     # 5 pasos
-    for por_linea, lineas in [(1, 5), (2, 3), (3, 2), (5, 1), (9, 1)]:
+    E = ElimGJ(Matrix([[0, 2, 2], [1, -2, -8], [1, 1, 1]]))     # 5 pasos: 6 matrices
+    for por_linea, lineas in [(1, 6), (2, 3), (3, 2), (4, 2), (5, 2), (6, 1), (9, 1)]:
         tex = desarrollo(E, por_linea=por_linea)
         assert tex.count('\\\\[1ex]') == lineas - 1
+        if lineas > 1:      # todas las líneas llevan por_linea matrices, salvo quizá la última
+            cuerpo = tex.replace('\\begin{aligned}{}&', '').replace('\\end{aligned}', '')
+            flechas = [l.count('xrightarrow') for l in cuerpo.split('\\\\[1ex]&')]
+            assert flechas[0] == por_linea - 1 and all(f == por_linea for f in flechas[1:-1])
         assert tex.replace('\\begin{aligned}{}&', '').replace('\\\\[1ex]&', '').replace('\\end{aligned}', '') == E.tex
     with pytest.raises(ValueError):
         desarrollo(E, por_linea=0)

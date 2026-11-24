@@ -70,7 +70,7 @@ def test_SEL_con_polinomios():
     assert sol.tex.startswith(r'\left[ \begin{array}{ccc|c}1&1 + x&1 + 2 x + x^{2}&-3 + 2 x - 5 x^{2}\\')
     assert r'\boldsymbol{v}=3 - 2 x + 5 x^{2}' in sol.latex()
     assert SEL(Sistema([P(1), P(x)]), P(x**2)).solP == set()
-    assert desarrollo(sol, por_linea=1).count('[1ex]') == 2
+    assert desarrollo(sol, por_linea=2).count('[1ex]') == 1    # 4 matrices: 2 líneas
 
 def test_Homogenea_y_Elim_con_polinomios():
     S = Sistema([P(1 + x), P(1 - x), P(x), P(x**2)])

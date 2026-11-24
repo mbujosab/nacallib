@@ -493,8 +493,8 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='tra
     Parámetros:
         objeto:    objeto con atributo tex (resultado de elim, Elim, SEL,
                    Homogenea, InvMat, Determinante...) o cadena con el código
-        por_linea: número de pasos (flechas) en cada línea. Por defecto
-                   todo el desarrollo va en una única línea
+        por_linea: número de sistemas (matrices) en cada línea. Por
+                   defecto todo el desarrollo va en una única línea
         compacto:  si es True la separación entre columnas se reduce a 2pt;
                    si es un número, a dicho número de puntos (solo LaTeX)
         pasos:     lista de los pasos que se muestran además del sistema
@@ -511,7 +511,7 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='tra
     >>> A = Matrix([ [0,2,2], [1,-2,-8], [1,1,1] ])
     >>> desarrollo(ElimGJ(A)) == ElimGJ(A).tex
     True
-    >>> desarrollo(ElimGJ(A), por_linea=2).count('[1ex]')      # 5 pasos: 3 líneas
+    >>> desarrollo(ElimGJ(A), por_linea=2).count('[1ex]')      # 6 matrices: 3 líneas
     2
     >>> desarrollo(ElimGJ(A), pasos=[]).count('xrightarrow')   # inicial y final
     1
@@ -540,10 +540,9 @@ def desarrollo(objeto, por_linea=None, compacto=False, pasos=None, omitidos='tra
     if por_linea is not None and por_linea < 1:
         raise ValueError('por_linea debe ser un entero positivo')
 
-    if por_linea and len(eslabones) > por_linea + 1:
-        lineas = [''.join(eslabones[:por_linea+1])] + \
-                 [''.join(eslabones[k:k+por_linea])
-                  for k in range(por_linea+1, len(eslabones), por_linea)]
+    if por_linea and len(eslabones) > por_linea:
+        lineas = [''.join(eslabones[k:k+por_linea])
+                  for k in range(0, len(eslabones), por_linea)]
         # el grupo vacío {} evita un error del paquete mathtools cuando
         # tras \begin{aligned} van seguidos un & y un entorno array
         tex = '\\begin{aligned}{}' + '\\\\[1ex]'.join('&' + l for l in lineas) + '\\end{aligned}'

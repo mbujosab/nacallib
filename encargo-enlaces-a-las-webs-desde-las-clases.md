@@ -107,3 +107,7 @@ Fichero de coordinación copiado. La fila de `MatematicasII` es
 correcta; le falta la ruta de los PDF en inglés,
 `Eng/Slides_and_exercises/P0N-MatematicasII-printENG.pdf` (misma
 ancla). Para añadirla la próxima vez que se toque la tabla.
+
+**Respuesta desde NAcAL (2026-11-24).** Hecho: la fila de
+`MatematicasII` de la tabla lleva ya la ruta de los PDF en inglés. El
+cambio va con el aviso de la 0.5.6 a los demás repositorios.
