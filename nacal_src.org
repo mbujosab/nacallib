@@ -271,15 +271,25 @@ Y recuerde que
 |                                <c>                                |
 | *¡hacer matemáticas y programar son prácticamente la misma cosa!* |
 
+**** Cómo leer el código de este documento
+  :PROPERTIES:  
+  :UNNUMBERED: t  
+  :END:  
+
+Este documento contiene todo el código del módulo: los ficheros de Python se generan a partir de
+él. El código no aparece de una vez, sino repartido en trozos, y cada trozo se muestra junto al
+texto que lo explica. Dentro de un trozo puede aparecer una línea como esta:
+#+BEGIN_EXAMPLE
+    <<Reducción con un pivote>>
+#+END_EXAMPLE
+Esa línea no es código de Python. Es el nombre de otro trozo, e indica que su código va insertado
+en ese lugar. El nombre describe lo que hace el trozo, así que basta leerlo para seguir el hilo; el
+código correspondiente se muestra en otro punto del documento, normalmente poco después y en el
+apartado que trata de ese asunto. Así cada recuadro enseña solo lo que interesa en ese momento, y
+los detalles se consultan donde se explican.
+
 
 * La clase ~Sistema~ y sus subclases ~BlockV~, ~Vector~, ~BlockM~ y ~Matrix~
-
-
-#  ***** Introducción
-#    :PROPERTIES:
-#    :NOTOC:    t
-#    :UNNUMBERED: t  
-#    :END:
 
 
 El primer capítulo presenta una /clase/ para las /listas ordenadas de objetos/ denominada =Sistema=.
@@ -8721,257 +8731,3 @@ def filtradopasos(pasos):
     return T(abv) if isinstance(pasos,T) else abv
 
 #+END_SRC
-
-
-
-
-* COMMENT Otros trozos de código antiguo descartados             :noexport:
-
-#+BEGIN_SRC python
-
-def simplifica(self):
-    """Devuelve las expresiones simplificadas"""
-    if isinstance(self, (list, tuple)):
-        return type(self)([ simplifica(e) for e in self ])
-    if isinstance(self, Sistema):
-        simplifica(self.lista)
-        return self
-    else:
-        return (sympy.sympify(self)).simplify()
-    
-def simplify(self):  
-    """Devuelve las expresiones simplificadas"""
-    if isinstance(self, (list, tuple)):
-        return type(self)([ simplify(e) for e in self ])
-    if isinstance(self, Sistema):
-        simplify(self.lista)
-        return self
-    else:
-        return (sympy.sympify(self)).simplify()
-    
-def factor(self):
-    """Devuelve las expresiones factorizadas"""
-    if isinstance(self, (list, tuple)):
-        return type(self)([ factor(e) for e in self ])
-    if isinstance(self, Sistema):
-        factor(self.lista)
-        return self
-    else:
-        return sympy.factor(self)
-
-#+END_SRC
-
-#+BEGIN_SRC python
-def latex(self):
-    """ Construye el comando LaTeX para representar un Vector"""
-    if self.rpr == 'h' or self.n==1:    
-        return r'\begin{pmatrix}' + \
-               ',& '.join([latex(e) for e in self]) + \
-               r',\end{pmatrix}' 
-    else:
-        return r'\begin{pmatrix}' + \
-               r'\\ '.join([latex(e) for e in self]) + \
-               r'\end{pmatrix}'
-               
-#+END_SRC
-
-#+BEGIN_SRC python
-def __str__(self):
-    """ Muestra el vector en su representación Python """
-    pc = ',' if len(self.lista) else ''
-    return '(' + ', '.join( str (e) for e in self ) + pc + ')'
-#+END_SRC
-
-
-#+BEGIN_SRC python
-
-def __invert__(self):
-        """
-        Devuelve la traspuesta de una matriz.
-
-        Ejemplo:
-        >>> ~Matrix([ [1,2,3] ])
-
-        Matrix([ Vector([1, 2, 3]) ])
-        """
-        M = BlockM([ BlockV([ columna|i for columna in self ]) for i in range(1,self.m+1) ])
-        M.corteElementos, M.corteSistema = self.corteSistema, self.corteElementos
-        return M
-
-#+END_SRC
-
-
-#+name: Se guardan los atributos .tex y .pasos y se representan los pasos si se pide
-#+BEGIN_SRC python
-
-pasosPrevios = data.pasos if hasattr(data, 'pasos') and data.pasos else [[],[]]
-TexPasosPrev = data.tex   if hasattr(data, 'tex')   and data.tex   else []
-if repsust:
-    self.tex = rprElim(data.subs(sust), pasos, TexPasosPrev, sust)
-else:
-    self.tex = rprElim(data.subs(sust), pasos, TexPasosPrev)
-pasos[0] = pasos[0] + pasosPrevios[0] 
-pasos[1] = pasosPrevios[1] + pasos[1]
-self.pasos = pasos 
-self.TrF = T(pasos[0])
-self.TrC = T(pasos[1])
-if rep:
-    display(Math(self.tex))                                                               
-
-#+END_SRC
-
-
-
-*** COMMENT  Literate programming con noweb                       :noexport:
-  :PROPERTIES:  
-  :UNNUMBERED: t  
-  :END:  
-
-Este documento está escrito usando
-\href{https://en.wikipedia.org/wiki/Noweb}{noweb}. Es una herramienta
-que permite escribir a la vez tanto código como su documentación. El
-código se escribe a trozos o ``chunks'' como por ejemplo este:
-
-#+name: Chunk de ejemplo que define la lista ~a~
-#+BEGIN_SRC python :noweb tangle 
-a = ["Matemáticas II es mi asignatura preferida", "Python mola", 1492, "Noweb"]
-#+END_SRC
-y este otro chunk:
-#+name: Segundo chunk de ejemplo que cambia el último elemento de la lista ~a~
-#+BEGIN_SRC python :noweb tangle 
-a[-1] = 10
-#+END_SRC
-Cada chunk recibe un nombre (que yo uso para describir lo que hace el
-código dentro del chunk). Lo maravilloso de este modo de
-programar es que dentro de un chunk se pueden insertar otros
-chunks. Así, podemos programar el siguiente guión de Python
-(~EjemploLiterateProgramming.py~) que enumera los elementos de
-una tupla y después hace unas sumas:
-#+name: EjemploLiterateProgramming.py 
-#+BEGIN_SRC python :noweb tangle :tangle EjemploLiterateProgramming.py
-<<Chunk de ejemplo que define la lista ~a~>>
-<<Segundo chunk de ejemplo que cambia el último elemento de la lista ~a~>>
-
-for indice, item in enumerate(a, 1):
-    print (indice, item)
-
-<<Chunk final que indica qué tipo de objeto es ~a~ y hace unas sumas>>
-
-#+END_SRC
-Este modo de escribir el código permite destacar unas partes y pasar
-por alto otras.  Por ejemplo, del chunk del recuadro de arriba me
-interesa que se vea el código del /bucle que permite enumerar los
-elementos de una lista/. Lo demás es accesorio y se puede consultar en
-los correspondientes chunks. Como el nombre de dichos chunks es
-auto-explicativo, mirando el recuadro anterior es fácil hacerse una
-idea de que hace el programa =EjemploLiterateProgramming.py=' en su
-conjunto.
-
-# Fíjese que el número al final del nombre de cada chunk corresponde a
-# la página donde se puede consultar su código. Por ejemplo, el último
-# chunk de este ejemplo se encuentra en la
-# Página~\pageref{subsec:ultimoChunkEjemploLiterateProgramming} de este
-# documento. 
-
-El código completo del ejemplo usado para explicar cómo funciona el
-``Literate Programming'' queda así:
-
-# \begin{codigo}[nobreak=true]
-# \verbatiminput{nacal/EjemploLiterateProgramming.py}
-# \end{codigo}
-
-
-#+begin_export latex
-\newpage 
-#+end_export
-
-
-
-
-
-
-** COMMENT La subclase ~VectorS~                                   :noexport:
-
-#+BEGIN_SRC python
-
-class VectorS(Sistema):
-    def __init__(self, coordenadas, simbolo='v'):
-        """Inicializa un Vector Simbólico con una lista, tupla o Sistema"""
-        def repre(self, simbolo):
-            letra = sympy.Symbol('0') if self.es_nulo() else sympy.Symbol(simbolo)
-            simbolo_latex = sympy.Symbol(r'\boldsymbol{'+str(self.letra)+'}')
-            return letra, simbolo_latex
-        
-        if es_ristra(coordenadas):
-            self.lista = list(coordenadas)
-        else:
-            raise ValueError('Las coordenadas deben ser una lista, tupla, o Vector.')
-            
-        self.n = len(self)
-        self.corteSistema = set()
-        self.letra = sympy.Symbol(simbolo)
-        if Sistema(self.lista).es_nulo():
-            self.letra = sympy.Symbol('0')
-        self.simbolo = sympy.Symbol(r'\boldsymbol{'+str(self.letra)+'}') 
-
-    def es_nulo(self):
-        return Sistema(self.lista).es_nulo()
-    
-    def copy(self):
-        """ Genera una copia de un VectorS """
-        return VectorS(self.lista, str(self.letra))
-        
-    def __str__(self):
-        """ Muestra un Sistema en su representación python """
-        return str(self.letra)
-    
-    def __repr__(self):
-        """ Muestra un Sistema en su representación python """
-        return 'VectorS("' + str(self.letra) + '",' + repr(self.lista) + ')'
-    
-    def latex(self):
-        """ Construye el comando LaTeX para representar un Sistema """
-        return latex(self.simbolo)
-        
-    def _repr_latex_(self):
-        """ Representación para el entorno jupyter en Emacs """
-        return '$'+self.latex()+'$'
-    
-    def _repr_html_(self):
-        """ Construye la representación para el entorno jupyter notebook """
-        return html(self.latex())
-    
-    def __add__(self, other):        
-        vs = VectorS((Vector(self.lista) + Vector(other.lista)).lista)
-        vs.simbolo = self.simbolo + other.simbolo
-        vs.letra   = self.letra + other.letra
-        return vs
-    
-    def __rmul__(self, x):
-        """Multiplica un VectorS por un número a su izquierda
-        """
-        vs = VectorS( (x*Vector(self.lista)).lista )
-        vs.simbolo = x*self.simbolo
-        vs.letra   = x*self.letra
-        return vs
-        
-    def __mul__(self, x):
-        """Multiplica un VectorS por un número a su derecha
-        """
-        return x*self
-        
-    def __sub__(self, other):
-        vs = VectorS((Vector(self.lista) - Vector(other.lista)).lista)
-        vs.simbolo = self.simbolo - other.simbolo
-        vs.letra   = self.letra - other.letra
-        return vs
-    
-    def subs(self, regla_de_sustitucion=[]):
-        '''Sustitución simbólica en transformaciones elementales'''     
-        vs = VectorS( Vector(self.lista).subs(regla_de_sustitucion) )
-        vs.simbolo = self.simbolo
-        vs.letra   = self.letra
-        return vs
-    
-#+END_SRC
-
