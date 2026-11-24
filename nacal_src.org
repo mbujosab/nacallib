@@ -21,6 +21,8 @@
 #+LATEX_HEADER: \usepackage[spanish]{babel}
 #+LaTeX_HEADER: \usepackage{pdfpages}
 #+LaTeX_HEADER: \usepackage{parskip}
+# Los nombres de los trozos de código se muestran sobre cada recuadro y algunos llevan guion bajo
+#+LaTeX_HEADER: \usepackage[strings]{underscore}
 
 #+macro: URL [[https://github.com/mbujosab/nacallib]]
 # Enlace a una parte del libro: {{{libro(ancla del pdf,texto del enlace)}}}
@@ -87,10 +89,16 @@ Lineal/) escrito en forma de programación literaria
 
 #+NAME: NombreEnChunksDeCodigo
 #+BEGIN_SRC emacs-lisp :results silent
-(setq org-babel-exp-code-template
-         (concat "\n#+ATTR_LATEX: :options label=%name\n"
-              org-babel-exp-code-template)
-               )
+;; El nombre de cada trozo de código se muestra como rótulo sobre su recuadro
+(unless (string-match-p "label={%name}" org-babel-exp-code-template)
+  (setq org-babel-exp-code-template
+        (concat "\n#+ATTR_LATEX: :options label={%name}\n"
+                org-babel-exp-code-template)))
+;; Los trozos sin nombre no llevan rótulo (un rótulo vacío deja un hueco en la línea)
+(defun nacal-quita-rotulos-vacios (texto _backend _info)
+  (replace-regexp-in-string ",label={}" "" texto t t))
+(require 'ox)
+(add-to-list 'org-export-filter-final-output-functions #'nacal-quita-rotulos-vacios)
 (setq fill-column 100)
 #+END_SRC
 
@@ -280,8 +288,8 @@ texto que lo explica. Dentro de un trozo puede aparecer una línea como esta:
 #+END_EXAMPLE
 Esa línea no es código de Python. Es el nombre de otro trozo, e indica que su código va insertado
 en ese lugar. El nombre describe lo que hace el trozo, así que basta leerlo para seguir el hilo; el
-código correspondiente se muestra en otro punto del documento, normalmente poco después y en el
-apartado que trata de ese asunto. Así cada recuadro enseña solo lo que interesa en ese momento, y
+código correspondiente está en el recuadro que lleva ese mismo nombre escrito en su línea superior,
+normalmente poco después. Así cada recuadro enseña solo lo que interesa en ese momento, y
 los detalles se consultan donde se explican.
 
 
