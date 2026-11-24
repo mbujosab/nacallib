@@ -266,7 +266,6 @@ ofrecen unas breves nociones de programación en Python (aunque muy incompletas)
   \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F01_ListasYTuplas.ipynb}{\textbf{``Listas y tuplas''}}
     en la carpeta
     \href{https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F}{``TutorialPython''}
-    en \url{https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks/TutorialPython}
 \end{center}
 Y recuerde que 
 |                                <c>                                |
@@ -307,19 +306,6 @@ Los capítulos siguientes definen ciertas subclases (y subclases de subclases) d
   =Matrices=) que resultan tras la aplicación de algún proceso específico de eliminación. Estos
   =Sistemas= poseen algunos atributos adicionales tales como los ~pasos~ de eliminación que se han
   dado hasta llegar a su obtención.
-
-#  los \emph{vectores} y otra para las \emph{matrices}).[fn:: Antes de seguir, mírese el Notebook
-#  referente a [[https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F02_Clases.ipynb][``Clases'']] en la carpeta [[https://mybinder.org/v2/gh/mbujosab/nacallib/master?filepath=doc%2FNotebooks%2FTutorialPython%2F][``TutorialPython'']] en [[ https://github.com/mbujosab/nacallib/tree/master/doc/Notebooks/TutorialPython]].]
-#  
-#  En otras partes de esta documentación se definen clases que implementan otros objetos empleados en
-#  el curso de [[https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf][Álgebra Lineal]]: transformaciones elementales, subespacios vectoriales, espacios afines,
-#  etc.
-#  
-#  Cada vez que se define una nueva clase, se debe especificar tanto el modo de instanciar la clase
-#  como sus atributos, sus modos de representación (en particular el modo de representación para que
-#  los Notebooks de Jupyter muestren representaciones semejantes a las empleadas en el curso de Álgebra
-#  Lineal), así como todos los métodos que actúan sobre ella.
-
 
 ** La clase ~Sistema~
 
@@ -3099,17 +3085,6 @@ La clase se inicia con el método: ~def __init__(self, arg, rpr='columna')~.
   y atributos de la clase =BlockV= (por tanto, =Vector= tendrá un
   atributo =lista=, así como el resto de atributos y todos los métodos
   definidos para la clase =Sistema= y la subclase =BlockV=).
-
-
-# - Se definen dos atributos para la subclase clase =Vector=: los
-#  atributos =rpr= y =n=.
-#
-#  * =self.rpr= indica si el vector ha de ser representado como fila o
-#    como columna en el entorno [[https://jupyter.org/][Jupyter]].
-#
-#  * =self.n= es el número de elementos de la lista del =Sistema=.
-#
-#  */!Ya tenemos traducido al lenguaje Python la definición de vector de \R[n]!/*
 
 
 #+name: Inicialización de la subclase Vector
@@ -8281,14 +8256,6 @@ def latex(a):
         return sympy.latex(a)
     
 #+END_SRC
-
-# Con el método =simplifica= se devuelven las expresiones
-# simplificadas. Si el objeto es una tupla, lista o =Sistema=, se
-# devuelve un objeto del mismo tipo, pero cuyos elementos han sido
-# simplificados. Si =self= es otro tipo de objeto, entonces se
-# ``sympifica'' con ~sympy.sympify(self)~, es decir, se transforma en un
-# objeto del módulo [[https://www.sympy.org/en/index.html][Sympy]] para así poder ser simplificado con el método
-# ~sympy.simpify()~.
 
 Para visualizar un objeto en su formato \LaTeX{} definimos el método ~pinta~.
 
