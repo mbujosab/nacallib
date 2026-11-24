@@ -100,3 +100,10 @@ Aceptado por Marcos. Hecho:
      introducción enlaza a la carpeta `doc/Notebooks/TutorialPython`
      del repositorio, junto al enlace de Binder. Sin cambiar, pendiente
      de decidir con Marcos.
+
+## Nota de las clases (2026-11-24)
+
+Fichero de coordinación copiado. La fila de `MatematicasII` es
+correcta; le falta la ruta de los PDF en inglés,
+`Eng/Slides_and_exercises/P0N-MatematicasII-printENG.pdf` (misma
+ancla). Para añadirla la próxima vez que se toque la tabla.

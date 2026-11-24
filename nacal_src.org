@@ -21,6 +21,11 @@
 #+LATEX_HEADER: \usepackage[spanish]{babel}
 #+LaTeX_HEADER: \usepackage{pdfpages}
 #+LaTeX_HEADER: \usepackage{parskip}
+#+LaTeX_HEADER: \usepackage{tabularx}
+# Evita que algunas líneas con texto en letra de máquina se salgan del margen
+#+LaTeX_HEADER: \emergencystretch=3em
+# Los títulos con nombres en letra de máquina no se pueden partir: se dejan sin justificar
+#+LaTeX_HEADER: \usepackage{sectsty}\allsectionsfont{\raggedright}
 # Los nombres de los trozos de código se muestran sobre cada recuadro y algunos llevan guion bajo
 #+LaTeX_HEADER: \usepackage[strings]{underscore}
 
@@ -89,10 +94,11 @@ Lineal/) escrito en forma de programación literaria
 
 #+NAME: NombreEnChunksDeCodigo
 #+BEGIN_SRC emacs-lisp :results silent
-;; El nombre de cada trozo de código se muestra como rótulo sobre su recuadro
+;; El nombre de cada trozo de código se muestra como rótulo sobre su recuadro,
+;; y las líneas de código que no caben en el ancho de la página se parten
 (unless (string-match-p "label={%name}" org-babel-exp-code-template)
   (setq org-babel-exp-code-template
-        (concat "\n#+ATTR_LATEX: :options label={%name}\n"
+        (concat "\n#+ATTR_LATEX: :options breaklines,label={%name}\n"
                 org-babel-exp-code-template)))
 ;; Los trozos sin nombre no llevan rótulo (un rótulo vacío deja un hueco en la línea)
 (defun nacal-quita-rotulos-vacios (texto _backend _info)
@@ -2704,12 +2710,16 @@ dprint( ZZ )
 #+RESULTS:
 =[[(6, 8,|10,); (1, 2, 3,); 1492;];|Hola; |  0   0|\n| pi   0|\n|a/2   0|;]=
 
+# Esta línea no cabe en el ancho de la página con el tamaño de letra normal
+#+LATEX: {\footnotesize
 #+BEGIN_SRC jupyter-python :exports results :results raw :results output replace
 dprint( repr(ZZ) )
 #+END_SRC
 
 #+RESULTS:
 =Sistema([Sistema([Vector([6, 8, 10]); Vector([1, 2, 3]); 1492;]); 'Hola'; Matrix([Vector([0, pi, a/2]), Vector([0, 0, 0])]);])=
+
+#+LATEX: }
 
 #+BEGIN_SRC jupyter-python :exports results :results raw :results output replace
 pinta(ZZ)
@@ -4184,6 +4194,7 @@ def inversa(self, rep=0, sust=[], repsust=0):
 Las clases ~InvMat~, ~InvMatF~ e ~InvMatFC~ (que se definen más adelante) ofrecen tres maneras
 de llegar a la inversa:
 
+#+ATTR_LATEX: :environment tabularx :width \textwidth :align ll>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X
 | Clase         | Transformaciones   | Matriz que se transforma                    | La inversa es                    |
 |---------------+--------------------+---------------------------------------------+----------------------------------|
 | ~InvMat(A)~   | de las columnas    | \Mat{A} apilada sobre \Mat{I}               | la parte inferior                |
@@ -4961,6 +4972,7 @@ El módulo diagonaliza matrices cuadradas de tres maneras. Las tres
 devuelven una ~Matrix~ (la matriz diagonal) que guarda en un atributo
 la matriz con la que se ha logrado.
 
+#+ATTR_LATEX: :environment tabularx :width \textwidth :align ll>{\raggedright\arraybackslash}Xc>{\raggedright\arraybackslash}X
 | Método                        | Matriz        | Resultado =D=                                 | Atributo | Relación                       |
 |-------------------------------+---------------+-----------------------------------------------+----------+--------------------------------|
 | =A.diagonalizaS(espectro)=    | cuadrada      | diagonal (o triangular por bloques) semejante | =S=      | $\Mat{S}^{-1}\Mat{A}\Mat{S}=\Mat{D}$ |
@@ -5437,6 +5449,7 @@ Se aplican con el operador =&=: a la derecha del sistema actúan sobre
 sus elementos (las columnas, si es una matriz) y a la izquierda de una
 matriz actúan sobre sus filas.
 
+#+ATTR_LATEX: :environment tabularx :width \textwidth :align l>{\raggedright\arraybackslash}X
 | Expresión        | Resultado                                                                 |
 |------------------+---------------------------------------------------------------------------|
 | =A & t=          | transforma los elementos (columnas) de =A=                                |
@@ -6259,6 +6272,7 @@ a la izquierda y las cartesianas a la derecha. Los métodos ~span~ y
 ~espacio_nulo~ de un ~Sistema~ devuelven estos mismos objetos:
 =S.span()= es =SubEspacio(S)= y =M.espacio_nulo()= es =SubEspacio(M)=.
 
+#+ATTR_LATEX: :environment tabularx :width \textwidth :align l>{\raggedright\arraybackslash}X
 | Atributo | Contenido                                                                              |
 |----------+----------------------------------------------------------------------------------------|
 | =dim=    | dimensión del subespacio                                                               |
@@ -7445,14 +7459,16 @@ S = SEL(A, b)
 #+END_SRC
 
 La matriz ampliada tiene a la derecha el opuesto de ~b~, y bajo ella se ha apilado la identidad.
-El último paso divide la última columna para que su última componente sea un 1:
+El último paso divide la última columna para que su última componente sea un 1. El atributo ~tex~
+contiene todo el proceso en una sola línea, que aquí no cabe en el ancho de la página; la función
+~desarrollo~ lo reparte en varias líneas (en este caso, con dos pasos en cada una):
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
-print(displaymath( S.tex ))
+print(displaymath( desarrollo(S, por_linea=2) ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{ccc|c}7&-2&0&-4\\6&4&2&-12\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(7\right)\mathbf{2}\right]\\\left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(7\right)\mathbf{4}\right]\\\left[\left(4\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&2&-60\\ \hline 1&2&0&4\\0&7&0&0\\0&0&1&0\\ \hline 0&0&0&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(20\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{4}\right]\\\left[\left(3\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&0&0\\ \hline 1&2&-2&14\\0&7&-7&21\\0&0&20&0\\ \hline 0&0&0&14\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{14}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\[0.6ex]6&40&0&0\\[0.6ex] \hline 1&2&-2&1\\[0.6ex]0&7&-7&\frac{3}{2}\\[0.6ex]0&0&20&0\\[0.6ex] \hline 0&0&0&1\\ \end{array} \right]$$
+$$\begin{aligned}{}&\left[ \begin{array}{ccc|c}7&-2&0&-4\\6&4&2&-12\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(7\right)\mathbf{2}\right]\\\left[\left(2\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(7\right)\mathbf{4}\right]\\\left[\left(4\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&2&-60\\ \hline 1&2&0&4\\0&7&0&0\\0&0&1&0\\ \hline 0&0&0&7\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(20\right)\mathbf{3}\right]\\\left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{4}\right]\\\left[\left(3\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\6&40&0&0\\ \hline 1&2&-2&14\\0&7&-7&21\\0&0&20&0\\ \hline 0&0&0&14\\ \end{array} \right]\\[1ex]&\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{14}\right)\mathbf{4}\right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}7&0&0&0\\[0.6ex]6&40&0&0\\[0.6ex] \hline 1&2&-2&1\\[0.6ex]0&7&-7&\frac{3}{2}\\[0.6ex]0&0&20&0\\[0.6ex] \hline 0&0&0&1\\ \end{array} \right]\end{aligned}$$
 
 Sobre el 1 de la última columna se lee una solución, y bajo la columna nula de la matriz de
 coeficientes (la tercera) una solución especial del sistema homogéneo:
@@ -7540,26 +7556,33 @@ solucion = SEL(S, B, 1)
 #+END_SRC
 
 Los pasos de eliminación operan con las matrices del sistema ampliado como si fueran las columnas de
-una matriz de coeficientes:
+una matriz de coeficientes (se muestra un paso en cada línea, con ~desarrollo(solucion, por_linea=1)~):
 
+# Ni el desarrollo ni el conjunto de soluciones caben en el ancho de la página con el tamaño de letra normal
+#+LATEX: {\scriptsize\setlength{\arraycolsep}{2pt}
 #+BEGIN_SRC jupyter-python :exports results :results raw :results output replace
-print(displaymath( solucion.tex ))
+print(displaymath( desarrollo(solucion, por_linea=1) ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}1&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}-2&-3\\-3&-5\\ \end{array} \right]\\ \hline 1&0&0&0&0\\0&1&0&0&0\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{1}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&-3\\-3&-5\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&0&0&0\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(3\right)\mathbf{2}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&-5\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&-1&0&3\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(5\right)\mathbf{4}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&-1&0&3\\0&0&1&0&0\\0&0&0&1&5\\ \hline 0&0&0&0&1\\ \end{array} \right]$$
+$$\begin{aligned}{}&\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}1&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}-2&-3\\-3&-5\\ \end{array} \right]\\ \hline 1&0&0&0&0\\0&1&0&0&0\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(2\right)\mathbf{1}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&-3\\-3&-5\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&0&0&0\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\\[1ex]&\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(3\right)\mathbf{2}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&-5\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&-1&0&3\\0&0&1&0&0\\0&0&0&1&0\\ \hline 0&0&0&0&1\\ \end{array} \right]\\[1ex]&\xrightarrow{\underset{\begin{subarray}{c} \left[\left(5\right)\mathbf{4}+\mathbf{5} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cccc|c}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right]&\left[ \begin{array}{cc}0&0\\0&0\\ \end{array} \right]\\ \hline 1&0&-1&0&2\\0&1&-1&0&3\\0&0&1&0&0\\0&0&0&1&5\\ \hline 0&0&0&0&1\\ \end{array} \right]\end{aligned}$$
+
+#+LATEX: }
 
 El conjunto de soluciones lo forman los vectores de coeficientes de dichas combinaciones lineales
 (el atributo ~solP~ es una solución particular y ~sgen~ un sistema generador de las soluciones del
 sistema homogéneo). Como los elementos del sistema no son vectores de \R[n], la representación
 recuerda la ecuación de la que dichos vectores de coeficientes son solución:
 
+#+LATEX: {\scriptsize\setlength{\arraycolsep}{2pt}
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
 print(dmath( solucion ))
 #+END_SRC
 
 #+RESULTS:
 $$\left\{ \boldsymbol{v}\in\mathbb{R}^4\ \left|\ \left[ \begin{array}{cccc}\left[ \begin{array}{cc}1&0\\0&0\\ \end{array} \right];& \left[ \begin{array}{cc}0&1\\1&0\\ \end{array} \right];& \left[ \begin{array}{cc}1&1\\1&0\\ \end{array} \right];& \left[ \begin{array}{cc}0&0\\0&1\\ \end{array} \right];\end{array} \right]\boldsymbol{v}=\left[ \begin{array}{cc}2&3\\3&5\\ \end{array} \right]\right.\right\}\; = \;\left\{ \boldsymbol{v}\in\mathbb{R}^4\ \left|\ \exists\boldsymbol{p}\in\mathbb{R}^1,\; \boldsymbol{v}= \begin{pmatrix}2\\ 3\\ 0\\ 5\end{pmatrix}+\left[ \begin{array}{c}-1\\-1\\1\\0\\ \end{array} \right]\boldsymbol{p}\right. \right\}$$
+
+#+LATEX: }
 
 Efectivamente, cada solución es la lista de coeficientes de una combinación lineal de las matrices
 de ~S~ que es igual a ~B~:
@@ -7586,14 +7609,15 @@ solucion = SEL(S, q)
 
 En la fila superior se ve cómo cambian los polinomios con cada transformación elemental. El pivote
 de cada polinomio es el coeficiente de su término de menor grado (el primero que aparece escrito), y
-con él se eliminan los términos del mismo grado de los polinomios que están a su derecha:
+con él se eliminan los términos del mismo grado de los polinomios que están a su derecha (de nuevo
+con un paso en cada línea):
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
-print(displaymath( solucion.tex ))
+print(displaymath( desarrollo(solucion, por_linea=1) ))
 #+END_SRC
 
 #+RESULTS:
-$$\left[ \begin{array}{ccc|c}1&1 + x&1 + 2 x + x^{2}&-3 + 2 x - 5 x^{2}\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(3\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&2 x + x^{2}&2 x - 5 x^{2}\\ \hline 1&-1&-1&3\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(-2\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&x^{2}&- 5 x^{2}\\ \hline 1&-1&1&5\\0&1&-2&-2\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(5\right)\mathbf{3}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&x^{2}&0\\ \hline 1&-1&1&10\\0&1&-2&-12\\0&0&1&5\\ \hline 0&0&0&1\\ \end{array} \right]$$
+$$\begin{aligned}{}&\left[ \begin{array}{ccc|c}1&1 + x&1 + 2 x + x^{2}&-3 + 2 x - 5 x^{2}\\ \hline 1&0&0&0\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\\\left[\left(-1\right)\mathbf{1}+\mathbf{3} \right]\\\left[\left(3\right)\mathbf{1}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&2 x + x^{2}&2 x - 5 x^{2}\\ \hline 1&-1&-1&3\\0&1&0&0\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\\[1ex]&\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-2\right)\mathbf{2}+\mathbf{3} \right]\\\left[\left(-2\right)\mathbf{2}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&x^{2}&- 5 x^{2}\\ \hline 1&-1&1&5\\0&1&-2&-2\\0&0&1&0\\ \hline 0&0&0&1\\ \end{array} \right]\\[1ex]&\xrightarrow{\underset{\begin{subarray}{c} \left[\left(5\right)\mathbf{3}+\mathbf{4} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{ccc|c}1&x&x^{2}&0\\ \hline 1&-1&1&10\\0&1&-2&-12\\0&0&1&5\\ \hline 0&0&0&1\\ \end{array} \right]\end{aligned}$$
 
 Como los polinomios no son vectores de \R[n], la representación recuerda la ecuación que se ha
 resuelto:
@@ -7614,9 +7638,6 @@ print(dprint( S*solucion.solP ))
 
 #+RESULTS:
 =3 - 2*x + 5*x**2=
-
-Cuando el desarrollo es largo se puede partir en varias líneas con la función ~desarrollo~. Por
-ejemplo, ~desarrollo(solucion, por_linea=1)~ escribe un paso en cada línea.
 
 La clase ~Homogenea~ encuentra las relaciones de dependencia lineal entre polinomios. Por ejemplo,
 los polinomios $1+x$, $1-x$ y $x$ son linealmente dependientes:
@@ -8313,10 +8334,12 @@ intentado multiplicar y los dos números que deberían coincidir.
 
 #+BEGIN_EXAMPLE
 >>> Matrix([[1,2,3],[4,5,6]]) * Vector([1,2])
-ValueError: No se pueden multiplicar: la matriz de la izquierda tiene 3 columnas y el vector de la derecha tiene 2 componentes
+ValueError: No se pueden multiplicar: la matriz de la izquierda tiene 3 columnas
+            y el vector de la derecha tiene 2 componentes
 >>> idioma('en')
 >>> Vector([1,2,3]) * Vector([1,2])
-ValueError: Cannot multiply: the vector on the left has 3 components and the vector on the right has 2 components
+ValueError: Cannot multiply: the vector on the left has 3 components
+            and the vector on the right has 2 components
 #+END_EXAMPLE
 
 #+BEGIN_EXAMPLE
@@ -8419,6 +8442,7 @@ las matrices y vectores que contienen fracciones. La función
 =fracciones= permite elegir otra presentación para todo lo que se
 escriba a continuación. Sin argumentos indica el modo en uso.
 
+#+ATTR_LATEX: :environment tabularx :width \textwidth :align l>{\raggedright\arraybackslash}X
 | Modo           | Presentación                                                                                         |
 |----------------+------------------------------------------------------------------------------------------------------|
 | ='separadas'=  | más espacio entre las filas de las matrices y vectores que contienen fracciones (modo por defecto)   |
