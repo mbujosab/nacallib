@@ -21,3 +21,12 @@ completas están en `coordinacion-entre-repositorios.md`.
 - Para pedir algo a otro repositorio, escribe allí un fichero con uno
   de esos nombres y no lo confirmes en git: lo confirma quien lo
   recibe.
+
+## Documentación y PDF
+
+Todo sale de `nacal_src.org` (código del módulo y documentación). Los
+pasos para regenerar el código, poner al día los resultados de los
+ejemplos y exportar `nacal_src.pdf` están en `herramientas/LEEME.md`.
+Antes de editar `nacal_src.org`, comprueba que no existe
+`.#nacal_src.org`: indica que Marcos lo tiene abierto en Emacs con
+cambios sin guardar.

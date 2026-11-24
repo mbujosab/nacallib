@@ -83,6 +83,8 @@ Lineal/) escrito en forma de programación literaria
   :UNNUMBERED: notoc
   :END:
 
+# Cómo volver a ejecutar los ejemplos y exportar el PDF (desde Emacs o con guiones): herramientas/LEEME.md
+
 # Para que no ejecute todo el código al exportar a pdf
 #+PROPERTY: header-args :eval never-export
 # Los trozos del módulo (bloques python) no se ejecutan nunca; los ejemplos son bloques jupyter-python
