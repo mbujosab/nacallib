@@ -210,7 +210,7 @@ Propuesto por las clases y acordado con Marcos el 2026-11-24.
 | Repositorio público | Página web | Documento principal y anclas estables |
 |---|---|---|
 | `MatematicasII` (material de clase) | `https://mbujosab.github.io/MatematicasII/` | `Esp/Transparencias_y_ejercicios/P0N-MatematicasII-print.pdf` y, en inglés, `Eng/Slides_and_exercises/P0N-MatematicasII-printENG.pdf`; ancla `#ProblemasLeccionN` en los dos |
-| `CursoDeAlgebraLineal` (libro) | `https://mbujosab.github.io/CursoDeAlgebraLineal/` | `libro.pdf`, anclas `#target:…` y `#section.N.M` |
+| `CursoDeAlgebraLineal` (libro) | `https://mbujosab.github.io/CursoDeAlgebraLineal/` | `libro.pdf`, anclas `#target:…` y las de sección y subsección (`#section.N.M`, `#subsection.N.M.K` y las de los apéndices, `#section.alphN.M.AlphK`) |
 | `nacallib` (NAcAL) | `https://mbujosab.github.io/nacallib/` | `nacal_src.pdf`, anclas `#target:…`. Instalación: `https://pypi.org/project/nacal/` |
 | `nacal-Jupyter-Notebooks` (Notebooks) | `https://mbujosab.github.io/nacal-Jupyter-Notebooks/` | Binder: `https://mybinder.org/v2/gh/mbujosab/nacal-jupyter-notebooks/master?urlpath=lab/tree/…` |
 | `VideosMates2` (vídeos) | `https://mbujosab.github.io/VideosMates2/` | Para ver los vídeos, el canal de YouTube: `https://www.youtube.com/@mbujosab` |

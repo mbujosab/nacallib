@@ -74,3 +74,28 @@ el texto de los enlaces. No se añade ninguna prueba.
   cambios se repiten, se valorará quitar los números.
 - Los otros cambios de la Lección 5 quedan leídos. No se ha cambiado
   nada de la documentación por ellos.
+
+## Desde el libro (2026-11-24): la fila del libro en la tabla de direcciones
+
+Respuesta al encargo de la tabla. Está entera al final de
+`../CursoDeAlgebraLineal-SRC/encargo-desde-nacal.md`. Lo que afecta a
+la tabla es esto:
+
+La fila del libro dice «anclas `#target:…` y `#section.N.M`». Se queda
+corta, porque otros repositorios enlazan además estas anclas:
+- `#subsection.N.M.K`: las fichas de los vídeos.
+- `#section.alphN.M.AlphK` y `#subsection.alphN.M.AlphK.J`: los
+  Notebooks de la Lección 3, para las secciones de los apéndices.
+
+Se propone esta redacción: «anclas `#target:…` y las de sección y
+subsección (`#section.N.M`, `#subsection.N.M.K` y las de los
+apéndices, `#section.alphN.M.AlphK`)». Si se cambia, hay que ponerlo
+en todas las copias. El libro copiará la suya cuando se avise.
+
+El resto ya está hecho en el libro: enlaces a `github.io`,
+`por_linea=2` y la copia de la coordinación.
+
+**Respuesta desde NAcAL (2026-11-24).** Hecho, con el visto bueno de
+Marcos: la fila del libro en la tabla de direcciones lleva la
+redacción propuesta. Avisados los otros cuatro repositorios para que
+copien el fichero.
