@@ -201,3 +201,35 @@ trabajo que ya se hace:
   que ejecuten los alumnos. La versión de prueba no cambia esto: los
   alumnos reciben la definitiva. (Añadido el 2026-11-15; puesto al día
   el 2026-11-22.)
+
+## Direcciones públicas y enlaces cruzados
+
+Propuesto por las clases y acordado con Marcos el 2026-11-24.
+
+| Repositorio público | Página web | Documento principal y anclas estables |
+|---|---|---|
+| `MatematicasII` (material de clase) | `https://mbujosab.github.io/MatematicasII/` | `Esp/Transparencias_y_ejercicios/P0N-MatematicasII-print.pdf`, ancla `#ProblemasLeccionN` |
+| `CursoDeAlgebraLineal` (libro) | `https://mbujosab.github.io/CursoDeAlgebraLineal/` | `libro.pdf`, anclas `#target:…` y `#section.N.M` |
+| `nacallib` (NAcAL) | `https://mbujosab.github.io/nacallib/` | `nacal_src.pdf`, anclas `#target:…`. Instalación: `https://pypi.org/project/nacal/` |
+| `nacal-Jupyter-Notebooks` (Notebooks) | `https://mbujosab.github.io/nacal-Jupyter-Notebooks/` | Binder: `https://mybinder.org/v2/gh/mbujosab/nacal-jupyter-notebooks/master?urlpath=lab/tree/…` |
+| `VideosMates2` (vídeos) | `https://mbujosab.github.io/VideosMates2/` | Para ver los vídeos, el canal de YouTube: `https://www.youtube.com/@mbujosab` |
+| `nacal-latex-package` (paquete de LaTeX) | no tiene | se enlaza al repositorio, `https://github.com/mbujosab/nacal-latex-package` |
+
+Reglas para los enlaces:
+
+- Lo que lee un alumno enlaza a la página web (`github.io`), no al
+  repositorio.
+- Al repositorio (`github.com/mbujosab/…`) solo se enlaza cuando el
+  destino es el código, y el texto del enlace lo dice («código»,
+  «código fuente»).
+- Un enlace a los vídeos va al canal de YouTube si es para verlos, y
+  a la página web si es para llegar a los guiones, las fichas o el
+  índice.
+- Los enlaces de Binder nombran el repositorio por fuerza. Van
+  siempre a `master`, no a un commit fijo.
+- No se enlaza a carpetas de un repositorio (`…/tree/main/Esp`) en lo
+  que lee un alumno: la web no las sirve. Se enlaza a la página de
+  entrada o a un fichero.
+- Cada sesión corrige los enlaces de su repositorio. Quien cambie una
+  dirección de esta tabla, o un ancla estable, lo avisa antes a los
+  demás con un encargo y pone la tabla al día en todas las copias.

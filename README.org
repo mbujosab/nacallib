@@ -5,7 +5,7 @@
   :CUSTOM_ID: módulo-nacal-notación-asociativa-para-un-curso-de-álgebra-lineal
   :END:
 
-Este módulo implementa la notación, los objetos y los procedimientos descritos en el [[https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf][libro]] del [[https://github.com/mbujosab/CursoDeAlgebraLineal][Curso de ÁLgebra Lineal]]
+Este módulo implementa la notación, los objetos y los procedimientos descritos en el [[https://mbujosab.github.io/CursoDeAlgebraLineal/libro.pdf][libro]] del [[https://mbujosab.github.io/CursoDeAlgebraLineal/][Curso de ÁLgebra Lineal]]
 correspondiente a la asignatura [[https://www.ucm.es/fundamentos-analisis-economico2/algebra-2][Matemáticas II.]]
 
 Aunque es posible su uso desde un terminal, este módulo está pensado para ser empleado en [[https://jupyter.org/][Notebooks de Jupyter]] (y
@@ -19,7 +19,7 @@ trabajar con subespacios vectoriales y espacios afines (bases, sistemas generado
 paramétricas, complementos ortogonales, interseción, pertenecia, etc.). También puede trabajar de manera simbólica, pues
 emplea los objetos básicos del módulo [[https://www.sympy.org/en/index.html][Sympy]].
 
-La documentación explica la programación del código y sirve como material adicional al [[https://github.com/mbujosab/CursoDeAlgebraLineal][libro del curso]] (este módulo es
+La documentación explica la programación del código y sirve como material adicional al [[https://mbujosab.github.io/CursoDeAlgebraLineal/][libro del curso]] (este módulo es
 una implementación literal de lo mostrado en dicho libro).
 
 Puede ver el uso del módulo sin necesidad de instalar nada, tan solo accediendo a los Notebooks de Jupyter alojados en
