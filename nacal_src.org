@@ -126,15 +126,11 @@ a,b,c,x,y,z = sympy.symbols('a b c x y z')
 
 - [X] Homogeneizar estructura de cada Capítulo (ver índice)
 
-- [ ] Pensar otras variantes de productos y su significado o utilidad
-
 - [X] Ordenar los métodos adecuadamente en cada clase
 
-- [ ] Textos de ayuda
+- [X] Textos de ayuda
 - [X] Repasar textos de ayuda de las subclases 
 - [X] Repasar textos de ayuda del operador selector en BlockM  y en Sistema (y subclases)
-
-- [ ] Implementar Matriz dummy
 
 - [ ] Producto Hadamard para Vectores y Matrices
 
