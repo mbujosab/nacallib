@@ -44,10 +44,6 @@
 | {{{URL}}} |
 
 
-# Local Variables:
-# eval: (progn (org-babel-goto-named-src-block "NombreEnChunksDeCodigo") (org-babel-execute-src-block))
-# eval: (progn (org-babel-goto-named-src-block "displayMathOutput") (org-babel-execute-src-block))
-# End:
 
 
 **** Fichero =__init__.py=                                         :noexport:
@@ -89,6 +85,8 @@ Lineal/) escrito en forma de programación literaria
 
 # Para que no ejecute todo el código al exportar a pdf
 #+PROPERTY: header-args :eval never-export
+# Los trozos del módulo (bloques python) no se ejecutan nunca; los ejemplos son bloques jupyter-python
+#+PROPERTY: header-args:python :eval no
 #+CALL: NombreEnChunksDeCodigo()
 
 
@@ -105,6 +103,32 @@ Lineal/) escrito en forma de programación literaria
   (replace-regexp-in-string ",label={}" "" texto t t))
 (require 'ox)
 (add-to-list 'org-export-filter-final-output-functions #'nacal-quita-rotulos-vacios)
+;; Los ejemplos escriben código LaTeX (o texto org) con print. El paquete jupyter de Emacs lo
+;; inserta como texto literal (líneas que empiezan por ": ") y no borra el resultado anterior.
+;; Tras ejecutar un bloque jupyter con "raw" en su cabecera, esta función quita esa marca y
+;; borra el resultado anterior
+(defun nacal-resultado-como-texto-org ()
+  (let* ((bloque (org-element-at-point))
+         (cabecera (and (eq (org-element-type bloque) 'src-block)
+                        (string-prefix-p "jupyter" (or (org-element-property :language bloque) ""))
+                        (or (org-element-property :parameters bloque) ""))))
+    (when (and cabecera (string-match-p "\\_<raw\\_>" cabecera))
+      (save-excursion
+        (let ((pos (org-babel-where-is-src-block-result)))
+          (when pos
+            (goto-char pos)
+            (forward-line 1)
+            (let ((ini (point)) lineas)
+              (while (looking-at "^: ?\\(.*\\)$")
+                (push (match-string-no-properties 1) lineas)
+                (forward-line 1))
+              (when lineas
+                (delete-region ini (if (re-search-forward "^[ \t]*$" nil t)
+                                       (match-beginning 0)
+                                     (point-max)))
+                (goto-char ini)
+                (insert (mapconcat #'identity (nreverse lineas) "\n") "\n")))))))))
+(add-hook 'org-babel-after-execute-hook #'nacal-resultado-como-texto-org)
 (setq fill-column 100)
 #+END_SRC
 
@@ -4195,11 +4219,11 @@ Las clases ~InvMat~, ~InvMatF~ e ~InvMatFC~ (que se definen más adelante) ofrec
 de llegar a la inversa:
 
 #+ATTR_LATEX: :environment tabularx :width \textwidth :align ll>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X
-| Clase         | Transformaciones   | Matriz que se transforma                    | La inversa es                    |
-|---------------+--------------------+---------------------------------------------+----------------------------------|
-| ~InvMat(A)~   | de las columnas    | \Mat{A} apilada sobre \Mat{I}               | la parte inferior                |
-| ~InvMatF(A)~  | de las filas       | \Mat{A} concatenada con \Mat{I}             | la parte derecha                 |
-| ~InvMatFC(A)~ | de filas y columnas| \Mat{A} con \Mat{I} a la derecha y debajo   | el producto de ambas identidades |
+| Clase         | Transformaciones    | Matriz que se transforma                  | La inversa es                    |
+|---------------+---------------------+-------------------------------------------+----------------------------------|
+| ~InvMat(A)~   | de las columnas     | \Mat{A} apilada sobre \Mat{I}             | la parte inferior                |
+| ~InvMatF(A)~  | de las filas        | \Mat{A} concatenada con \Mat{I}           | la parte derecha                 |
+| ~InvMatFC(A)~ | de filas y columnas | \Mat{A} con \Mat{I} a la derecha y debajo | el producto de ambas submatrices |
 
 Las tres producen un error si la matriz es singular (tras mostrar los pasos, si se han pedido).
 ~InvMat(A)~ es otro modo de llamar a ~A.inversa()~. ~InvMatF~ hace lo mismo con las filas (al
@@ -5063,11 +5087,11 @@ $(-)$ y $(+)$ indican que se resta o se suma el múltiplo de la
 identidad que aparece recuadrado; bajo la matriz se va formando =S=:
 
 #+BEGIN_SRC jupyter-python :exports both :results raw :results output replace
-print(displaymath( desarrollo(D, por_linea=3) ))
+print(displaymath( desarrollo(D, por_linea=4) ))
 #+END_SRC
 
 #+RESULTS:
-$$\begin{aligned}{}&\left[ \begin{array}{cc}2&1\\1&2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow[\boxed{1\mathbf{I}}]{(-)}\left[ \begin{array}{cc}1&1\\1&1\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}2&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\boxed{1\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\1&1\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(-)}\left[ \begin{array}{cc}0&0\\1&-2\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}0&0\\[0.6ex]0&-2\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}0&0\\[0.6ex]0&-2\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\[0.6ex]0&1\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\end{aligned}$$
+$$\begin{aligned}{}&\left[ \begin{array}{cc}2&1\\1&2\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow[\boxed{1\mathbf{I}}]{(-)}\left[ \begin{array}{cc}1&1\\1&1\\ \hline 1&0\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(-1\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}1&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(1\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}2&0\\1&0\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow[\boxed{1\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\1&1\\ \hline 1&-1\\0&1\\ \end{array} \right]\\[1ex]&\xrightarrow[\boxed{3\mathbf{I}}]{(-)}\left[ \begin{array}{cc}0&0\\1&-2\\ \hline 1&-1\\0&1\\ \end{array} \right]\xrightarrow{\underset{\begin{subarray}{c} \left[\left(\frac{1}{2}\right)\mathbf{2}+\mathbf{1} \right]\end{subarray}}{\pmb{\tau}}}\left[ \begin{array}{cc}0&0\\[0.6ex]0&-2\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\xrightarrow[\underset{\begin{subarray}{c} \left[\left(- \frac{1}{2}\right)\mathbf{1}+\mathbf{2} \right]\end{subarray}}{\pmb{\tau}}]{}\left[ \begin{array}{cc}0&0\\[0.6ex]0&-2\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\xrightarrow[\boxed{3\mathbf{I}}]{(+)}\left[ \begin{array}{cc}3&0\\[0.6ex]0&1\\[0.6ex] \hline \frac{1}{2}&-1\\[0.6ex]\frac{1}{2}&1\\ \end{array} \right]\end{aligned}$$
 
 Ortogonalmente se obtiene la misma matriz diagonal, pero con una
 matriz ortogonal:
@@ -8759,3 +8783,10 @@ def filtradopasos(pasos):
     return T(abv) if isinstance(pasos,T) else abv
 
 #+END_SRC
+
+
+# Emacs solo lee este bloque si está en los últimos 3000 caracteres del fichero
+# Local Variables:
+# eval: (save-excursion (org-babel-goto-named-src-block "NombreEnChunksDeCodigo") (org-babel-execute-src-block))
+# eval: (save-excursion (org-babel-goto-named-src-block "displayMathOutput") (org-babel-execute-src-block))
+# End:
