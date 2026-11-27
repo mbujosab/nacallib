@@ -421,3 +421,21 @@ def test_metodos_simplify_factor_expand_de_un_Sistema_devuelven_el_Sistema():
     assert A.simplify() is A
     v = Vector([a*(a + 1) - a, 1])
     assert v.simplify() is v and (v|1) == a**2
+
+
+def test_error_de_T_sin_errata_y_traducido():
+    """Los dos mensajes de una abreviatura que no es una transformación elemental"""
+    import nacal
+    previo = nacal.idioma()
+    try:
+        for abreviatura, forma in [((0, 2), '(0, i)'), ((-1, 2, 2), '(a, i, i)')]:
+            nacal.idioma('es')
+            with pytest.raises(ValueError) as error:
+                T(abreviatura)
+            assert str(error.value) == 'T( ' + forma + ' ) no es una transformación elemental'
+            nacal.idioma('en')
+            with pytest.raises(ValueError) as error:
+                T(abreviatura)
+            assert str(error.value) == 'T( ' + forma + ' ) is not an elementary operation'
+    finally:
+        nacal.idioma(previo)

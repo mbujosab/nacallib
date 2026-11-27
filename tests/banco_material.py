@@ -312,7 +312,9 @@ def main():
     e = ordenes.add_parser('ejecutar')
     e.add_argument('etiqueta')
     e.add_argument('--nacal', default='instalada')
-    e.add_argument('--procesos', type=int, default=max(1, (os.cpu_count() or 2) // 2))
+    # Pocos procesos a la vez: con diez (la mitad de los núcleos del equipo de Marcos) y varias
+    # sesiones abiertas el sistema se quedó sin memoria y cerró la sesión de GNOME (2026-11-27)
+    e.add_argument('--procesos', type=int, default=3)
     e.add_argument('--notebooks', action='store_true', help='ejecuta también los Notebooks (unos minutos)')
     c = ordenes.add_parser('comparar')
     c.add_argument('a')

@@ -60,7 +60,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.5.6"
+__version__ = "0.5.7"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -1850,7 +1850,7 @@ al representar el proceso.
 #+name: Reducción con un pivote
 #+BEGIN_SRC python
 def Reduccion(sistema):
-    if 1 in analisis_opcion_elegida(variante):   # reducción rápida (solo trasformaciones tipo I)
+    if 1 in analisis_opcion_elegida(variante):   # reducción rápida (solo transformaciones tipo I)
         operaciones = [ (-fracc(ValorAEliminar(indiceVAE), pivote), indiceXP, indiceVAE)  \
                                                     for indiceVAE in componentesAmodificar(sistema)]
     else:                                        # reducción lenta (evitando fracciones)
@@ -4384,7 +4384,7 @@ def diagonalizaS(self, espectro, rep=False, sust=[]):
 #+BEGIN_SRC python
 """Diagonaliza por bloques triangulares una Matrix cuadrada
 
-Encuentra una matriz diagonal semejante mediante trasformaciones de
+Encuentra una matriz diagonal semejante mediante transformaciones de
 sus columnas y las correspondientes transformaciones inversas espejo
 de las filas. Requiere una lista de autovalores (espectro), que deben
 aparecer en dicha lista tantas veces como sus respectivas
@@ -5290,7 +5290,7 @@ producto de los elementos por un escalar:
 
 ***** Comentario sobre la notación. 
 
-Cualquier trasformación elemental de un sistema se puede lograr con el
+Cualquier transformación elemental de un sistema se puede lograr con el
 producto del sistema por una matriz elemental, y /la notación empleada
 busca parecerse a la notación del producto matricial/ (por ello, para
 ilustrar lo que sigue usaremos como ejemplo de sistema una matriz
@@ -5650,7 +5650,7 @@ except ValueError as error:
 #+END_SRC
 
 #+RESULTS:
-=T( (0, i) ) no es una trasformación elemental=
+=T( (0, i) ) no es una transformación elemental=
 
 
 *** Implementación de las transformaciones elementales
@@ -5710,11 +5710,11 @@ Ejemplos:
 >>> T( {1,2} )
 T([{1, 2}])
 
->>> # Trasformación Tipo II (multiplica por 5 el segundo elemento)
+>>> # Transformación Tipo II (multiplica por 5 el segundo elemento)
 >>> T( (5,2) )
 T([(5, 2)])
 
->>> # Trasformación Tipo I (resta el tercer elemento al primero)
+>>> # Transformación Tipo I (resta el tercer elemento al primero)
 >>> T( (-1,3,1) )
 T([(-1, 3, 1)])
 
@@ -5770,9 +5770,9 @@ intercambio solo tiene sentido a lo sumo entre dos elementos.
 
 def verificacion(abrv):
     if isinstance(abrv,tuple) and (len(abrv) == 2) and abrv[0]==0:
-        raise ValueError('T( (0, i) ) no es una trasformación elemental')
+        raise ValueError(texto_de_salida('no_es_transformacion').format('(0, i)'))
     if isinstance(abrv,tuple) and (len(abrv) == 3) and (abrv[1] == abrv[2]):
-        raise ValueError('T( (a, i, i) ) no es una trasformación elemental')
+        raise ValueError(texto_de_salida('no_es_transformacion').format('(a, i, i)'))
     if isinstance(abrv,set) and len(abrv)>2:
         raise ValueError ('El conjunto debe tener uno o dos índices para ser un intercambio')
     
@@ -6161,7 +6161,7 @@ Para indicar una secuencia que contiene ambas transformaciones,
 usaremos una lista de abreviaturas: =[(2,1), {3,4}]=.
 De esta manera, cuando componemos
 ambas operaciones: =T( (2,1) ) & T( {3,4} )=,
-nuestra librería nos devuelve la trasformación composición de las dos
+nuestra librería nos devuelve la transformación composición de las dos
 operaciones *en el orden en el que han sido escritas*:
 \begin{center}
   al escribir \mbox{\Verb/ T( (2, 1) ) & T( {3, 4} )/}
@@ -6224,7 +6224,7 @@ def _repr_html_(self):
 def latex(self):
     """ Construye el comando LaTeX para representar una Trans. Elem. """
     def simbolo(t):
-        """Escribe el símbolo que denota una trasformación elemental particular"""
+        """Escribe el símbolo que denota una transformación elemental particular"""
         if isinstance(t,(set,sympy.sets.sets.FiniteSet)):
             return '\\left[\\mathbf{' + latex(list(t)[0]) + \
               '}\\rightleftharpoons\\mathbf{' + latex(list(t)[-1]) + '}\\right]'
@@ -8354,10 +8354,13 @@ terminal) y un aviso de los métodos de diagonalización. La función
 =idioma= permite elegir el idioma de esos textos: español (=es=, por
 defecto) o inglés (=en=). Sin argumentos indica el idioma en uso. Los
 nombres de clases y métodos no se traducen. Tampoco los mensajes de
-error, con una excepción: el que se obtiene al multiplicar dos objetos
-de tamaños incompatibles, que suele ser el primer error con que se
-encuentra quien empieza a usar el módulo. Ese mensaje indica qué se ha
-intentado multiplicar y los dos números que deberían coincidir.
+error, con dos excepciones, que son los primeros errores con que se
+encuentra quien empieza a usar el módulo. Una es el que se obtiene al
+multiplicar dos objetos de tamaños incompatibles: ese mensaje indica
+qué se ha intentado multiplicar y los dos números que deberían
+coincidir. La otra es el que se obtiene al escribir una abreviatura
+que no corresponde a una transformación elemental, como =T( (0,2) )=
+o =T( (-1,2,2) )=.
 
 #+BEGIN_EXAMPLE
 >>> Matrix([[1,2,3],[4,5,6]]) * Vector([1,2])
@@ -8383,6 +8386,7 @@ TEXTOS_DE_SALIDA = {
             'pares':          'Sistema inicial de pares (Dominio, Imagen):',
             'no_autovalores': 'los valores de la siguiente lista no son autovalores de la matriz:',
             'producto_imposible': 'No se pueden multiplicar: {} de la izquierda tiene {} y {} de la derecha tiene {}',
+            'no_es_transformacion': 'T( {} ) no es una transformación elemental',
             'vector':         'el vector',
             'matriz':         'la matriz',
             'sistema':        'el sistema',
@@ -8395,6 +8399,7 @@ TEXTOS_DE_SALIDA = {
             'pares':          'Initial system of pairs (Domain, Image):',
             'no_autovalores': 'the values in the following list are not eigenvalues of the matrix:',
             'producto_imposible': 'Cannot multiply: {} on the left has {} and {} on the right has {}',
+            'no_es_transformacion': 'T( {} ) is not an elementary operation',
             'vector':         'the vector',
             'matriz':         'the matrix',
             'sistema':        'the system',
@@ -8758,7 +8763,7 @@ def estructura(S):
 
 *** Cribado de secuencias de transformaciones
 
-En el proceso de eliminación, muchas trasformaciones elementales
+En el proceso de eliminación, muchas transformaciones elementales
 realmente son identidades (sumar 0 veces otro vector y multiplicar un
 vector por 1).
 

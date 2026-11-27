@@ -168,6 +168,7 @@ TEXTOS_DE_SALIDA = {
             'pares':          'Sistema inicial de pares (Dominio, Imagen):',
             'no_autovalores': 'los valores de la siguiente lista no son autovalores de la matriz:',
             'producto_imposible': 'No se pueden multiplicar: {} de la izquierda tiene {} y {} de la derecha tiene {}',
+            'no_es_transformacion': 'T( {} ) no es una transformación elemental',
             'vector':         'el vector',
             'matriz':         'la matriz',
             'sistema':        'el sistema',
@@ -180,6 +181,7 @@ TEXTOS_DE_SALIDA = {
             'pares':          'Initial system of pairs (Domain, Image):',
             'no_autovalores': 'the values in the following list are not eigenvalues of the matrix:',
             'producto_imposible': 'Cannot multiply: {} on the left has {} and {} on the right has {}',
+            'no_es_transformacion': 'T( {} ) is not an elementary operation',
             'vector':         'the vector',
             'matriz':         'the matrix',
             'sistema':        'the system',
@@ -1191,7 +1193,7 @@ class Sistema:
         
             
         def Reduccion(sistema):
-            if 1 in analisis_opcion_elegida(variante):   # reducción rápida (solo trasformaciones tipo I)
+            if 1 in analisis_opcion_elegida(variante):   # reducción rápida (solo transformaciones tipo I)
                 operaciones = [ (-fracc(ValorAEliminar(indiceVAE), pivote), indiceXP, indiceVAE)  \
                                                             for indiceVAE in componentesAmodificar(sistema)]
             else:                                        # reducción lenta (evitando fracciones)
@@ -2175,7 +2177,7 @@ class Matrix(BlockM):
     def diagonalizaS(self, espectro, rep=False, sust=[]):
         """Diagonaliza por bloques triangulares una Matrix cuadrada
         
-        Encuentra una matriz diagonal semejante mediante trasformaciones de
+        Encuentra una matriz diagonal semejante mediante transformaciones de
         sus columnas y las correspondientes transformaciones inversas espejo
         de las filas. Requiere una lista de autovalores (espectro), que deben
         aparecer en dicha lista tantas veces como sus respectivas
@@ -2622,11 +2624,11 @@ class T:
     >>> T( {1,2} )
     T([{1, 2}])
     
-    >>> # Trasformación Tipo II (multiplica por 5 el segundo elemento)
+    >>> # Transformación Tipo II (multiplica por 5 el segundo elemento)
     >>> T( (5,2) )
     T([(5, 2)])
     
-    >>> # Trasformación Tipo I (resta el tercer elemento al primero)
+    >>> # Transformación Tipo I (resta el tercer elemento al primero)
     >>> T( (-1,3,1) )
     T([(-1, 3, 1)])
     
@@ -2649,9 +2651,9 @@ class T:
         
         def verificacion(abrv):
             if isinstance(abrv,tuple) and (len(abrv) == 2) and abrv[0]==0:
-                raise ValueError('T( (0, i) ) no es una trasformación elemental')
+                raise ValueError(texto_de_salida('no_es_transformacion').format('(0, i)'))
             if isinstance(abrv,tuple) and (len(abrv) == 3) and (abrv[1] == abrv[2]):
-                raise ValueError('T( (a, i, i) ) no es una trasformación elemental')
+                raise ValueError(texto_de_salida('no_es_transformacion').format('(a, i, i)'))
             if isinstance(abrv,set) and len(abrv)>2:
                 raise ValueError ('El conjunto debe tener uno o dos índices para ser un intercambio')
             
@@ -2846,7 +2848,7 @@ class T:
     def latex(self):
         """ Construye el comando LaTeX para representar una Trans. Elem. """
         def simbolo(t):
-            """Escribe el símbolo que denota una trasformación elemental particular"""
+            """Escribe el símbolo que denota una transformación elemental particular"""
             if isinstance(t,(set,sympy.sets.sets.FiniteSet)):
                 return '\\left[\\mathbf{' + latex(list(t)[0]) + \
                   '}\\rightleftharpoons\\mathbf{' + latex(list(t)[-1]) + '}\\right]'
@@ -3554,7 +3556,7 @@ class DiagonalizaS(Matrix):
     def __init__(self, sistema, espectro, rep=0, repType=0, sust=[]):
         """Diagonaliza por bloques triangulares una Matrix cuadrada
         
-        Encuentra una matriz diagonal semejante mediante trasformaciones de
+        Encuentra una matriz diagonal semejante mediante transformaciones de
         sus columnas y las correspondientes transformaciones inversas espejo
         de las filas. Requiere una lista de autovalores (espectro), que deben
         aparecer en dicha lista tantas veces como sus respectivas
