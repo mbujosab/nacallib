@@ -24,7 +24,8 @@ El paquete de LaTeX `nacal.sty` es el sexto actor, desde el 2026-11-16.
 Su repositorio está en
 `~/SynologyDrive/Nextcloud/Docencia/Notacion/NAcALTex` y no tiene
 copia de este fichero: tiene sus propias reglas en su `CLAUDE.md`
-(banco de pruebas, versiones etiquetadas). El libro manda en qué
+(banco de pruebas, versiones etiquetadas). Recibe sus encargos en
+`coordinacion/para-el-paquete/`, como los demás (desde el 2026-11-27). El libro manda en qué
 notación se usa; el paquete manda en cómo se compone. Las sugerencias
 al paquete se le dejan en un fichero de encargo, como a los demás. El
 paquete no cambia lo que imprime una macro existente sin acordarlo con
@@ -41,8 +42,9 @@ fichero sin saberlo.
 La carpeta es `coordinacion/`, al lado de los repositorios
 (`~/SynologyDrive/ReposGH/Docencia/coordinacion`). Tiene su propio
 repositorio git, que no se publica. Así los encargos no se ven en los
-repositorios públicos (`nacallib` y `VideosMates2`). Es la única
-excepción a esta regla: en ella escriben las cinco sesiones. Tiene una
+repositorios públicos (`nacallib`, `VideosMates2` y el del paquete
+de LaTeX). Es la única excepción a esta regla: en ella escriben todas
+las sesiones. Tiene una
 subcarpeta por destinatario:
 
 | Subcarpeta | Lo recibe la sesión de |
@@ -52,6 +54,7 @@ subcarpeta por destinatario:
 | `para-las-clases/` | `MatematicasII-SRC` |
 | `para-los-notebooks/` | `NAcAL-Jupyter-Notebooks-SRC` |
 | `para-los-videos/` | `VideosMates2` |
+| `para-el-paquete/` | `NAcALTex`, el paquete de LaTeX (desde su carpeta, con la ruta completa) |
 
 Los ficheros de encargo y de respuesta se nombran por su origen:
 `encargo-...-desde-el-libro.md`, `respuesta-...-desde-nacal.md`. Son
