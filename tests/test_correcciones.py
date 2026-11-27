@@ -424,7 +424,7 @@ def test_metodos_simplify_factor_expand_de_un_Sistema_devuelven_el_Sistema():
 
 
 def test_error_de_T_sin_errata_y_traducido():
-    """Los dos mensajes de una abreviatura que no es una transformación elemental"""
+    """Los tres mensajes de una abreviatura que no es una transformación elemental"""
     import nacal
     previo = nacal.idioma()
     try:
@@ -437,5 +437,11 @@ def test_error_de_T_sin_errata_y_traducido():
             with pytest.raises(ValueError) as error:
                 T(abreviatura)
             assert str(error.value) == 'T( ' + forma + ' ) is not an elementary operation'
+        for lengua, mensaje in [('es', 'El conjunto debe tener uno o dos índices para ser un intercambio'),
+                                ('en', 'The set must have one or two indices to be an interchange')]:
+            nacal.idioma(lengua)
+            with pytest.raises(ValueError) as error:
+                T({1, 2, 3})
+            assert str(error.value) == mensaje
     finally:
         nacal.idioma(previo)

@@ -60,7 +60,7 @@
 Módulo nacal: Notación Asociativa para un curso de Álgebra Lineal (NAcAL).
 """
 
-__version__ = "0.5.7"
+__version__ = "0.5.8"
 __author__  = "Marcos Bujosa"
 __name__    = "nacal"
 
@@ -5774,7 +5774,7 @@ def verificacion(abrv):
     if isinstance(abrv,tuple) and (len(abrv) == 3) and (abrv[1] == abrv[2]):
         raise ValueError(texto_de_salida('no_es_transformacion').format('(a, i, i)'))
     if isinstance(abrv,set) and len(abrv)>2:
-        raise ValueError ('El conjunto debe tener uno o dos índices para ser un intercambio')
+        raise ValueError(texto_de_salida('no_es_intercambio'))
     
 #+END_SRC
 
@@ -8358,9 +8358,9 @@ error, con dos excepciones, que son los primeros errores con que se
 encuentra quien empieza a usar el módulo. Una es el que se obtiene al
 multiplicar dos objetos de tamaños incompatibles: ese mensaje indica
 qué se ha intentado multiplicar y los dos números que deberían
-coincidir. La otra es el que se obtiene al escribir una abreviatura
-que no corresponde a una transformación elemental, como =T( (0,2) )=
-o =T( (-1,2,2) )=.
+coincidir. La otra son los que se obtienen al escribir una abreviatura
+que no corresponde a una transformación elemental, como =T( (0,2) )=,
+=T( (-1,2,2) )= o =T( {1,2,3} )=.
 
 #+BEGIN_EXAMPLE
 >>> Matrix([[1,2,3],[4,5,6]]) * Vector([1,2])
@@ -8387,6 +8387,7 @@ TEXTOS_DE_SALIDA = {
             'no_autovalores': 'los valores de la siguiente lista no son autovalores de la matriz:',
             'producto_imposible': 'No se pueden multiplicar: {} de la izquierda tiene {} y {} de la derecha tiene {}',
             'no_es_transformacion': 'T( {} ) no es una transformación elemental',
+            'no_es_intercambio': 'El conjunto debe tener uno o dos índices para ser un intercambio',
             'vector':         'el vector',
             'matriz':         'la matriz',
             'sistema':        'el sistema',
@@ -8400,6 +8401,7 @@ TEXTOS_DE_SALIDA = {
             'no_autovalores': 'the values in the following list are not eigenvalues of the matrix:',
             'producto_imposible': 'Cannot multiply: {} on the left has {} and {} on the right has {}',
             'no_es_transformacion': 'T( {} ) is not an elementary operation',
+            'no_es_intercambio': 'The set must have one or two indices to be an interchange',
             'vector':         'the vector',
             'matriz':         'the matrix',
             'sistema':        'the system',

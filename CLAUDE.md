@@ -8,7 +8,11 @@ Los encargos de otras sesiones llegan a la carpeta
 se publica (desde el 2026-11-27 los encargos no están en `nacallib`,
 que es público). Un fichero nuevo o con cambios sin commit en esa
 carpeta es un encargo sin tratar. Las reglas completas están en
-`coordinacion-entre-repositorios.md` y en `../coordinacion/LEEME.md`.
+`../coordinacion/coordinacion-entre-repositorios.md` (única copia desde
+el 2026-11-27; ya no hay una en `nacallib`) y en
+`../coordinacion/LEEME.md`. Si se acuerda con Marcos un cambio de esas
+reglas, se escribe allí, se hace commit solo de ese fichero y se avisa
+a las demás sesiones con un encargo.
 
 - Un hook (`.claude/settings.json`) lo comprueba cada vez que Marcos
   escribe y avisa con una línea «ENCARGOS SIN TRATAR». Si el aviso no

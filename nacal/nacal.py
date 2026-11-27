@@ -169,6 +169,7 @@ TEXTOS_DE_SALIDA = {
             'no_autovalores': 'los valores de la siguiente lista no son autovalores de la matriz:',
             'producto_imposible': 'No se pueden multiplicar: {} de la izquierda tiene {} y {} de la derecha tiene {}',
             'no_es_transformacion': 'T( {} ) no es una transformación elemental',
+            'no_es_intercambio': 'El conjunto debe tener uno o dos índices para ser un intercambio',
             'vector':         'el vector',
             'matriz':         'la matriz',
             'sistema':        'el sistema',
@@ -182,6 +183,7 @@ TEXTOS_DE_SALIDA = {
             'no_autovalores': 'the values in the following list are not eigenvalues of the matrix:',
             'producto_imposible': 'Cannot multiply: {} on the left has {} and {} on the right has {}',
             'no_es_transformacion': 'T( {} ) is not an elementary operation',
+            'no_es_intercambio': 'The set must have one or two indices to be an interchange',
             'vector':         'the vector',
             'matriz':         'the matrix',
             'sistema':        'the system',
@@ -2655,7 +2657,7 @@ class T:
             if isinstance(abrv,tuple) and (len(abrv) == 3) and (abrv[1] == abrv[2]):
                 raise ValueError(texto_de_salida('no_es_transformacion').format('(a, i, i)'))
             if isinstance(abrv,set) and len(abrv)>2:
-                raise ValueError ('El conjunto debe tener uno o dos índices para ser un intercambio')
+                raise ValueError(texto_de_salida('no_es_intercambio'))
             
         
         def simplificacionSimbolica(arg):
