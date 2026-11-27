@@ -33,32 +33,56 @@ Marcos, porque todos los demás repositorios compilan con él.
 ## Regla 1: cada sesión solo edita su repositorio
 
 Lo que una sesión vea mal en otro repositorio lo deja como sugerencia
-escrita en aquel repositorio, en un fichero de encargo, y avisa a
+escrita en un fichero de encargo para aquella sesión, y avisa a
 Marcos. No lo corrige ella. Así dos sesiones no cambian el mismo
 fichero sin saberlo.
 
-Los ficheros de encargo y de respuesta se nombran por su origen, como
-los ya existentes: `encargo-...-desde-el-libro.md`,
-`respuesta-al-encargo-del-libro.md`. Son ficheros de trabajo. Cada
-añadido lleva fecha y se pone al final.
+**Los encargos están en una carpeta aparte (desde el 2026-11-27).**
+La carpeta es `coordinacion/`, al lado de los repositorios
+(`~/SynologyDrive/ReposGH/Docencia/coordinacion`). Tiene su propio
+repositorio git, que no se publica. Así los encargos no se ven en los
+repositorios públicos (`nacallib` y `VideosMates2`). Es la única
+excepción a esta regla: en ella escriben las cinco sesiones. Tiene una
+subcarpeta por destinatario:
 
-**Aviso automático de encargos (desde el 2026-11-16).** Para que Marcos
-no tenga que avisar en cada repositorio de que hay algo que leer:
+| Subcarpeta | Lo recibe la sesión de |
+|---|---|
+| `para-nacal/` | `nacallib` |
+| `para-el-libro/` | `CursoDeAlgebraLineal-SRC` |
+| `para-las-clases/` | `MatematicasII-SRC` |
+| `para-los-notebooks/` | `NAcAL-Jupyter-Notebooks-SRC` |
+| `para-los-videos/` | `VideosMates2` |
+
+Los ficheros de encargo y de respuesta se nombran por su origen:
+`encargo-...-desde-el-libro.md`, `respuesta-...-desde-nacal.md`. Son
+ficheros de trabajo. Cada añadido lleva fecha y se pone al final.
+
+**Aviso automático de encargos.** Para que Marcos no tenga que avisar
+en cada sesión de que hay algo que leer:
 
 - El nombre del fichero empieza siempre por `encargo-` o por
-  `respuesta-`, está en la raíz del repositorio de destino y acaba en
-  `.md`. (El libro recibe además los `Pendientes*.org` que ya existen.)
-- Quien escribe un encargo en el repositorio de otro **no lo confirma
-  en git**. Lo confirma quien lo recibe, cuando lo ha tratado y ha
-  anotado su respuesta al final. Así, un fichero de encargo nuevo o con
-  cambios sin confirmar es un encargo sin tratar.
-- Cada repositorio tiene un hook en `.claude/settings.json` que ejecuta
-  `git status --short -- 'encargo-*.md' 'respuesta-*.md'` cada vez que
-  Marcos escribe, y una regla en su `CLAUDE.md`: si sale algo, la
-  sesión lo lee, dice en pantalla qué es y de dónde viene, lo resume y
-  pregunta a Marcos qué hacer. No cambia nada hasta que responda.
-- Un encargo ya tratado que siga sin confirmar hace saltar el aviso en
-  cada mensaje. Se arregla confirmándolo.
+  `respuesta-`, está en la subcarpeta del destinatario y acaba en
+  `.md`. (El libro recibe además, en su repositorio, los
+  `Pendientes*.org` que ya existen.)
+- Quien escribe un encargo en la subcarpeta de otro **no hace
+  commit**. Lo hace quien lo recibe, cuando lo ha tratado y ha anotado
+  su respuesta al final. Así, un fichero nuevo o con cambios sin
+  commit es un encargo sin tratar.
+- Cada sesión hace commit solo de su subcarpeta, por ejemplo
+  `git -C ../coordinacion add para-nacal/`. Nunca `git add -A`: se
+  llevaría encargos de otras sesiones que están sin tratar.
+- Cada repositorio tiene un hook en `.claude/settings.json` que
+  ejecuta `git -C ../coordinacion status --short -- para-.../` (con su
+  subcarpeta) cada vez que Marcos escribe, y una regla en su
+  `CLAUDE.md`: si sale algo, la sesión lo lee, dice en pantalla qué es
+  y de dónde viene, lo resume y pregunta a Marcos qué hacer. No cambia
+  nada hasta que responda.
+- Un encargo ya tratado que siga sin commit hace saltar el aviso en
+  cada mensaje. Se arregla haciendo el commit.
+- Los encargos anteriores al 2026-11-27 estaban en la raíz de cada
+  repositorio. Cada sesión mueve los suyos a su subcarpeta. Las
+  anotaciones antiguas que citan `../nacallib/encargo-…` se refieren a
+  ficheros que ahora están en `coordinacion/para-nacal/`.
 
 ## Regla 2: quién manda en cada cosa
 
@@ -110,7 +134,7 @@ una explicación que funciona mejor que la del libro, se anota:
   las clases y en
   `CursoDeAlgebraLineal-SRC/PendientesDesdeLosVideos.org` si viene de
   los vídeos;
-- para NAcAL, en un fichero de encargo en `nacallib`.
+- para NAcAL, en un fichero de encargo en `coordinacion/para-nacal/`.
 
 ## Cuándo mirar
 
@@ -185,7 +209,7 @@ trabajo que ya se hace:
      mybinder antes de la definitiva.
   2. Hasta mediados de diciembre: el libro y el material de clase se
      compilan con la 0.5.6; lo que falle se anota como encargo en
-     `nacallib`. El material de clase ya lo ha hecho (2026-11-22), sin
+     `coordinacion/para-nacal/`. El material de clase ya lo ha hecho (2026-11-22), sin
      errores.
   3. Semana del 14 de diciembre de 2026: Marcos publica en PyPI la
      versión definitiva, la 0.5.6 o la que la corrija. El día exacto

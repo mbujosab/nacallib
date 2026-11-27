@@ -2,25 +2,36 @@
 
 ## Encargos de otras sesiones
 
-Los encargos de otras sesiones llegan a la raíz en ficheros
-`encargo-*.md` y `respuesta-*.md`. Un fichero de esos nuevo o con
-cambios sin confirmar en git es un encargo sin tratar. Las reglas
-completas están en `coordinacion-entre-repositorios.md`.
+Los encargos de otras sesiones llegan a la carpeta
+`../coordinacion/para-nacal/`, en ficheros `encargo-*.md` y
+`respuesta-*.md`. Esa carpeta tiene su propio repositorio git, que no
+se publica (desde el 2026-11-27 los encargos no están en `nacallib`,
+que es público). Un fichero nuevo o con cambios sin commit en esa
+carpeta es un encargo sin tratar. Las reglas completas están en
+`coordinacion-entre-repositorios.md` y en `../coordinacion/LEEME.md`.
 
 - Un hook (`.claude/settings.json`) lo comprueba cada vez que Marcos
   escribe y avisa con una línea «ENCARGOS SIN TRATAR». Si el aviso no
   aparece al empezar la sesión, haz la comprobación a mano:
-  `git status --short -- 'encargo-*.md' 'respuesta-*.md'`.
+  `git -C ../coordinacion status --short -- para-nacal/`.
 - Si hay alguno, léelo, di en pantalla cuál es y de qué repositorio
   viene, resume lo que pide en pocas líneas y pregunta a Marcos qué
   hacer. No cambies nada hasta que responda. Si Marcos ha pedido otra
   cosa en ese mensaje, atiéndela y da el aviso al final.
 - Cuando el encargo esté tratado, anota la respuesta al final del
-  fichero y confírmalo en git. Mientras no se confirme, el aviso
-  seguirá saliendo.
-- Para pedir algo a otro repositorio, escribe allí un fichero con uno
-  de esos nombres y no lo confirmes en git: lo confirma quien lo
-  recibe.
+  fichero y haz commit en el repositorio de coordinación, solo de
+  esta subcarpeta: `git -C ../coordinacion add para-nacal/` y después
+  el commit. Nunca `git add -A` allí. Mientras no haya commit, el
+  aviso seguirá saliendo.
+- Para pedir algo a otra sesión, escribe un fichero con uno de esos
+  nombres en su subcarpeta (`para-el-libro/`, `para-las-clases/`,
+  `para-los-notebooks/`, `para-los-videos/`) y no hagas commit: lo
+  hace quien lo recibe.
+- Mientras las otras sesiones no hayan cambiado al sitio nuevo, el
+  hook mira también la raíz de `nacallib`. Un encargo que llegue ahí
+  se trata igual y se mueve a `../coordinacion/para-nacal/`. No se
+  hace commit de él en `nacallib`.
+- En `nacallib`, haz `git add` nombrando los ficheros, no con `-A`.
 
 ## Documentación y PDF
 
