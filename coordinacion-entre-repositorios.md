@@ -25,8 +25,9 @@ Su repositorio está en
 `~/SynologyDrive/Nextcloud/Docencia/Notacion/NAcALTex` y no tiene
 copia de este fichero: tiene sus propias reglas en su `CLAUDE.md`
 (banco de pruebas, versiones etiquetadas). Recibe sus encargos en
-`coordinacion/para-el-paquete/`, como los demás (desde el 2026-11-27). El libro manda en qué
-notación se usa; el paquete manda en cómo se compone. Las sugerencias
+`coordinacion/para-nacaltex/`, como los demás (desde el 2026-11-27).
+El libro manda en qué notación se usa; el paquete manda en cómo se
+compone. Las sugerencias
 al paquete se le dejan en un fichero de encargo, como a los demás. El
 paquete no cambia lo que imprime una macro existente sin acordarlo con
 Marcos, porque todos los demás repositorios compilan con él.
@@ -54,7 +55,7 @@ subcarpeta por destinatario:
 | `para-las-clases/` | `MatematicasII-SRC` |
 | `para-los-notebooks/` | `NAcAL-Jupyter-Notebooks-SRC` |
 | `para-los-videos/` | `VideosMates2` |
-| `para-el-paquete/` | `NAcALTex`, el paquete de LaTeX (desde su carpeta, con la ruta completa) |
+| `para-nacaltex/` | `NAcALTex`, el paquete de LaTeX (desde su carpeta, con la ruta completa) |
 
 Los ficheros de encargo y de respuesta se nombran por su origen:
 `encargo-...-desde-el-libro.md`, `respuesta-...-desde-nacal.md`. Son

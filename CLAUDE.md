@@ -25,8 +25,8 @@ carpeta es un encargo sin tratar. Las reglas completas están en
   aviso seguirá saliendo.
 - Para pedir algo a otra sesión, escribe un fichero con uno de esos
   nombres en su subcarpeta (`para-el-libro/`, `para-las-clases/`,
-  `para-los-notebooks/`, `para-los-videos/`) y no hagas commit: lo
-  hace quien lo recibe.
+  `para-los-notebooks/`, `para-los-videos/`, `para-nacaltex/`) y no
+  hagas commit: lo hace quien lo recibe.
 - Mientras las otras sesiones no hayan cambiado al sitio nuevo, el
   hook mira también la raíz de `nacallib`. Un encargo que llegue ahí
   se trata igual y se mueve a `../coordinacion/para-nacal/`. No se
