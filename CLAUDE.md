@@ -29,7 +29,8 @@ a las demás sesiones con un encargo.
   aviso seguirá saliendo.
 - Para pedir algo a otra sesión, escribe un fichero con uno de esos
   nombres en su subcarpeta (`para-el-libro/`, `para-las-clases/`,
-  `para-los-notebooks/`, `para-los-videos/`, `para-nacaltex/`) y no
+  `para-los-notebooks/`, `para-los-videos/`, `para-nacaltex/`,
+  `para-la-pagina-personal/`) y no
   hagas commit: lo hace quien lo recibe.
 - Mientras las otras sesiones no hayan cambiado al sitio nuevo, el
   hook mira también la raíz de `nacallib`. Un encargo que llegue ahí
